@@ -1,0 +1,514 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ employee.full_name }} - Employee Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calculation-result {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+
+    .result-label {
+        color: #6c757d;
+    }
+
+    .result-value {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .loading {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="bi bi-person-badge me-3"></i>
+                    {{ employee.full_name }}
+                </h1>
+                <p class="lead text-muted">
+                    {{ employee.job_title.title }} - {{ employee.department.name }}
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to List
+                </a>
+                {% if user.is_staff %}
+                    <a href="{% url 'employees:employee_update' employee.pk %}" class="btn btn-warning">
+                        <i class="bi bi-pencil me-2"></i>Edit
+                        <small class="badge bg-dark ms-1">Admin</small>
+                    </a>
+                    {% if not salary_structure %}
+                        <a href="{% url 'employees:salary_structure_create' employee.pk %}" class="btn btn-success">
+                            <i class="bi bi-plus-circle me-2"></i>Add Salary
+                            <small class="badge bg-dark ms-1">Admin</small>
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <button class="btn btn-secondary" disabled title="Admin access required">
+                        <i class="bi bi-lock me-2"></i>Edit
+                        <small class="badge bg-light text-dark ms-1">Admin Only</small>
+                    </button>
+                    {% if not salary_structure %}
+                        <button class="btn btn-secondary" disabled title="Admin access required">
+                            <i class="bi bi-lock me-2"></i>Add Salary
+                            <small class="badge bg-light text-dark ms-1">Admin Only</small>
+                        </button>
+                    {% endif %}
+                {% endif %}
+                {% if salary_structure %}
+                    <a href="{% url 'payroll_processing:generate_payslip' employee.pk %}" class="btn btn-info">
+                        <i class="bi bi-file-earmark-text me-2"></i>Generate Payslip
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Employee Information -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-vcard me-2"></i>
+                    Employee Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Personal Details</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Payroll Number:</strong></td>
+                                <td><code>{{ employee.payroll_number }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Full Name:</strong></td>
+                                <td>{{ employee.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Email:</strong></td>
+                                <td>{{ employee.email|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Phone:</strong></td>
+                                <td>{{ employee.phone_number }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date of Birth:</strong></td>
+                                <td>{{ employee.date_of_birth|date:"M d, Y"|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Gender:</strong></td>
+                                <td>{{ employee.get_gender_display }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Marital Status:</strong></td>
+                                <td>{{ employee.get_marital_status_display|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>National ID:</strong></td>
+                                <td><code>{{ employee.national_id }}</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Employment Details</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Department:</strong></td>
+                                <td>{{ employee.department.name }} ({{ employee.department.code }})</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Job Title:</strong></td>
+                                <td>{{ employee.job_title.title }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Employment Type:</strong></td>
+                                <td>
+                                    <span class="badge bg-{% if employee.employment_type == 'PERMANENT' %}success{% elif employee.employment_type == 'CONTRACT' %}warning{% else %}info{% endif %}">
+                                        {{ employee.get_employment_type_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Date Hired:</strong></td>
+                                <td>{{ employee.date_hired|date:"M d, Y"|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    {% if employee.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Inactive</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <h6 class="text-primary mt-4">Statutory Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>KRA PIN:</strong></td>
+                                <td><code>{{ employee.kra_pin }}</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>NSSF Number:</strong></td>
+                                <td>
+                                    {{ employee.nssf_number|default:"Not provided" }}
+                                    {% if employee.employment_type == 'CONTRACT' %}
+                                        <br><small class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>Exempt from NSSF (Contract)</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>SHIF Number:</strong></td>
+                                <td>{{ employee.shif_number|default:"Not provided" }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>SHIF Status:</strong></td>
+                                <td>
+                                    <span class="badge bg-success">Active</span>
+                                    <small class="text-muted d-block">2.75% of gross salary (min. KES 300)</small>
+                                </td>
+                            </tr>
+                            {% if employee.employment_type == 'CONTRACT' %}
+                            <tr>
+                                <td><strong>Housing Levy:</strong></td>
+                                <td>
+                                    <span class="badge bg-warning">Exempt</span>
+                                    <small class="text-muted d-block">Contract employees are exempt from Housing Levy</small>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </table>
+
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>SHIF Transition:</strong> NHIF has been replaced by SHIF (Social Health Insurance Fund) as of 2024 under Universal Health Coverage reforms.
+                        </div>
+                        
+                        <h6 class="text-primary mt-4">Banking Information</h6>
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Bank:</strong></td>
+                                <td>{{ employee.bank_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Branch:</strong></td>
+                                <td>{{ employee.bank_branch }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Account Number:</strong></td>
+                                <td><code>{{ employee.account_number }}</code></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Salary Structure and Payroll -->
+    <div class="col-lg-4 mb-4">
+        {% if salary_structure %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">
+                            <i class="bi bi-currency-exchange me-2"></i>
+                            Salary Structure
+                        </h6>
+                        {% if user.is_staff %}
+                            <a href="{% url 'employees:salary_structure_update' salary_structure.pk %}" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i>
+                                <small class="badge bg-warning text-dark ms-1">Admin</small>
+                            </a>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-secondary" disabled title="Admin access required">
+                                <i class="bi bi-lock"></i>
+                                <small class="badge bg-secondary ms-1">Admin Only</small>
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Basic Salary:</span>
+                            <strong>KES {{ salary_structure.basic_salary|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                    
+                    <h6 class="text-primary">Allowances</h6>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>House Allowance:</span>
+                            <span>KES {{ salary_structure.house_allowance|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Transport:</span>
+                            <span>KES {{ salary_structure.transport_allowance|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Medical:</span>
+                            <span>KES {{ salary_structure.medical_allowance|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between">
+                            <span>Other:</span>
+                            <span>KES {{ salary_structure.other_allowances|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Gross Salary:</strong>
+                        <strong class="text-success">KES {{ salary_structure.gross_salary|floatformat:2 }}</strong>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            Effective from: {{ salary_structure.effective_date|date:"M d, Y" }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Payroll Calculation -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-calculator me-2"></i>
+                        Quick Payroll Preview
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="payroll-preview">
+                        <div class="text-center">
+                            <button class="btn btn-primary" onclick="calculateEmployeePayroll()">
+                                <i class="bi bi-calculator me-2"></i>
+                                Calculate Payroll
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        No Salary Structure
+                    </h6>
+                </div>
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-exchange fs-1 text-muted mb-3"></i>
+                    <p class="text-muted">This employee doesn't have a salary structure yet.</p>
+                    {% if user.is_staff %}
+                        <a href="{% url 'employees:salary_structure_create' employee.pk %}" class="btn btn-success">
+                            <i class="bi bi-plus-circle me-2"></i>Create Salary Structure
+                            <small class="badge bg-dark ms-1">Admin</small>
+                        </a>
+                    {% else %}
+                        <button class="btn btn-secondary" disabled title="Admin access required">
+                            <i class="bi bi-lock me-2"></i>Create Salary Structure
+                            <small class="badge bg-light text-dark ms-1">Admin Only</small>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Address Information -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>
+                    Address Information
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ employee.address|default:"Address not provided" }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function calculateEmployeePayroll() {
+    const grossSalary = {{ salary_structure.gross_salary|default:0 }};
+    const employmentType = "{{ employee.employment_type }}";
+
+    if (grossSalary <= 0) {
+        return;
+    }
+
+    // Show loading
+    document.getElementById('payroll-preview').innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Calculating payroll...</p>
+        </div>
+    `;
+
+    // Use AJAX to calculate payroll
+    fetch('/payroll/calculate-ajax/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: new URLSearchParams({
+            gross_salary: grossSalary,
+            employment_type: employmentType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+
+        // Display results
+        document.getElementById('payroll-preview').innerHTML = `
+            <div class="calculation-result">
+                <div class="result-item">
+                    <span class="result-label">Gross Salary:</span>
+                    <span class="result-value">${formatCurrency(data.gross_salary)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">NSSF (Employee):</span>
+                    <span class="result-value">${formatCurrency(data.nssf.employee)}${data.nssf.employee === 0 && data.nssf.exemption_reason ? ' <small class="text-muted">(Exempt)</small>' : ''}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">SHIF:</span>
+                    <span class="result-value">${formatCurrency(data.shif.contribution)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Housing Levy (Employee):</span>
+                    <span class="result-value">${formatCurrency(data.housing_levy.employee)}${data.housing_levy.employee === 0 && data.housing_levy.exemption_reason ? ' <small class="text-muted">(Exempt)</small>' : ''}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">PAYE Tax:</span>
+                    <span class="result-value">${formatCurrency(data.paye.tax)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Total Deductions:</span>
+                    <span class="result-value">${formatCurrency(data.totals.statutory_deductions)}</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label"><strong>Net Pay:</strong></span>
+                    <span class="result-value"><strong class="text-success">${formatCurrency(data.totals.net_pay)}</strong></span>
+                </div>
+                ${employmentType === 'CONTRACT' ? `
+                <div class="alert alert-info mt-3 mb-0">
+                    <small><i class="bi bi-info-circle me-1"></i>
+                    <strong>Contract Employee:</strong> NSSF and Housing Levy exemptions applied. Only SHIF and PAYE deductions.</small>
+                </div>
+                ` : ''}
+            </div>
+            <div class="mt-3 text-center">
+                <a href="/payroll/calculator/" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-calculator me-1"></i>Detailed Calculator
+                </a>
+            </div>
+        `;
+    })
+    .catch(error => {
+        console.error('Error calculating payroll:', error);
+        document.getElementById('payroll-preview').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Error calculating payroll. Please try again.
+            </div>
+            <div class="text-center">
+                <button class="btn btn-primary" onclick="calculateEmployeePayroll()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>
+                    Try Again
+                </button>
+            </div>
+        `;
+    });
+}
+
+// Helper function to format currency
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-KE', {
+        style: 'currency',
+        currency: 'KES',
+        minimumFractionDigits: 2
+    }).format(amount);
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

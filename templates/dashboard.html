@@ -1,0 +1,396 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <!-- Mobile-First Responsive Header -->
+        <div class="row">
+            <div class="col-12">
+                {% if organization %}
+                    <!-- Mobile Layout (Centered) -->
+                    <div class="d-md-none text-center mb-4">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="mb-3" style="height: 80px; width: auto; object-fit: contain; max-width: 100%;">
+                        {% endif %}
+                        <h1 class="h4 fw-bold text-primary mb-2">
+                            {{ organization.name }}
+                        </h1>
+                        <p class="text-muted mb-0">
+                            Payroll Management Dashboard
+                        </p>
+                    </div>
+
+                    <!-- Desktop Layout -->
+                    <div class="d-none d-md-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            {% if organization.logo %}
+                                <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                     class="me-4" style="height: 70px; width: auto; object-fit: contain;">
+                            {% endif %}
+                            <div>
+                                <h1 class="h2 fw-bold text-primary mb-1">
+                                    {{ organization.name }}
+                                </h1>
+                                <p class="text-muted mb-0">
+                                    Payroll Management Dashboard
+                                </p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            {% if organization.logo %}
+                                <div class="me-3">
+                                    <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                         class="rounded" style="height: 50px; width: auto; object-fit: contain;">
+                                </div>
+                            {% else %}
+                                <div class="kenya-accent p-2 rounded me-3">
+                                    <i class="bi bi-flag fs-3 text-success"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- No Organization - Mobile Layout -->
+                    <div class="d-md-none text-center mb-4">
+                        <div class="kenya-accent p-3 rounded d-inline-block mb-3">
+                            <i class="bi bi-speedometer2 fs-1 text-primary"></i>
+                        </div>
+                        <h1 class="h4 fw-bold text-primary mb-2">
+                            Payroll Dashboard
+                        </h1>
+                        <p class="text-muted">
+                            Kenyan Employment Structure Compliant System
+                        </p>
+                    </div>
+
+                    <!-- No Organization - Desktop Layout -->
+                    <div class="d-none d-md-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="kenya-accent p-3 rounded me-4">
+                                <i class="bi bi-speedometer2 fs-1 text-primary"></i>
+                            </div>
+                            <div>
+                                <h1 class="h2 fw-bold text-primary mb-1">
+                                    Payroll Dashboard
+                                </h1>
+                                <p class="text-muted mb-0">
+                                    Kenyan Employment Structure Compliant System
+                                </p>
+                            </div>
+                        </div>
+                        <div class="kenya-accent p-2 rounded">
+                            <i class="bi bi-flag fs-3 text-success"></i>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- User Info Card - Mobile Optimized -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-center justify-content-md-end mb-3">
+                    {% if user.is_authenticated %}
+                        <div class="card shadow-sm">
+                            <div class="card-body text-center py-3 px-4">
+                                <div class="d-flex align-items-center justify-content-center mb-2">
+                                    <i class="bi bi-person-circle fs-4 text-primary me-2"></i>
+                                    <div class="text-start">
+                                        <small class="text-muted d-block">Logged in as:</small>
+                                        <strong class="text-primary">{{ user.username }}</strong>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    {% if user.is_staff %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-shield-check me-1"></i>Administrator
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">
+                                            <i class="bi bi-person me-1"></i>Regular User
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                {% if organization %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-building me-1"></i>
+                                        {{ organization.short_name|default:organization.name }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Stats - Mobile Responsive -->
+<div class="row mb-4">
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center p-3">
+                <i class="bi bi-people fs-2 fs-md-1 text-primary mb-2"></i>
+                <div class="stat-value h5 h4-md mb-1">{{ total_employees|default:0 }}</div>
+                <div class="stat-label small">Total Employees</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center p-3">
+                <i class="bi bi-person-check fs-2 fs-md-1 text-success mb-2"></i>
+                <div class="stat-value h5 h4-md mb-1">{{ active_employees|default:0 }}</div>
+                <div class="stat-label small">Active Employees</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center p-3">
+                <i class="bi bi-building fs-2 fs-md-1 text-info mb-2"></i>
+                <div class="stat-value h5 h4-md mb-1">{{ total_departments|default:0 }}</div>
+                <div class="stat-label small">Departments</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center p-3">
+                <i class="bi bi-briefcase fs-2 fs-md-1 text-warning mb-2"></i>
+                <div class="stat-value h5 h4-md mb-1">{{ total_job_titles|default:0 }}</div>
+                <div class="stat-label small">Job Titles</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightning-charge me-2"></i>
+                    Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        {% if user.is_staff %}
+                            <a href="{% url 'employees:employee_create' %}" class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center">
+                                <i class="bi bi-person-plus me-2"></i>
+                                <span class="flex-grow-1 text-center">Add New Employee</span>
+                                <small class="badge bg-warning text-dark ms-2">Admin</small>
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary btn-lg w-100 d-flex align-items-center justify-content-center" disabled title="Admin access required">
+                                <i class="bi bi-lock me-2"></i>
+                                <span class="flex-grow-1 text-center">Add New Employee</span>
+                                <small class="badge bg-light text-dark ms-2">Admin Only</small>
+                            </button>
+                        {% endif %}
+                        {% if not user.is_staff %}
+                            <small class="text-muted d-block mt-2 text-center">Admin access required</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <a href="{% url 'payroll_processing:payroll_calculator' %}" class="btn btn-success btn-lg w-100 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calculator me-2"></i>
+                            <span>Payroll Calculator</span>
+                        </a>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <a href="{% url 'payroll_processing:tax_calculator' %}" class="btn btn-info btn-lg w-100 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-percent me-2"></i>
+                            <span>Tax Calculator</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        {% if user.is_staff %}
+                            <a href="{% url 'payroll_processing:payroll_generation' %}" class="btn btn-success btn-lg w-100">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                Generate Payroll
+                            </a>
+                            <small class="text-muted d-block mt-1 text-center">Current & past months only</small>
+                        {% else %}
+                            <button class="btn btn-secondary btn-lg w-100" disabled title="Admin access required">
+                                <i class="bi bi-lock me-2"></i>
+                                Generate Payroll
+                            </button>
+                            <small class="text-warning d-block mt-1 text-center">
+                                <i class="bi bi-shield-exclamation me-1"></i>Admin Only
+                            </small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'payroll_processing:payroll_reports' %}" class="btn btn-warning btn-lg w-100">
+                            <i class="bi bi-graph-up me-2"></i>
+                            Payroll Reports
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="/admin/" class="btn btn-secondary btn-lg w-100">
+                            <i class="bi bi-gear me-2"></i>
+                            Admin Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Features -->
+<div class="row mb-5">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Statutory Compliance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            PAYE Tax Calculation
+                        </div>
+                        <span class="badge bg-success rounded-pill">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            NSSF Contributions (Tier 1 & 2)
+                        </div>
+                        <span class="badge bg-success rounded-pill">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            SHIF (Replaced NHIF)
+                        </div>
+                        <span class="badge bg-success rounded-pill">2024 Compliant</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            Affordable Housing Levy
+                        </div>
+                        <span class="badge bg-success rounded-pill">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>
+                    System Features
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <i class="bi bi-people me-2 text-primary"></i>
+                        Employee Management System
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-calculator me-2 text-primary"></i>
+                        Real-time Payroll Calculations
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                        Automated Payslip Generation
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>
+                        Comprehensive Reporting
+                    </div>
+                    <div class="list-group-item">
+                        <i class="bi bi-shield-lock me-2 text-primary"></i>
+                        KRA PIN Validation
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history me-2"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary">Tax Rates (Current)</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-arrow-right me-2"></i>PAYE: 10% - 35% (Progressive)</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>NSSF: 6% (Tier 1 & 2)</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>SHIF: 2.75% (Min KES 300)</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>Housing Levy: 1.5% each</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold text-primary">Key Limits</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-arrow-right me-2"></i>Personal Relief: KES 2,400/month</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>NSSF Tier 1: KES 7,000 limit</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>NSSF Tier 2: KES 36,000 limit</li>
+                            <li><i class="bi bi-arrow-right me-2"></i>Insurance Relief: Max KES 60,000/year</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>NHIF to SHIF Transition:</strong> This system is fully compliant with the 2024 transition from NHIF to SHIF (Social Health Insurance Fund) as part of Kenya's Universal Health Coverage reforms.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add some animation to the stats cards
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

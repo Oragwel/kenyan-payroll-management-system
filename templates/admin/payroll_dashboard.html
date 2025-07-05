@@ -1,0 +1,375 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - {% if current_org %}{{ current_org.name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin-bottom: 2rem;
+    }
+    .stat-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        border-radius: 10px;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .stat-card.success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); color: white; }
+    .stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+    .stat-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+    
+    .quick-action-card {
+        border: none;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    .quick-action-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+    
+    .alert-card {
+        border-left: 4px solid;
+        border-radius: 0 8px 8px 0;
+    }
+    .alert-warning { border-left-color: #ffc107; }
+    .alert-danger { border-left-color: #dc3545; }
+    .alert-info { border-left-color: #17a2b8; }
+    
+    .recent-item {
+        padding: 0.75rem;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.2s;
+    }
+    .recent-item:hover {
+        background-color: #f8f9fa;
+    }
+    .recent-item:last-child {
+        border-bottom: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Admin Navigation -->
+<div class="admin-nav py-3 mb-4">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if current_org %}
+                    <div class="d-flex align-items-center">
+                        {% if current_org.logo %}
+                            <img src="{{ current_org.logo.url }}" alt="{{ current_org.name }} Logo"
+                                 class="me-4" style="height: 70px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h2 class="mb-0 fs-1">{{ current_org.name }}</h2>
+                            <p class="mb-0 opacity-75 fs-5">Payroll System Administration</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h2 class="mb-0">
+                        <i class="bi bi-speedometer2 me-2"></i>Payroll System Administration
+                    </h2>
+                {% endif %}
+            </div>
+            <div class="col-md-6 text-end">
+                <div class="btn-group">
+                    <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-light btn-sm">
+                        <i class="bi bi-building me-1"></i>Organizations
+                    </a>
+                    <a href="{% url 'payroll_admin:user_management' %}" class="btn btn-light btn-sm">
+                        <i class="bi bi-people me-1"></i>Users
+                    </a>
+                    <a href="/admin/" class="btn btn-light btn-sm">
+                        <i class="bi bi-gear me-1"></i>System Admin
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-house me-1"></i>Main Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- System Alerts -->
+    {% if alerts %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">System Alerts</h5>
+            {% for alert in alerts %}
+            <div class="alert alert-{{ alert.type }} alert-card d-flex justify-content-between align-items-center">
+                <div>
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{ alert.message }}
+                </div>
+                <a href="{{ alert.action_url }}" class="btn btn-sm btn-outline-{{ alert.type }}">
+                    {{ alert.action_text }}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ total_employees }}</h3>
+                    <p class="mb-0">Active Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card success">
+                <div class="card-body text-center">
+                    <i class="bi bi-building fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ total_departments }}</h3>
+                    <p class="mb-0">Departments</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-bank fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ total_organizations }}</h3>
+                    <p class="mb-0">Organizations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card stat-card info">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ monthly_payroll.count|default:0 }}</h3>
+                    <p class="mb-0">{{ current_month }} Payrolls</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="mb-3">Quick Actions</h5>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card quick-action-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-person-plus fs-2 text-primary mb-3"></i>
+                    <h6>Add Employee</h6>
+                    <a href="/employees/create/" class="btn btn-primary btn-sm">Create</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card quick-action-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-calculator fs-2 text-success mb-3"></i>
+                    <h6>Generate Payroll</h6>
+                    <a href="/payroll/generate/" class="btn btn-success btn-sm">Generate</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card quick-action-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-file-earmark-text fs-2 text-info mb-3"></i>
+                    <h6>View Reports</h6>
+                    <a href="/payroll/reports/" class="btn btn-info btn-sm">Reports</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card quick-action-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-2 text-warning mb-3"></i>
+                    <h6>Manage Users</h6>
+                    <a href="{% url 'payroll_admin:user_management' %}" class="btn btn-warning btn-sm">Manage</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card quick-action-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-building fs-2 text-secondary mb-3"></i>
+                    <h6>Organizations</h6>
+                    <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-secondary btn-sm">Manage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Row -->
+    <div class="row">
+        <!-- Recent Payroll Records -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Recent Payroll Records</h6>
+                    <a href="/payroll/" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_payrolls %}
+                        {% for payroll in recent_payrolls %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ payroll.employee.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ payroll.employee.department.name }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong class="text-success">KSh {{ payroll.net_pay|floatformat:0 }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ payroll.created_at|date:"M d" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                            <p class="text-muted">No recent payroll records</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Department Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Top Departments by Employee Count</h6>
+                    <a href="/admin/employees/department/" class="btn btn-sm btn-outline-primary">Manage</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if dept_stats %}
+                        {% for dept in dept_stats %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ dept.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ dept.code }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">{{ dept.employee_count }} employee{{ dept.employee_count|pluralize }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-building fs-1 text-muted mb-3"></i>
+                            <p class="text-muted">No departments found</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Statistics and Recent Employees -->
+    <div class="row">
+        <!-- Employee Type Statistics -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Employee Types</h6>
+                </div>
+                <div class="card-body">
+                    {% if employee_stats %}
+                        {% for stat in employee_stats %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ stat.employment_type|capfirst }}</span>
+                            <span class="badge bg-secondary">{{ stat.count }}</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No employee data available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Employees -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">Recently Added Employees</h6>
+                    <a href="/employees/" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_employees %}
+                        {% for employee in recent_employees %}
+                        <div class="recent-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ employee.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ employee.department.name }} - {{ employee.job_title.title }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <small class="text-muted">{{ employee.created_at|date:"M d, Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-plus fs-1 text-muted mb-3"></i>
+                            <p class="text-muted">No recent employees</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Payroll Summary -->
+    {% if monthly_payroll.count %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ current_month }} Payroll Summary</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 class="text-primary">KSh {{ monthly_payroll.total_gross|floatformat:0|default:"0" }}</h4>
+                            <p class="text-muted mb-0">Total Gross Salary</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">KSh {{ monthly_payroll.total_net|floatformat:0|default:"0" }}</h4>
+                            <p class="text-muted mb-0">Total Net Pay</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">KSh {{ monthly_payroll.total_deductions|floatformat:0|default:"0" }}</h4>
+                            <p class="text-muted mb-0">Total Deductions</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info">{{ monthly_payroll.count }}</h4>
+                            <p class="text-muted mb-0">Payroll Records</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

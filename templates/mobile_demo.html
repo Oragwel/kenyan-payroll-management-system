@@ -1,0 +1,365 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Mobile & Kindle Responsive Demo - Kenyan Payroll System{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <!-- Mobile Layout (Centered) -->
+        <div class="d-md-none text-center mb-4">
+            <div class="kenya-accent p-3 rounded d-inline-block mb-3">
+                <i class="bi bi-phone fs-1 text-primary"></i>
+            </div>
+            <h1 class="h4 fw-bold text-primary mb-2">
+                Mobile & Kindle Responsive Demo
+            </h1>
+            <p class="text-muted">
+                Test the responsive design across different screen sizes
+            </p>
+        </div>
+
+        <!-- Desktop Layout -->
+        <div class="d-none d-md-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <div class="kenya-accent p-3 rounded me-4">
+                    <i class="bi bi-phone fs-1 text-primary"></i>
+                </div>
+                <div>
+                    <h1 class="h2 fw-bold text-primary mb-1">
+                        Mobile & Kindle Responsive Demo
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Test the responsive design across different screen sizes
+                    </p>
+                </div>
+            </div>
+            <div class="kenya-accent p-2 rounded">
+                <i class="bi bi-display fs-3 text-success"></i>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Responsive Grid Demo -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-grid me-2"></i>
+                    Responsive Grid System
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="bg-primary text-white p-3 rounded text-center">
+                            <i class="bi bi-phone d-sm-none"></i>
+                            <i class="bi bi-tablet d-none d-sm-block d-md-none"></i>
+                            <i class="bi bi-laptop d-none d-md-block d-lg-none"></i>
+                            <i class="bi bi-display d-none d-lg-block"></i>
+                            <div class="mt-2 small">
+                                <div class="d-sm-none">Mobile</div>
+                                <div class="d-none d-sm-block d-md-none">Tablet</div>
+                                <div class="d-none d-md-block d-lg-none">Desktop</div>
+                                <div class="d-none d-lg-block">Large</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="bg-success text-white p-3 rounded text-center">
+                            <i class="bi bi-people"></i>
+                            <div class="mt-2 small">Employees</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="bg-warning text-white p-3 rounded text-center">
+                            <i class="bi bi-calculator"></i>
+                            <div class="mt-2 small">Calculator</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="bg-info text-white p-3 rounded text-center">
+                            <i class="bi bi-file-earmark-text"></i>
+                            <div class="mt-2 small">Reports</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Form Demo -->
+<div class="row mb-4">
+    <div class="col-12 col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-input-cursor me-2"></i>
+                    Mobile-Optimized Form
+                </h5>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control" placeholder="Enter first name">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control" placeholder="Enter last name">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" placeholder="Enter email address">
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label">Department</label>
+                            <select class="form-select">
+                                <option>Select Department</option>
+                                <option>Administration</option>
+                                <option>Finance</option>
+                                <option>Human Resources</option>
+                                <option>Municipality</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label">Employment Type</label>
+                            <select class="form-select">
+                                <option>Select Type</option>
+                                <option>Permanent</option>
+                                <option>Contract</option>
+                                <option>Casual Worker</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-check-circle me-2"></i>Submit Form
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Button Demo -->
+    <div class="col-12 col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-mouse me-2"></i>
+                    Touch-Friendly Buttons
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Large Primary Button
+                    </button>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button class="btn btn-success w-100">
+                                <i class="bi bi-check me-1"></i>Success
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-warning w-100">
+                                <i class="bi bi-exclamation me-1"></i>Warning
+                            </button>
+                        </div>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary">
+                            <i class="bi bi-eye"></i>
+                            <span class="d-none d-sm-inline ms-1">View</span>
+                        </button>
+                        <button class="btn btn-outline-warning">
+                            <i class="bi bi-pencil"></i>
+                            <span class="d-none d-sm-inline ms-1">Edit</span>
+                        </button>
+                        <button class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                            <span class="d-none d-sm-inline ms-1">Delete</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Table Demo -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-table me-2"></i>
+                    Responsive Table vs Cards
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Desktop Table -->
+                <div class="d-none d-md-block">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Department</th>
+                                    <th>Job Title</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>John Doe</strong><br>
+                                        <small class="text-muted">john@example.com</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">ADMIN</span><br>
+                                        <small>Administration</small>
+                                    </td>
+                                    <td>Manager</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Mobile Cards -->
+                <div class="d-md-none">
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-8">
+                                    <h6 class="card-title mb-1">
+                                        <strong>John Doe</strong>
+                                        <span class="badge bg-success ms-2">Active</span>
+                                    </h6>
+                                    <p class="card-text small text-muted mb-2">
+                                        <i class="bi bi-envelope me-1"></i>john@example.com
+                                    </p>
+                                    <div class="mb-2">
+                                        <span class="badge bg-primary me-1">EMP001</span>
+                                        <span class="badge bg-secondary">ADMIN</span>
+                                    </div>
+                                    <p class="card-text small mb-1">
+                                        <i class="bi bi-building me-1"></i>Administration
+                                    </p>
+                                    <p class="card-text small mb-0">
+                                        <i class="bi bi-briefcase me-1"></i>Manager
+                                    </p>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <div class="btn-group-vertical">
+                                        <button class="btn btn-sm btn-outline-primary mb-1">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-warning">
+                                            <i class="bi bi-pencil me-1"></i>Edit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Device Info -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Current Device Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-phone text-primary fs-3"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">Screen Width</div>
+                                <div id="screen-width" class="text-muted">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-aspect-ratio text-success fs-3"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">Viewport</div>
+                                <div id="viewport-size" class="text-muted">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-display text-warning fs-3"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">Device Type</div>
+                                <div id="device-type" class="text-muted">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <i class="bi bi-phone-landscape text-info fs-3"></i>
+                            <div class="mt-2">
+                                <div class="fw-bold">Orientation</div>
+                                <div id="orientation" class="text-muted">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateDeviceInfo() {
+    document.getElementById('screen-width').textContent = window.innerWidth + 'px';
+    document.getElementById('viewport-size').textContent = window.innerWidth + ' x ' + window.innerHeight;
+    
+    let deviceType = 'Desktop';
+    if (window.innerWidth < 576) deviceType = 'Mobile';
+    else if (window.innerWidth < 768) deviceType = 'Mobile Landscape';
+    else if (window.innerWidth < 992) deviceType = 'Tablet';
+    else if (window.innerWidth < 1200) deviceType = 'Small Desktop';
+    
+    document.getElementById('device-type').textContent = deviceType;
+    document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+}
+
+// Update on load and resize
+window.addEventListener('load', updateDeviceInfo);
+window.addEventListener('resize', updateDeviceInfo);
+</script>
+{% endblock %}

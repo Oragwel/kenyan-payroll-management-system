@@ -1,0 +1,157 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Access Denied - Kenyan Payroll Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="text-center py-5">
+                <!-- Error Icon -->
+                <div class="mb-4">
+                    <i class="bi bi-shield-exclamation display-1 text-warning"></i>
+                </div>
+                
+                <!-- Error Message -->
+                <h1 class="display-4 fw-bold text-primary mb-3">Access Denied</h1>
+                <h2 class="h4 text-muted mb-4">Administrator Access Required</h2>
+                
+                <!-- Explanation -->
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Restricted Area:</strong> This feature is only available to system administrators.
+                    Payroll generation and management require elevated privileges to ensure data security and compliance.
+                </div>
+                
+                <!-- Available Actions -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="bi bi-person-check me-2"></i>
+                            What you can do:
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-grid">
+                                    <a href="{% url 'payroll_processing:payroll_calculator' %}" class="btn btn-primary">
+                                        <i class="bi bi-calculator me-2"></i>
+                                        Payroll Calculator
+                                    </a>
+                                </div>
+                                <small class="text-muted">Calculate salary components</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-grid">
+                                    <a href="{% url 'payroll_processing:tax_calculator' %}" class="btn btn-info">
+                                        <i class="bi bi-percent me-2"></i>
+                                        Tax Calculator
+                                    </a>
+                                </div>
+                                <small class="text-muted">Calculate PAYE and deductions</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-grid">
+                                    <a href="{% url 'employees:employee_list' %}" class="btn btn-success">
+                                        <i class="bi bi-people me-2"></i>
+                                        View Employees
+                                    </a>
+                                </div>
+                                <small class="text-muted">Browse employee records</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-grid">
+                                    <a href="{% url 'payroll_processing:payroll_reports' %}" class="btn btn-warning">
+                                        <i class="bi bi-graph-up me-2"></i>
+                                        View Reports
+                                    </a>
+                                </div>
+                                <small class="text-muted">Access payroll reports</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Contact Admin -->
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-envelope me-2"></i>
+                    <strong>Need Admin Access?</strong> Contact your system administrator to request payroll management permissions.
+                </div>
+                
+                <!-- Navigation -->
+                <div class="mt-4">
+                    <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary btn-lg me-2">
+                        <i class="bi bi-house me-2"></i>
+                        Back to Dashboard
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Go Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Login Hint -->
+{% if not user.is_authenticated %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-6 col-md-8">
+        <div class="card">
+            <div class="card-body text-center">
+                <h6 class="card-title">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Administrator Login
+                </h6>
+                <p class="card-text text-muted">
+                    If you are a system administrator, please log in with your admin credentials.
+                </p>
+                <a href="/admin/login/" class="btn btn-primary">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.display-1 {
+    font-size: 6rem;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+}
+
+.alert {
+    border-radius: 10px;
+}
+
+.btn {
+    border-radius: 8px;
+}
+
+.badge {
+    font-size: 0.7em;
+}
+
+/* Animation for the warning icon */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.bi-shield-exclamation {
+    animation: pulse 2s infinite;
+}
+</style>
+{% endblock %}

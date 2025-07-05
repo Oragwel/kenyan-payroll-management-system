@@ -1,0 +1,933 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payroll Reports - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js CSS -->
+<style>
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 2rem;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid #e9ecef;
+}
+
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.chart-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+}
+
+.chart-subtitle {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+.kenya-gradient {
+    background: linear-gradient(135deg, #006600 0%, #1e7e34 100%);
+    color: white;
+}
+
+.kenya-gradient .stat-label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.enhanced-stat-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.enhanced-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.enhanced-stat-card .stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.enhanced-stat-card .stat-value {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.enhanced-stat-card .stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+}
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if organization %}
+                    <div class="d-flex align-items-center">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 80px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h1 class="display-5 fw-bold text-primary mb-1">
+                                {{ organization.name }}
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Payroll Reports & Analytics
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-graph-up me-3"></i>
+                        Payroll Reports & Analytics
+                    </h1>
+                    <p class="lead text-muted">
+                        Comprehensive payroll insights with interactive charts
+                    </p>
+                {% endif %}
+            </div>
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-success" onclick="exportCharts()">
+                    <i class="bi bi-download me-2"></i>Export Charts
+                </button>
+                <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Summary Statistics -->
+<div class="row mb-5">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                <div class="stat-value">{{ total_employees }}</div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-currency-exchange fs-1 text-success mb-3"></i>
+                <div class="stat-value">{{ total_gross_payroll|floatformat:0 }}</div>
+                <div class="stat-label">Total Monthly Gross (KES)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-cash-stack fs-1 text-info mb-3"></i>
+                <div class="stat-value">{{ total_net_payroll|floatformat:0 }}</div>
+                <div class="stat-label">Total Monthly Net (KES)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-percent fs-1 text-warning mb-3"></i>
+                <div class="stat-value">{{ average_tax_rate|floatformat:1 }}%</div>
+                <div class="stat-label">Average Tax Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statutory Deductions Summary -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Monthly Statutory Deductions Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h6 class="text-primary">PAYE Tax</h6>
+                            <h4 class="text-success">KES {{ total_paye|floatformat:0 }}</h4>
+                            <small class="text-muted">{{ paye_percentage|floatformat:1 }}% of gross</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h6 class="text-primary">NSSF (Employee)</h6>
+                            <h4 class="text-success">KES {{ total_nssf_employee|floatformat:0 }}</h4>
+                            <small class="text-muted">{{ nssf_percentage|floatformat:1 }}% of gross</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h6 class="text-primary">SHIF</h6>
+                            <h4 class="text-success">KES {{ total_shif|floatformat:0 }}</h4>
+                            <small class="text-muted">{{ shif_percentage|floatformat:1 }}% of gross</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <h6 class="text-primary">Housing Levy</h6>
+                            <h4 class="text-success">KES {{ total_housing_levy|floatformat:0 }}</h4>
+                            <small class="text-muted">{{ housing_levy_percentage|floatformat:1 }}% of gross</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Charts Section -->
+<div class="row mb-5">
+    <div class="col-lg-8 mb-4">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h4 class="chart-title">
+                        <i class="bi bi-bar-chart me-2 text-primary"></i>
+                        Department Salary Distribution
+                    </h4>
+                    <p class="chart-subtitle">Gross salary breakdown by department</p>
+                </div>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-primary active" onclick="toggleChart('dept', 'bar')">
+                        <i class="bi bi-bar-chart"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="toggleChart('dept', 'pie')">
+                        <i class="bi bi-pie-chart"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="departmentChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h4 class="chart-title">
+                        <i class="bi bi-pie-chart me-2 text-success"></i>
+                        Salary Ranges
+                    </h4>
+                    <p class="chart-subtitle">Employee distribution by salary bands</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="salaryRangeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h4 class="chart-title">
+                        <i class="bi bi-graph-up me-2 text-warning"></i>
+                        Deductions Breakdown
+                    </h4>
+                    <p class="chart-subtitle">Average statutory deductions</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="deductionsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 mb-4">
+        <div class="chart-card">
+            <div class="chart-header">
+                <div>
+                    <h4 class="chart-title">
+                        <i class="bi bi-people me-2 text-info"></i>
+                        Employment Types
+                    </h4>
+                    <p class="chart-subtitle">Distribution of employment categories</p>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="employmentTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Department Analysis -->
+<div class="row mb-5">
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>
+                    Payroll by Department
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if department_analysis %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Employees</th>
+                                    <th>Avg. Salary</th>
+                                    <th>Total Gross</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in department_analysis %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ dept.department__name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ dept.department__code }}</small>
+                                        </td>
+                                        <td>{{ dept.employee_count }}</td>
+                                        <td>KES {{ dept.avg_salary|floatformat:0 }}</td>
+                                        <td>KES {{ dept.total_gross|floatformat:0 }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No department data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-briefcase me-2"></i>
+                    Salary Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if salary_ranges %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Salary Range</th>
+                                    <th>Employees</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for range in salary_ranges %}
+                                    <tr>
+                                        <td>{{ range.range_label }}</td>
+                                        <td>{{ range.count }}</td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ range.percentage }}%">
+                                                    {{ range.percentage|floatformat:1 }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No salary distribution data available</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tax Analysis -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-percent me-2"></i>
+                    Tax Analysis & Compliance
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Tax Efficiency Metrics</h6>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Average Effective Tax Rate:</span>
+                                <strong>{{ average_tax_rate|floatformat:2 }}%</strong>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Total Tax Relief Applied:</span>
+                                <strong>KES {{ total_tax_relief|floatformat:0 }}</strong>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Employees with Tax Relief:</span>
+                                <strong>{{ employees_with_relief }} / {{ total_employees }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary">Compliance Status</h6>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle me-2"></i>
+                            <strong>Fully Compliant</strong> with Kenya's 2024 regulations
+                        </div>
+                        <ul class="list-unstyled">
+                            <li><i class="bi bi-check-circle text-success me-2"></i>PAYE rates updated</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>NSSF Tier 1 & 2 implemented</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>SHIF replacing NHIF</li>
+                            <li><i class="bi bi-check-circle text-success me-2"></i>Housing Levy active</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-download me-2"></i>
+                    Export Reports
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-excel text-primary" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Payroll Summary</h6>
+                                <p class="card-text small text-muted">Complete payroll breakdown with all deductions</p>
+                                <button class="btn btn-outline-primary w-100" onclick="exportReport('payroll_summary')">
+                                    <i class="bi bi-download me-2"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-pdf text-success" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Tax Report</h6>
+                                <p class="card-text small text-muted">PAYE tax calculations for KRA submissions</p>
+                                <button class="btn btn-outline-success w-100" onclick="exportReport('tax_report')">
+                                    <i class="bi bi-download me-2"></i>PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-spreadsheet text-info" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Statutory Returns</h6>
+                                <p class="card-text small text-muted">NSSF, SHIF & Housing Levy returns</p>
+                                <button class="btn btn-outline-info w-100" onclick="exportReport('statutory_returns')">
+                                    <i class="bi bi-download me-2"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <i class="bi bi-people text-warning" style="font-size: 2rem;"></i>
+                                <h6 class="card-title mt-2">Employee List</h6>
+                                <p class="card-text small text-muted">Complete employee database export</p>
+                                <button class="btn btn-outline-warning w-100" onclick="exportReport('employee_list')">
+                                    <i class="bi bi-download me-2"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-success mt-3">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <strong>Export Features:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li><strong>Payroll Summary:</strong> Excel format with complete salary breakdown</li>
+                        <li><strong>Tax Report:</strong> PDF format for KRA PAYE submissions</li>
+                        <li><strong>Statutory Returns:</strong> Excel format with NSSF, SHIF & Housing Levy data</li>
+                        <li><strong>Employee List:</strong> Excel format with complete employee database</li>
+                    </ul>
+                </div>
+
+                <!-- Export Progress Modal -->
+                <div class="modal fade" id="exportProgressModal" tabindex="-1">
+                    <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                            <div class="modal-body text-center">
+                                <div class="spinner-border text-primary mb-3" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h6>Generating Report...</h6>
+                                <p class="text-muted mb-0">Please wait while we prepare your export.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Kenya color palette
+const kenyaColors = {
+    primary: '#006600',
+    secondary: '#1e7e34',
+    accent: '#28a745',
+    red: '#cc0000',
+    black: '#000000',
+    white: '#ffffff',
+    gray: '#6c757d'
+};
+
+// Chart color schemes
+const colorSchemes = {
+    kenya: ['#006600', '#1e7e34', '#28a745', '#40c057', '#51cf66', '#69db7c'],
+    professional: ['#007bff', '#6610f2', '#6f42c1', '#e83e8c', '#dc3545', '#fd7e14'],
+    warm: ['#ff6b6b', '#feca57', '#48dbfb', '#ff9ff3', '#54a0ff', '#5f27cd']
+};
+
+// Chart instances
+let departmentChart, salaryRangeChart, deductionsChart, employmentTypeChart;
+
+// Initialize charts when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initializeDepartmentChart();
+    initializeSalaryRangeChart();
+    initializeDeductionsChart();
+    initializeEmploymentTypeChart();
+    animateCounters();
+});
+
+// Department Chart
+function initializeDepartmentChart() {
+    const ctx = document.getElementById('departmentChart').getContext('2d');
+
+    const departmentData = {
+        labels: [
+            {% for dept in department_stats %}
+                '{{ dept.department__name }}',
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Total Gross Salary (KES)',
+            data: [
+                {% for dept in department_stats %}
+                    {{ dept.total_gross|default:0 }},
+                {% endfor %}
+            ],
+            backgroundColor: colorSchemes.kenya,
+            borderColor: colorSchemes.kenya.map(color => color + '80'),
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+        }]
+    };
+
+    departmentChart = new Chart(ctx, {
+        type: 'bar',
+        data: departmentData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    borderColor: kenyaColors.primary,
+                    borderWidth: 1,
+                    callbacks: {
+                        label: function(context) {
+                            return 'KES ' + context.parsed.y.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'KES ' + value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+// Salary Range Chart
+function initializeSalaryRangeChart() {
+    const ctx = document.getElementById('salaryRangeChart').getContext('2d');
+
+    // Sample data - this would come from the backend
+    const salaryRanges = {
+        'Below 50K': {{ salary_ranges.below_50k|default:5 }},
+        '50K - 100K': {{ salary_ranges.range_50_100k|default:8 }},
+        '100K - 200K': {{ salary_ranges.range_100_200k|default:12 }},
+        '200K - 500K': {{ salary_ranges.range_200_500k|default:6 }},
+        'Above 500K': {{ salary_ranges.above_500k|default:2 }}
+    };
+
+    salaryRangeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(salaryRanges),
+            datasets: [{
+                data: Object.values(salaryRanges),
+                backgroundColor: colorSchemes.professional,
+                borderColor: '#fff',
+                borderWidth: 3,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((context.parsed / total) * 100).toFixed(1);
+                            return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 2000
+            }
+        }
+    });
+}
+
+// Deductions Chart
+function initializeDeductionsChart() {
+    const ctx = document.getElementById('deductionsChart').getContext('2d');
+
+    deductionsChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: ['PAYE Tax', 'NSSF', 'SHIF', 'Housing Levy', 'Other'],
+            datasets: [{
+                label: 'Average Deductions (KES)',
+                data: [
+                    {{ avg_paye|default:15000 }},
+                    {{ avg_nssf|default:2400 }},
+                    {{ avg_shif|default:1800 }},
+                    {{ avg_housing_levy|default:1500 }},
+                    {{ avg_other_deductions|default:500 }}
+                ],
+                backgroundColor: kenyaColors.primary + '20',
+                borderColor: kenyaColors.primary,
+                borderWidth: 2,
+                pointBackgroundColor: kenyaColors.primary,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff',
+                    callbacks: {
+                        label: function(context) {
+                            return 'KES ' + context.parsed.r.toLocaleString();
+                        }
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'KES ' + value.toLocaleString();
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+// Employment Type Chart
+function initializeEmploymentTypeChart() {
+    const ctx = document.getElementById('employmentTypeChart').getContext('2d');
+
+    const employmentData = {
+        'Permanent': {{ employment_type_stats.permanent|default:20 }},
+        'Contract': {{ employment_type_stats.contract|default:8 }},
+        'Casual': {{ employment_type_stats.casual|default:5 }},
+        'Intern': {{ employment_type_stats.intern|default:3 }}
+    };
+
+    employmentTypeChart = new Chart(ctx, {
+        type: 'polarArea',
+        data: {
+            labels: Object.keys(employmentData),
+            datasets: [{
+                data: Object.values(employmentData),
+                backgroundColor: colorSchemes.warm.map(color => color + '80'),
+                borderColor: colorSchemes.warm,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#fff',
+                    bodyColor: '#fff'
+                }
+            },
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    ticks: {
+                        display: false
+                    },
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+// Toggle chart types
+function toggleChart(chartType, newType) {
+    if (chartType === 'dept') {
+        const ctx = document.getElementById('departmentChart').getContext('2d');
+        departmentChart.destroy();
+
+        // Update chart type
+        const config = {
+            type: newType,
+            data: departmentChart.data,
+            options: departmentChart.options
+        };
+
+        if (newType === 'pie') {
+            config.options.scales = {};
+        }
+
+        departmentChart = new Chart(ctx, config);
+
+        // Update button states
+        document.querySelectorAll('[onclick*="dept"]').forEach(btn => btn.classList.remove('active'));
+        event.target.closest('button').classList.add('active');
+    }
+}
+
+// Export charts functionality
+function exportCharts() {
+    const charts = [
+        { chart: departmentChart, name: 'department-salary-distribution' },
+        { chart: salaryRangeChart, name: 'salary-ranges' },
+        { chart: deductionsChart, name: 'deductions-breakdown' },
+        { chart: employmentTypeChart, name: 'employment-types' }
+    ];
+
+    charts.forEach(({ chart, name }) => {
+        const link = document.createElement('a');
+        link.download = `${name}.png`;
+        link.href = chart.toBase64Image();
+        link.click();
+    });
+
+    // Show success message
+    alert('Charts exported successfully!');
+}
+
+// Export report functionality
+function exportReport(reportType) {
+    // Show loading message
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Exporting...';
+    button.disabled = true;
+
+    // Define export URLs
+    const exportUrls = {
+        'payroll_summary': '{% url "payroll_processing:export_payroll_summary" %}',
+        'tax_report': '{% url "payroll_processing:export_tax_report" %}',
+        'statutory_returns': '{% url "payroll_processing:export_statutory_returns" %}',
+        'employee_list': '{% url "payroll_processing:export_employee_list" %}'
+    };
+
+    // Get the URL for the report type
+    const url = exportUrls[reportType];
+
+    if (url) {
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = url;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Show success message after a short delay
+        setTimeout(() => {
+            button.innerHTML = '<i class="bi bi-check-circle me-2"></i>Downloaded!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        }, 1000);
+    } else {
+        // Reset button if URL not found
+        button.innerHTML = originalText;
+        button.disabled = false;
+        alert('Export URL not found for this report type.');
+    }
+}
+
+// Add counter animation
+function animateCounters() {
+    const counters = document.querySelectorAll('.stat-value');
+    counters.forEach(counter => {
+        const target = parseInt(counter.innerText.replace(/,/g, ''));
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            counter.innerText = Math.floor(current).toLocaleString();
+        }, 20);
+    });
+}
+</script>
+{% endblock %}

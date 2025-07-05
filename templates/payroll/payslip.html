@@ -1,0 +1,852 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payslip - {{ employee.full_name }} - {{ payroll_period.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    /* Hide non-essential elements */
+    .no-print { display: none !important; }
+    .no-print-footer { display: none !important; }
+    .btn-group { display: none !important; }
+    .navbar { display: none !important; }
+    .sidebar { display: none !important; }
+    .breadcrumb { display: none !important; }
+
+    /* Page setup - 80mm width, auto height to fit content */
+    @page {
+        size: 80mm auto;
+        margin: 3mm;
+    }
+
+    /* Body and container styles for print */
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        font-family: 'Courier New', monospace !important;
+    }
+
+    .container, .container-fluid {
+        width: 80mm !important;
+        max-width: 80mm !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-before: avoid !important;
+    }
+
+    .row {
+        margin: 0 !important;
+        display: block !important;
+        page-break-inside: avoid !important;
+    }
+
+    .col-lg-8, .col-md-6 {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        display: block !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Card styles for print */
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        width: 80mm !important;
+        max-width: 80mm !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    /* Header styles for print */
+    .payslip-header {
+        background: white !important;
+        color: black !important;
+        padding: 2mm !important;
+        text-align: center !important;
+        border-bottom: 1px solid #000 !important;
+    }
+
+    /* Content styles for print */
+    .payslip-content {
+        padding: 2mm !important;
+        width: 80mm !important;
+    }
+
+    .payslip-section {
+        margin-bottom: 2mm !important;
+        border-bottom: 1px dashed #000 !important;
+        padding-bottom: 1mm !important;
+        page-break-inside: avoid;
+        width: 100% !important;
+    }
+
+    .payslip-item {
+        display: flex !important;
+        justify-content: space-between !important;
+        padding: 0.5mm 0 !important;
+        font-size: 8pt !important;
+        line-height: 1.1 !important;
+    }
+
+    .payslip-total {
+        background: white !important;
+        border: 1px solid #000 !important;
+        padding: 1mm !important;
+        margin: 1mm 0 !important;
+        font-weight: bold !important;
+        text-align: center !important;
+        font-size: 9pt !important;
+    }
+
+    .bg-success {
+        background: #28a745 !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Text styles for print */
+    h1, h2, h3, h4, h5, h6 {
+        color: black !important;
+        margin-bottom: 1mm !important;
+        font-size: 9pt !important;
+        font-weight: bold !important;
+        text-align: center !important;
+    }
+
+    h2 { font-size: 11pt !important; }
+    h4 { font-size: 10pt !important; }
+
+    .text-primary, .text-success, .text-danger, .text-warning, .text-muted {
+        color: black !important;
+    }
+
+    /* Print-specific layout adjustments */
+    .thermal-center { text-align: center !important; }
+    .thermal-bold { font-weight: bold !important; }
+    .thermal-small { font-size: 8pt !important; }
+
+    /* Ensure colors print */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Force content to start on first page */
+    body, html {
+        page-break-before: avoid !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    /* Prevent unwanted page breaks */
+    .page-break {
+        page-break-before: avoid !important;
+    }
+
+    /* Footer */
+    .border-top {
+        border-top: 1px solid #000 !important;
+    }
+
+    /* Ensure single page layout */
+    * {
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    .payslip-section:first-child {
+        page-break-before: avoid !important;
+    }
+}
+
+/* Print Preview Mode */
+.print-preview {
+    background: #e9ecef !important;
+    min-height: 100vh !important;
+    padding: 20px !important;
+}
+
+.print-preview .no-print:not(.btn-group) {
+    display: none !important;
+}
+
+.print-preview .no-print-footer {
+    display: none !important;
+}
+
+.print-preview .card {
+    width: 80mm !important;
+    max-width: 80mm !important;
+    margin: 100px auto 40px auto !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    min-height: auto !important;
+    transform: scale(1.2) !important;
+    transform-origin: center top !important;
+}
+
+.print-preview .payslip-content {
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    font-family: 'Arial', 'Helvetica', sans-serif !important;
+    padding: 4mm !important;
+    color: #000 !important;
+}
+
+.print-preview .payslip-header {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%) !important;
+    color: white !important;
+    padding: 6mm !important;
+    border-bottom: 3px solid #198754 !important;
+    text-align: center !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.print-preview .payslip-header h2 {
+    color: white !important;
+    margin-bottom: 2mm !important;
+    font-size: 14pt !important;
+    font-weight: bold !important;
+}
+
+.print-preview .payslip-section {
+    margin-bottom: 4mm !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    padding-bottom: 3mm !important;
+}
+
+.print-preview .payslip-section:last-child {
+    border-bottom: none !important;
+}
+
+.print-preview .payslip-item {
+    padding: 2mm 0 !important;
+    font-size: 10pt !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    border-bottom: 1px dotted #adb5bd !important;
+}
+
+.print-preview .payslip-item:last-child {
+    border-bottom: none !important;
+}
+
+.print-preview .payslip-total {
+    border: 2px solid #198754 !important;
+    padding: 4mm !important;
+    margin: 4mm 0 !important;
+    font-size: 12pt !important;
+    background: #f8f9fa !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-weight: bold !important;
+}
+
+.print-preview h1, .print-preview h2, .print-preview h3,
+.print-preview h4, .print-preview h5, .print-preview h6 {
+    margin-bottom: 3mm !important;
+    color: #000 !important;
+    text-align: center !important;
+    font-weight: bold !important;
+}
+
+.print-preview h1 { font-size: 14pt !important; }
+.print-preview h2 { font-size: 13pt !important; }
+.print-preview h3 { font-size: 12pt !important; }
+.print-preview h4 { font-size: 11pt !important; }
+.print-preview h5 { font-size: 10pt !important; }
+.print-preview h6 { font-size: 9pt !important; }
+
+.print-preview .btn-group {
+    position: fixed !important;
+    top: 30px !important;
+    right: 30px !important;
+    z-index: 1000 !important;
+    background: white !important;
+    padding: 20px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
+    display: flex !important;
+    gap: 12px !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.print-preview .btn-group .btn {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.print-preview .btn-group .btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+/* Organization logo in print preview */
+.print-preview .payslip-header img {
+    max-height: 40px !important;
+    width: auto !important;
+    margin-bottom: 2mm !important;
+}
+
+/* Enhanced text styling for print preview */
+.print-preview .text-muted {
+    color: #6c757d !important;
+}
+
+.print-preview .fw-bold {
+    font-weight: bold !important;
+}
+
+.print-preview .text-end {
+    text-align: right !important;
+}
+
+/* Better spacing for sections */
+.print-preview .row {
+    margin: 0 !important;
+}
+
+.print-preview .col-6 {
+    width: 50% !important;
+    float: left !important;
+    padding: 0 2mm !important;
+}
+
+.print-preview .col-12 {
+    width: 100% !important;
+    clear: both !important;
+    padding: 0 !important;
+}
+
+/* Clear floats */
+.print-preview .clearfix::after {
+    content: "" !important;
+    display: table !important;
+    clear: both !important;
+}
+
+/* Print preview indicator enhancement */
+.print-preview::before {
+    content: "📄 PRINT PREVIEW MODE - This is how your payslip will look when printed (80mm width)" !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%) !important;
+    color: #000 !important;
+    text-align: center !important;
+    padding: 12px !important;
+    font-weight: bold !important;
+    z-index: 999 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+    font-size: 14px !important;
+}
+
+.print-preview .btn-group .btn {
+    margin: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Print Preview Indicator */
+.print-preview::before {
+    content: "📄 PRINT PREVIEW MODE - This is how your payslip will look when printed";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ffc107;
+    color: #000;
+    text-align: center;
+    padding: 10px;
+    font-weight: bold;
+    z-index: 999;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+/* Web view styles (original A4 layout) */
+.payslip-header {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #228B22 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+}
+.payslip-content {
+    padding: 2rem;
+}
+.payslip-section {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+.payslip-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px dotted #ddd;
+}
+.payslip-item:last-child {
+    border-bottom: none;
+}
+.payslip-total {
+    font-weight: bold;
+    font-size: 1.1rem;
+    background: #f8f9fa;
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 5px;
+}
+
+/* Web view text styles */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+}
+
+/* Thermal classes for web view (minimal styling) */
+.thermal-center {
+    text-align: center;
+}
+.thermal-bold {
+    font-weight: bold;
+}
+.thermal-small {
+    font-size: 0.875rem;
+}
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4 no-print">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="bi bi-file-earmark-text me-3"></i>
+                    Employee Payslip
+                </h1>
+                <p class="lead text-muted">
+                    {{ employee.full_name }} - {{ payroll_period.name }}
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <button onclick="printPayslip()" class="btn btn-primary">
+                    <i class="bi bi-printer me-2"></i>Print Payslip
+                </button>
+                <button onclick="downloadPDF()" class="btn btn-success">
+                    <i class="bi bi-download me-2"></i>Download PDF
+                </button>
+                <button onclick="togglePrintPreview()" class="btn btn-info">
+                    <i class="bi bi-eye me-2"></i>Print Preview
+                </button>
+                <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Employee
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <!-- Payslip Header -->
+            <div class="payslip-header">
+                {% if organization and organization.logo %}
+                    <div class="d-flex align-items-center justify-content-center mb-3 no-print">
+                        <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                             style="height: 60px; width: auto; object-fit: contain; margin-right: 15px;">
+                        <div class="text-center">
+                            <h2 class="mb-1 thermal-bold">PAYSLIP</h2>
+                            <h4 class="mb-0">{{ organization.name }}</h4>
+                        </div>
+                    </div>
+                    <!-- Print-only header (thermal) -->
+                    <div class="d-none d-print-block text-center">
+                        <h2 class="mb-2 thermal-bold">PAYSLIP</h2>
+                        <h4 class="mb-1">{{ organization.name }}</h4>
+                    </div>
+                {% else %}
+                    <h2 class="mb-3 thermal-bold">PAYSLIP</h2>
+                    <h4>{{ organization.name|default:organization_name }}</h4>
+                {% endif %}
+
+                {% if organization %}
+                    {% if organization.organization_type == 'GOVERNMENT' or organization.organization_type == 'PARASTATAL' %}
+                        {% if organization.ministry %}
+                            <p class="mb-0"><strong>{{ organization.ministry }}</strong></p>
+                        {% endif %}
+                        <p class="mb-0">{{ organization.full_address }}</p>
+                        <p class="mb-0">Phone: {{ organization.phone_number }} | Email: {{ organization.email }}</p>
+                        <p class="mb-0 thermal-small">{{ organization.get_organization_type_display }} | KRA PIN: {{ organization.kra_pin }}</p>
+                    {% else %}
+                        <p class="mb-0">{{ organization.full_address }}</p>
+                        <p class="mb-0">Phone: {{ organization.phone_number }} | Email: {{ organization.email }}</p>
+                        <p class="mb-0 thermal-small">{{ organization.get_organization_type_display }} | KRA PIN: {{ organization.kra_pin }}</p>
+                    {% endif %}
+                {% else %}
+                    <p class="mb-0 no-print-footer">Kenyan Payroll Management System</p>
+                {% endif %}
+                <p class="mb-0 thermal-small no-print-footer">Compliant with KRA, NSSF, and SHIF Regulations</p>
+            </div>
+            
+            <!-- Payslip Content -->
+            <div class="payslip-content">
+                <!-- Employee and Period Information -->
+                <div class="row payslip-section">
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3 thermal-bold">Employee Information</h5>
+                        <div class="payslip-item">
+                            <span>Payroll Number:</span>
+                            <strong>{{ employee.payroll_number }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Full Name:</span>
+                            <strong>{{ employee.full_name }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Department:</span>
+                            <span><strong>{{ employee.department.name }}</strong> ({{ employee.department.code }})</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Job Title:</span>
+                            <span>{{ employee.job_title.title }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Employment Type:</span>
+                            <span>{{ employee.get_employment_type_display }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>KRA PIN:</span>
+                            <span>{{ employee.kra_pin }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3 thermal-bold">Pay Period Information</h5>
+                        <div class="payslip-item">
+                            <span>Pay Period:</span>
+                            <strong>{{ payroll_period.name }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Period Start:</span>
+                            <span>{{ payroll_period.start_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Period End:</span>
+                            <span>{{ payroll_period.end_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Pay Date:</span>
+                            <span>{{ payroll_period.pay_date|date:"M d, Y" }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Generated:</span>
+                            <span>{{ payslip.created_at|date:"M d, Y H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Earnings Section -->
+                <div class="payslip-section">
+                    <h5 class="text-success mb-3 thermal-bold">Earnings</h5>
+                    <div class="payslip-item">
+                        <span>Basic Salary:</span>
+                        <strong>KES {{ payslip.basic_salary|floatformat:2 }}</strong>
+                    </div>
+                    {% if payslip.house_allowance > 0 %}
+                    <div class="payslip-item">
+                        <span>House Allowance:</span>
+                        <span>KES {{ payslip.house_allowance|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.transport_allowance > 0 %}
+                    <div class="payslip-item">
+                        <span>Transport Allowance:</span>
+                        <span>KES {{ payslip.transport_allowance|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.medical_allowance > 0 %}
+                    <div class="payslip-item">
+                        <span>Medical Allowance:</span>
+                        <span>KES {{ payslip.medical_allowance|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.lunch_allowance > 0 %}
+                    <div class="payslip-item">
+                        <span>Lunch Allowance:</span>
+                        <span>KES {{ payslip.lunch_allowance|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.communication_allowance > 0 %}
+                    <div class="payslip-item">
+                        <span>Communication Allowance:</span>
+                        <span>KES {{ payslip.communication_allowance|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.other_allowances > 0 %}
+                    <div class="payslip-item">
+                        <span>Other Allowances:</span>
+                        <span>KES {{ payslip.other_allowances|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.overtime_pay > 0 %}
+                    <div class="payslip-item">
+                        <span>Overtime Pay:</span>
+                        <span>KES {{ payslip.overtime_pay|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.bonus > 0 %}
+                    <div class="payslip-item">
+                        <span>Bonus:</span>
+                        <span>KES {{ payslip.bonus|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.car_benefit > 0 %}
+                    <div class="payslip-item">
+                        <span>Car Benefit (Taxable):</span>
+                        <span>KES {{ payslip.car_benefit|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.housing_benefit > 0 %}
+                    <div class="payslip-item">
+                        <span>Housing Benefit (Taxable):</span>
+                        <span>KES {{ payslip.housing_benefit|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="payslip-total">
+                        <div class="d-flex justify-content-between">
+                            <strong>GROSS PAY:</strong>
+                            <strong>KES {{ payslip.gross_pay|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Deductions Section -->
+                <div class="payslip-section">
+                    <h5 class="text-danger mb-3 thermal-bold">Deductions</h5>
+
+                    <h6 class="text-primary">Statutory Deductions</h6>
+                    <div class="payslip-item">
+                        <span>PAYE Tax:</span>
+                        <span>KES {{ payslip.paye_tax|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>NSSF (Employee):</span>
+                        <span>KES {{ payslip.nssf_employee|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>SHIF (Social Health Insurance):</span>
+                        <span>KES {{ payslip.shif_contribution|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>Affordable Housing Levy:</span>
+                        <span>KES {{ payslip.housing_levy_employee|floatformat:2 }}</span>
+                    </div>
+                    
+                    {% if payslip.loan_deductions > 0 or payslip.advance_deductions > 0 or payslip.other_deductions > 0 %}
+                    <h6 class="text-primary mt-3">Other Deductions</h6>
+                    {% if payslip.loan_deductions > 0 %}
+                    <div class="payslip-item">
+                        <span>Loan Deductions:</span>
+                        <span>KES {{ payslip.loan_deductions|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.advance_deductions > 0 %}
+                    <div class="payslip-item">
+                        <span>Advance Deductions:</span>
+                        <span>KES {{ payslip.advance_deductions|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.other_deductions > 0 %}
+                    <div class="payslip-item">
+                        <span>Other Deductions:</span>
+                        <span>KES {{ payslip.other_deductions|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    
+                    <div class="payslip-total">
+                        <div class="d-flex justify-content-between">
+                            <strong>TOTAL DEDUCTIONS:</strong>
+                            <strong>KES {{ payslip.total_deductions|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tax Relief Section -->
+                {% if payslip.personal_relief > 0 or payslip.insurance_relief > 0 or payslip.mortgage_relief > 0 or payslip.pension_relief > 0 %}
+                <div class="payslip-section">
+                    <h5 class="text-info mb-3">Tax Reliefs Applied</h5>
+                    {% if payslip.personal_relief > 0 %}
+                    <div class="payslip-item">
+                        <span>Personal Relief:</span>
+                        <span>KES {{ payslip.personal_relief|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.insurance_relief > 0 %}
+                    <div class="payslip-item">
+                        <span>Insurance Relief:</span>
+                        <span>KES {{ payslip.insurance_relief|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.mortgage_relief > 0 %}
+                    <div class="payslip-item">
+                        <span>Mortgage Relief:</span>
+                        <span>KES {{ payslip.mortgage_relief|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                    {% if payslip.pension_relief > 0 %}
+                    <div class="payslip-item">
+                        <span>Pension Relief:</span>
+                        <span>KES {{ payslip.pension_relief|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Net Pay Section -->
+                <div class="payslip-total bg-success text-white">
+                    <div class="d-flex justify-content-between">
+                        <strong>NET PAY:</strong>
+                        <strong>KES {{ payslip.net_pay|floatformat:2 }}</strong>
+                    </div>
+                </div>
+                
+                <!-- Employer Contributions -->
+                <div class="payslip-section">
+                    <h5 class="text-warning mb-3 thermal-bold">Employer Contributions</h5>
+                    <div class="payslip-item">
+                        <span>NSSF (Employer):</span>
+                        <span>KES {{ payslip.nssf_employer|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>Housing Levy (Employer):</span>
+                        <span>KES {{ payslip.housing_levy_employer|floatformat:2 }}</span>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div class="text-center mt-4 pt-4 border-top no-print-footer">
+                    <p class="text-muted small mb-1">
+                        This payslip is generated by the Kenyan Payroll Management System
+                    </p>
+                    <p class="text-muted small mb-1 thermal-small">
+                        Compliant with KRA PAYE, NSSF, SHIF, and Affordable Housing Levy regulations
+                    </p>
+                    <p class="text-muted small mb-0 thermal-small">
+                        <strong>Note:</strong> SHIF has replaced NHIF as of 2024 under Universal Health Coverage reforms
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function printPayslip() {
+    // Hide any error messages before printing
+    const errorElements = document.querySelectorAll('.alert, .error');
+    errorElements.forEach(el => el.style.display = 'none');
+
+    // Set page title for print
+    const originalTitle = document.title;
+    document.title = `Payslip - {{ employee.full_name }} - {{ payroll_period.name }}`;
+
+    // Print the page
+    window.print();
+
+    // Restore original title
+    document.title = originalTitle;
+
+    // Show error messages again after printing
+    errorElements.forEach(el => el.style.display = '');
+}
+
+function downloadPDF() {
+    // Simple PDF download using browser's print to PDF
+    alert('To download as PDF:\n1. Click "Print Payslip"\n2. In the print dialog, select "Save as PDF" or "Microsoft Print to PDF"\n3. Choose your save location');
+    printPayslip();
+}
+
+function togglePrintPreview() {
+    const body = document.body;
+    const button = event.target.closest('button');
+
+    if (body.classList.contains('print-preview')) {
+        // Exit print preview
+        body.classList.remove('print-preview');
+        button.innerHTML = '<i class="bi bi-eye me-2"></i>Print Preview';
+        button.className = 'btn btn-info';
+
+        // Scroll back to top
+        window.scrollTo(0, 0);
+    } else {
+        // Enter print preview
+        body.classList.add('print-preview');
+        button.innerHTML = '<i class="bi bi-eye-slash me-2"></i>Exit Preview';
+        button.className = 'btn btn-warning';
+
+        // Scroll to show the payslip content
+        setTimeout(() => {
+            const card = document.querySelector('.card');
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
+}
+
+// Auto-focus print button for keyboard accessibility
+document.addEventListener('DOMContentLoaded', function() {
+    const printButton = document.querySelector('button[onclick="printPayslip()"]');
+    if (printButton) {
+        // Add keyboard shortcut Ctrl+P
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'p') {
+                e.preventDefault();
+                printPayslip();
+            }
+        });
+    }
+});
+
+// Print-specific optimizations
+window.addEventListener('beforeprint', function() {
+    // Ensure all images are loaded before printing
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        if (!img.complete) {
+            img.onload = function() {
+                // Image loaded
+            };
+        }
+    });
+
+    // Add print timestamp
+    const printTime = new Date().toLocaleString();
+    console.log('Payslip printed at:', printTime);
+});
+
+window.addEventListener('afterprint', function() {
+    console.log('Print dialog closed');
+});
+</script>
+{% endblock %}

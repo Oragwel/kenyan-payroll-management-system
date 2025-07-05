@@ -1,0 +1,203 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-warning {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .employee-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .danger-actions {
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                {% if organization and organization.logo %}
+                    <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                         class="me-4" style="height: 60px; width: auto; object-fit: contain;">
+                {% endif %}
+                <div>
+                    <h1 class="display-6 fw-bold text-danger mb-2">
+                        <i class="bi bi-person-x me-3"></i>
+                        Delete Employee
+                    </h1>
+                    <p class="lead text-muted">
+                        {% if organization %}{{ organization.name }} - {% endif %}Permanently remove employee from system
+                    </p>
+                </div>
+            </div>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Employees
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Warning Section -->
+<div class="delete-warning">
+    <i class="bi bi-exclamation-triangle fs-1 mb-3"></i>
+    <h3 class="mb-3">⚠️ DANGER ZONE ⚠️</h3>
+    <p class="mb-0 fs-5">
+        You are about to permanently delete this employee from the system.
+        <br><strong>This action cannot be undone!</strong>
+    </p>
+</div>
+
+<!-- Employee Information -->
+<div class="employee-info">
+    <h5 class="text-danger mb-3">
+        <i class="bi bi-person-circle me-2"></i>
+        Employee to be Deleted
+    </h5>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <table class="table table-borderless">
+                <tr>
+                    <td><strong>Full Name:</strong></td>
+                    <td>{{ employee.full_name }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Payroll Number:</strong></td>
+                    <td>{{ employee.payroll_number }}</td>
+                </tr>
+                <tr>
+                    <td><strong>National ID:</strong></td>
+                    <td>{{ employee.national_id }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Department:</strong></td>
+                    <td>{{ employee.department.name }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <table class="table table-borderless">
+                <tr>
+                    <td><strong>Job Title:</strong></td>
+                    <td>{{ employee.job_title.title }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Employment Type:</strong></td>
+                    <td>{{ employee.get_employment_type_display }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Email:</strong></td>
+                    <td>{{ employee.email|default:"Not provided" }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td>
+                        {% if employee.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Consequences Warning -->
+<div class="alert alert-danger">
+    <h6 class="alert-heading">
+        <i class="bi bi-exclamation-circle me-2"></i>
+        What will be deleted:
+    </h6>
+    <ul class="mb-0">
+        <li>All employee personal information</li>
+        <li>Employment history and records</li>
+        <li>Salary structure and payroll data</li>
+        <li>All associated documents and files</li>
+        <li>This action is <strong>PERMANENT</strong> and cannot be reversed</li>
+    </ul>
+</div>
+
+<!-- Action Buttons -->
+<div class="danger-actions">
+    <h6 class="text-danger mb-3">Confirm Deletion</h6>
+    <p class="text-muted mb-4">
+        Type the employee's full name to confirm deletion: <strong>{{ employee.full_name }}</strong>
+    </p>
+    
+    <form method="post" id="deleteForm">
+        {% csrf_token %}
+        <div class="mb-3">
+            <input type="text" class="form-control" id="confirmName" 
+                   placeholder="Type employee's full name to confirm" 
+                   style="max-width: 400px; margin: 0 auto;">
+        </div>
+        
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-secondary btn-lg">
+                <i class="bi bi-x-circle me-2"></i>Cancel
+            </a>
+            <button type="submit" class="btn btn-danger btn-lg" id="deleteBtn" disabled>
+                <i class="bi bi-trash me-2"></i>Delete Employee Permanently
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmInput = document.getElementById('confirmName');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const expectedName = "{{ employee.full_name }}";
+    
+    confirmInput.addEventListener('input', function() {
+        if (this.value.trim() === expectedName) {
+            deleteBtn.disabled = false;
+            deleteBtn.classList.remove('btn-danger');
+            deleteBtn.classList.add('btn-outline-danger');
+        } else {
+            deleteBtn.disabled = true;
+            deleteBtn.classList.remove('btn-outline-danger');
+            deleteBtn.classList.add('btn-danger');
+        }
+    });
+    
+    document.getElementById('deleteForm').addEventListener('submit', function(e) {
+        if (confirmInput.value.trim() !== expectedName) {
+            e.preventDefault();
+            alert('Please type the employee\'s full name exactly as shown to confirm deletion.');
+            return false;
+        }
+        
+        if (!confirm('Are you absolutely sure you want to delete this employee? This action cannot be undone!')) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

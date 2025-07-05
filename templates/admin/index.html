@@ -1,0 +1,145 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    .dashboard-welcome {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .quick-actions {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .quick-actions h3 {
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .action-link {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white !important;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        margin: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .action-link:hover {
+        background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        transform: translateY(-2px);
+        color: white !important;
+    }
+    
+    .module {
+        border-radius: 8px !important;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<script>
+// Redirect to enhanced dashboard for better user experience
+if (window.location.pathname === '/admin/') {
+    window.location.href = '/admin/dashboard/';
+}
+</script>
+
+<div class="dashboard-welcome">
+    <h1><i class="bi bi-gear me-2"></i>System Administration</h1>
+    <p class="mb-0">Advanced system configuration and management</p>
+</div>
+
+<div class="quick-actions">
+    <h3><i class="bi bi-lightning me-2"></i>Quick Actions</h3>
+    <a href="{% url 'core:admin_dashboard' %}" class="action-link">
+        <i class="bi bi-speedometer2 me-1"></i>Enhanced Dashboard
+    </a>
+    <a href="{% url 'payroll_admin:organization_dashboard' %}" class="action-link">
+        <i class="bi bi-building me-1"></i>Organization Management
+    </a>
+    <a href="{% url 'payroll_admin:user_management' %}" class="action-link">
+        <i class="bi bi-people me-1"></i>User Management
+    </a>
+    <a href="/admin/employees/employee/" class="action-link">
+        <i class="bi bi-person-badge me-1"></i>Employee Records
+    </a>
+</div>
+
+{% if app_list %}
+    {% for app in app_list %}
+        <div class="app-{{ app.app_label }} module">
+            <table>
+                <caption>
+                    <a href="{{ app.app_url }}" class="section" title="{% blocktranslate with name=app.name %}Models in the {{ name }} application{% endblocktranslate %}">
+                        {{ app.name }}
+                    </a>
+                </caption>
+                {% for model in app.models %}
+                    <tr class="model-{{ model.object_name|lower }}">
+                        {% if model.admin_url %}
+                            <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+                        {% else %}
+                            <th scope="row">{{ model.name }}</th>
+                        {% endif %}
+
+                        {% if model.add_url %}
+                            <td><a href="{{ model.add_url }}" class="addlink">{% translate 'Add' %}</a></td>
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+
+                        {% if model.admin_url %}
+                            {% if model.view_only %}
+                                <td><a href="{{ model.admin_url }}" class="viewlink">{% translate 'View' %}</a></td>
+                            {% else %}
+                                <td><a href="{{ model.admin_url }}" class="changelink">{% translate 'Change' %}</a></td>
+                            {% endif %}
+                        {% else %}
+                            <td>&nbsp;</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>{% translate "You don't have permission to view or edit anything." %}</p>
+{% endif %}
+
+<div style="margin-top: 2rem; padding: 1rem; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+    <h4 style="color: #1976d2; margin-bottom: 0.5rem;">
+        <i class="bi bi-info-circle me-2"></i>System Information
+    </h4>
+    <p style="margin: 0; color: #424242;">
+        This is the advanced system administration interface. For regular payroll management, 
+        use the <a href="{% url 'core:admin_dashboard' %}" style="color: #1976d2;">Enhanced Dashboard</a>.
+    </p>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+    <div class="module" id="recent-actions-module">
+        <h2>{% translate 'System Status' %}</h2>
+        <div style="padding: 15px;">
+            <p><i class="bi bi-check-circle text-success me-2"></i>System Online</p>
+            <p><i class="bi bi-shield-check text-success me-2"></i>Security Active</p>
+            <p><i class="bi bi-database text-info me-2"></i>Database Connected</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

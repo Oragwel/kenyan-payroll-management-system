@@ -1,0 +1,310 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .search-input-large {
+        font-size: 1rem !important;
+        padding: 8px 18px !important;
+        border-radius: 6px !important;
+        border: 2px solid #e9ecef !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+        height: 38px !important;
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .search-input-large:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+
+    .search-container {
+        position: relative;
+        width: 100%;
+        max-width: none;
+    }
+
+    .search-container::before {
+        content: '\F52A';
+        font-family: 'Bootstrap Icons';
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 10;
+        pointer-events: none;
+        font-size: 0.9rem;
+    }
+
+    .search-input-with-icon {
+        padding-left: 40px !important;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Employees - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if organization %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 80px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h1 class="display-5 fw-bold text-primary mb-1">
+                                {{ organization.name }}
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Employee Management
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-people me-3"></i>
+                        Employee Management
+                    </h1>
+                    <p class="lead text-muted">
+                        Manage employee records and salary structures
+                    </p>
+                {% endif %}
+            </div>
+            {% if user.is_staff %}
+                <div class="btn-group">
+                    <a href="{% url 'employees:bulk_employee_import' %}" class="btn btn-success btn-lg">
+                        <i class="bi bi-upload me-2"></i>Bulk Import
+                        <small class="badge bg-warning text-dark ms-1">Excel</small>
+                    </a>
+                    <a href="{% url 'employees:employee_create' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Add New Employee
+                        <small class="badge bg-warning text-dark ms-1">Admin</small>
+                    </a>
+                </div>
+            {% else %}
+                <button class="btn btn-secondary btn-lg" disabled title="Admin access required">
+                    <i class="bi bi-lock me-2"></i>Add New Employee
+                    <small class="badge bg-light text-dark ms-1">Admin Only</small>
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Search and Filter -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-search me-2"></i>
+                    Search & Filter Employees
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3" id="employee-search-form">
+                    <div class="col-12 col-md-7">
+                        <div class="search-container">
+                            {{ form.search }}
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        {{ form.department }}
+                    </div>
+                    <div class="col-6 col-md-1">
+                        {{ form.employment_type }}
+                    </div>
+                    <div class="col-6 col-md-1">
+                        {{ form.is_active }}
+                    </div>
+                    <div class="col-6 col-md-1">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i>
+                            <span class="d-none d-md-inline ms-1">Search</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Loading indicator -->
+                <div id="loading-indicator" class="text-center mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Searching...</span>
+                    </div>
+                    <div class="mt-2">Searching employees...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Statistics -->
+<div class="row mb-4" id="employee-stats">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                <div class="stat-value" id="total-employees">{{ total_employees }}</div>
+                <div class="stat-label">Total Found</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-person-check fs-1 text-success mb-3"></i>
+                <div class="stat-value" id="search-results">{{ page_obj.paginator.count }}</div>
+                <div class="stat-label">Search Results</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-building fs-1 text-info mb-3"></i>
+                <div class="stat-value" id="on-this-page">{{ page_obj.object_list|length }}</div>
+                <div class="stat-label">On This Page</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-person fs-1 text-warning mb-3"></i>
+                <div class="stat-value" id="current-page">{{ page_obj.number }}</div>
+                <div class="stat-label">Current Page</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee List -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-list me-2"></i>
+                    Employee List
+                </h5>
+            </div>
+            <div class="card-body" id="employee-table-container">
+                {% include 'employees/partials/employee_table.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Auto-filtering -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('employee-search-form');
+    const searchInput = form.querySelector('input[name="search"]');
+    const departmentSelect = form.querySelector('select[name="department"]');
+    const employmentTypeSelect = form.querySelector('select[name="employment_type"]');
+    const isActiveSelect = form.querySelector('select[name="is_active"]');
+    const loadingIndicator = document.getElementById('loading-indicator');
+    const tableContainer = document.getElementById('employee-table-container');
+
+    let searchTimeout;
+
+    function performSearch() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const formData = new FormData(form);
+            const params = new URLSearchParams(formData);
+
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+
+            fetch(`{% url 'employees:employee_search_ajax' %}?${params.toString()}`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+
+                // Update table content
+                tableContainer.innerHTML = data.html;
+
+                // Update statistics
+                document.getElementById('total-employees').textContent = data.total_employees;
+                document.getElementById('search-results').textContent = data.total_employees;
+                document.getElementById('current-page').textContent = data.current_page;
+
+                // Add event listeners to new pagination links
+                addPaginationListeners();
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                loadingIndicator.style.display = 'none';
+            });
+        }, 300); // 300ms delay for debouncing
+    }
+
+    function addPaginationListeners() {
+        const paginationLinks = document.querySelectorAll('.ajax-page');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.dataset.page;
+                const formData = new FormData(form);
+                formData.set('page', page);
+                const params = new URLSearchParams(formData);
+
+                loadingIndicator.style.display = 'block';
+
+                fetch(`{% url 'employees:employee_search_ajax' %}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    tableContainer.innerHTML = data.html;
+
+                    // Update statistics
+                    document.getElementById('current-page').textContent = data.current_page;
+
+                    // Re-add pagination listeners
+                    addPaginationListeners();
+                })
+                .catch(error => {
+                    console.error('Pagination error:', error);
+                    loadingIndicator.style.display = 'none';
+                });
+            });
+        });
+    }
+
+    // Add event listeners for auto-filtering
+    searchInput.addEventListener('input', performSearch);
+    departmentSelect.addEventListener('change', performSearch);
+    employmentTypeSelect.addEventListener('change', performSearch);
+    isActiveSelect.addEventListener('change', performSearch);
+
+    // Prevent form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        performSearch();
+    });
+
+    // Initialize pagination listeners
+    addPaginationListeners();
+});
+</script>
+
+{% endblock %}

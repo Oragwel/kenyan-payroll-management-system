@@ -1,0 +1,272 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .import-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
+    }
+    
+    .template-download {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .upload-area {
+        border: 2px dashed #007bff;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        background: #f8f9ff;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover {
+        border-color: #0056b3;
+        background: #e6f3ff;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .upload-btn {
+        background: #007bff;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 25px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .upload-btn:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+    }
+    
+    .instructions {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .error-list {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .success-info {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                {% if organization and organization.logo %}
+                    <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                         class="me-4" style="height: 60px; width: auto; object-fit: contain;">
+                {% endif %}
+                <div>
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-upload me-3"></i>
+                        {{ title }}
+                    </h1>
+                    <p class="lead text-muted">
+                        {% if organization %}{{ organization.name }} - {% endif %}Import multiple employees from Excel file
+                    </p>
+                </div>
+            </div>
+            <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Employees
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Template Download Section -->
+    <div class="template-download">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="mb-2">
+                    <i class="bi bi-download me-2"></i>
+                    Download Excel Template
+                </h4>
+                <p class="mb-0">Download the Excel template with sample data and instructions for bulk employee import.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="{% url 'employees:download_employee_template' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-file-earmark-excel me-2"></i>
+                    Download Template
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions">
+        <h5 class="text-warning mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Important Instructions
+        </h5>
+        <div class="row">
+            <div class="col-md-6">
+                <ul class="mb-0">
+                    <li>Download the Excel template first</li>
+                    <li><strong>MANDATORY FIELDS:</strong> first_name, last_name, national_id, department, job_title, employment_type, bank_name, account_number</li>
+                    <li><strong>UNIQUE MANDATORY:</strong> National ID (8 digits) and Bank Account Number must be unique</li>
+                    <li>Department and Job Title must match exactly</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="mb-0">
+                    <li><strong>OPTIONAL FIELDS:</strong> phone_number, middle_name, email, gender, date_of_birth, address, date_hired, bank_code, bank_branch</li>
+                    <li><strong>OPTIONAL BUT UNIQUE:</strong> KRA PIN, SHIF Number, NSSF Number (if provided, must be unique)</li>
+                    <li>KRA PIN format: A123456789B (optional)</li>
+                    <li><strong>BANK CODES:</strong> 12053 (National Bank), 68058 (Equity Bank), 01169 (KCB Bank), 11081 (Cooperative Bank), 03017 (Absa Bank), 74004 (Premier Bank), 72006 (Gulf African Bank)</li>
+                    <li>Employment type: permanent, contract, casual, intern</li>
+                    <li>Remove sample data before uploading</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Form -->
+    <div class="import-section">
+        <form method="post" enctype="multipart/form-data" id="importForm">
+            {% csrf_token %}
+            
+            <div class="upload-area" onclick="document.getElementById('id_excel_file').click();">
+                <i class="bi bi-cloud-upload" style="font-size: 3rem;" class="text-primary mb-3"></i>
+                <h5>Click to Select Excel File</h5>
+                <p class="text-muted mb-3">Or drag and drop your Excel file here</p>
+                <button type="button" class="upload-btn">
+                    <i class="bi bi-folder2-open me-2"></i>
+                    Choose File
+                </button>
+                {{ form.excel_file }}
+            </div>
+            
+            <div class="mt-3">
+                {% if form.excel_file.help_text %}
+                    <small class="text-muted">{{ form.excel_file.help_text }}</small>
+                {% endif %}
+                {% if form.excel_file.errors %}
+                    <div class="text-danger mt-2">
+                        {% for error in form.excel_file.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-upload me-2"></i>
+                    Import Employees
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Section -->
+    {% if errors %}
+        <div class="error-list">
+            <h5 class="text-danger mb-3">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Import Errors ({{ errors|length }})
+            </h5>
+            {% for error in errors %}
+                <div class="alert alert-danger py-2 mb-2">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if processed_count %}
+        <div class="success-info">
+            <h5 class="text-success mb-2">
+                <i class="bi bi-check-circle me-2"></i>
+                Processing Summary
+            </h5>
+            <p class="mb-0">Successfully processed {{ processed_count }} employee records from the Excel file.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('id_excel_file');
+    const uploadArea = document.querySelector('.upload-area');
+    
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            const fileName = this.files[0].name;
+            uploadArea.innerHTML = `
+                <i class="bi bi-file-earmark-excel" style="font-size: 3rem;" class="text-success mb-3"></i>
+                <h5 class="text-success">File Selected</h5>
+                <p class="text-muted mb-3">${fileName}</p>
+                <button type="button" class="upload-btn" onclick="document.getElementById('id_excel_file').click();">
+                    <i class="bi bi-pencil me-2"></i>
+                    Change File
+                </button>
+            `;
+        }
+    });
+    
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#0056b3';
+        this.style.background = '#e6f3ff';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#007bff';
+        this.style.background = '#f8f9ff';
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#007bff';
+        this.style.background = '#f8f9ff';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Organization Management - {% if active_org %}{{ active_org.name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    .current-org-card {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+    }
+    .quick-action-card {
+        background: linear-gradient(135deg, #fd7e14 0%, #e83e8c 100%);
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        transition: transform 0.3s ease;
+        cursor: pointer;
+    }
+    .quick-action-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .org-grid-card {
+        border: 2px solid #e9ecef;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .org-grid-card:hover {
+        border-color: #007bff;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,123,255,0.15);
+    }
+    .org-grid-card.default {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
+    }
+    .org-type-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 1rem;
+    }
+    .section-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+    }
+    .action-btn {
+        border-radius: 50px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    .no-orgs-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 1rem;
+        border: 2px dashed #dee2e6;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            {% if active_org %}
+                <div class="d-flex align-items-center">
+                    {% if active_org.logo %}
+                        <img src="{{ active_org.logo.url }}" alt="{{ active_org.name }} Logo"
+                             class="me-4" style="height: 60px; width: auto; object-fit: contain;">
+                    {% endif %}
+                    <div>
+                        <h1 class="h2 mb-0">{{ active_org.name }}</h1>
+                        <p class="text-muted mb-0 fs-5">Organization Management</p>
+                    </div>
+                </div>
+            {% else %}
+                <h1 class="h3 mb-0">Organization Management</h1>
+                <p class="text-muted">Manage your organization settings and default entity</p>
+            {% endif %}
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'payroll_admin:organization_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Add Organization
+            </a>
+            <a href="{% url 'payroll_admin:quick_setup_wizard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-magic me-2"></i>Quick Setup
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-building fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ stats.total_organizations }}</h3>
+                    <p class="mb-0">Total Organizations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ stats.active_organizations }}</h3>
+                    <p class="mb-0">Active Organizations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-briefcase fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ stats.companies }}</h3>
+                    <p class="mb-0">Private Companies</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card">
+                <div class="card-body text-center">
+                    <i class="bi bi-bank fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ stats.government|add:stats.parastatals }}</h3>
+                    <p class="mb-0">Government Entities</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Default Organization -->
+    {% if active_org %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-success">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-star-fill me-2"></i>Current Default Organization
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4>{{ active_org.name }}</h4>
+                            {% if active_org.short_name %}
+                                <p class="text-muted mb-2">{{ active_org.short_name }}</p>
+                            {% endif %}
+                            <p class="mb-1"><strong>Type:</strong> {{ active_org.get_organization_type_display }}</p>
+                            <p class="mb-1"><strong>KRA PIN:</strong> {{ active_org.kra_pin }}</p>
+                            <p class="mb-0"><strong>Address:</strong> {{ active_org.full_address }}</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <a href="{% url 'payroll_admin:organization_detail' active_org.id %}" class="btn btn-outline-primary me-2">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                            <a href="{% url 'payroll_admin:organization_edit' active_org.id %}" class="btn btn-primary">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Organizations List -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">All Organizations</h5>
+        </div>
+        <div class="card-body">
+            {% if organizations %}
+                <div class="row">
+                    {% for org in organizations %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card org-card {% if org.is_active %}active{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="card-title mb-0">{{ org.name }}</h6>
+                                    {% if org.is_active %}
+                                        <span class="badge bg-success">Default</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <span class="badge org-type-badge 
+                                    {% if org.organization_type == 'COMPANY' %}bg-primary
+                                    {% elif org.organization_type == 'GOVERNMENT' %}bg-success
+                                    {% elif org.organization_type == 'PARASTATAL' %}bg-warning
+                                    {% elif org.organization_type == 'NGO' %}bg-info
+                                    {% else %}bg-secondary{% endif %}">
+                                    {{ org.get_organization_type_display }}
+                                </span>
+                                
+                                {% if org.short_name %}
+                                    <p class="text-muted small mt-1 mb-2">{{ org.short_name }}</p>
+                                {% endif %}
+                                
+                                <p class="small mb-2">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ org.city }}, {{ org.country }}
+                                </p>
+                                
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{% url 'payroll_admin:organization_detail' org.id %}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'payroll_admin:organization_edit' org.id %}"
+                                       class="btn btn-sm btn-outline-warning">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if not org.is_active %}
+                                        <button class="btn btn-sm btn-outline-success set-default-btn" 
+                                                data-org-id="{{ org.id }}" data-org-name="{{ org.name }}">
+                                            <i class="bi bi-star"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-building fs-1 text-muted mb-3"></i>
+                    <h5 class="text-muted">No Organizations Found</h5>
+                    <p class="text-muted">Create your first organization to get started.</p>
+                    <a href="{% url 'payroll_admin:organization_create' %}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create Organization
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Set Default Modal -->
+<div class="modal fade" id="setDefaultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Default Organization</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to set <strong id="orgName"></strong> as the default organization?</p>
+                <p class="text-muted small">This will be used for all payroll operations and will appear on payslips.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" id="setDefaultForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Set as Default</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const setDefaultBtns = document.querySelectorAll('.set-default-btn');
+    const modal = new bootstrap.Modal(document.getElementById('setDefaultModal'));
+    const form = document.getElementById('setDefaultForm');
+    const orgNameSpan = document.getElementById('orgName');
+    
+    setDefaultBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orgId = this.dataset.orgId;
+            const orgName = this.dataset.orgName;
+            
+            orgNameSpan.textContent = orgName;
+            form.action = `{% url 'payroll_admin:set_default_organization' 0 %}`.replace('0', orgId);
+            
+            modal.show();
+        });
+    });
+});
+</script>
+{% endblock %}
