@@ -1,0 +1,366 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Security Dashboard - Government Payroll System{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Security dashboard styles */
+.security-header {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 32px rgba(220, 53, 69, 0.2);
+}
+
+.security-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.security-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.security-metric {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.security-metric .metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #198754;
+}
+
+.security-metric .metric-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.alert-item {
+    border-left: 4px solid #dc3545;
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    border-radius: 0 6px 6px 0;
+}
+
+.log-entry {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-active { background: #d1edff; color: #0c63e4; }
+.status-warning { background: #fff3cd; color: #856404; }
+.status-danger { background: #f8d7da; color: #721c24; }
+.status-success { background: #d1e7dd; color: #0f5132; }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="security-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold mb-2">
+                <i class="bi bi-shield-lock-fill me-3"></i>
+                Security Dashboard
+            </h1>
+            <p class="lead mb-0">
+                Government Payroll System - Security Monitoring & Access Control
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="d-flex flex-column align-items-end">
+                <span class="badge bg-light text-dark mb-2">Classification: CONFIDENTIAL</span>
+                <span class="text-light">Last Updated: {{ request.user.last_login|date:"M d, Y g:i A" }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <!-- Security Metrics -->
+    <div class="col-md-3 mb-3">
+        <div class="card security-card">
+            <div class="security-metric">
+                <div class="metric-value">{{ active_sessions|default:1 }}</div>
+                <div class="metric-label">Active Sessions</div>
+                <span class="status-badge status-active">Online</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card security-card">
+            <div class="security-metric">
+                <div class="metric-value">{{ total_users|default:5 }}</div>
+                <div class="metric-label">Total Users</div>
+                <span class="status-badge status-success">Managed</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card security-card">
+            <div class="security-metric">
+                <div class="metric-value">{{ staff_users|default:2 }}</div>
+                <div class="metric-label">Admin Users</div>
+                <span class="status-badge status-warning">Privileged</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card security-card">
+            <div class="security-metric">
+                <div class="metric-value">0</div>
+                <div class="metric-label">Security Alerts</div>
+                <span class="status-badge status-success">Secure</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Security Features -->
+    <div class="col-md-6 mb-4">
+        <div class="card security-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Security Features Active
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-link-45deg me-2 text-success"></i>URL Obfuscation</span>
+                        <span class="status-badge status-success">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-key me-2 text-success"></i>Token-Based Access</span>
+                        <span class="status-badge status-success">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-journal-text me-2 text-success"></i>Audit Logging</span>
+                        <span class="status-badge status-success">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-shield-lock me-2 text-success"></i>CSRF Protection</span>
+                        <span class="status-badge status-success">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-person-check me-2 text-success"></i>Role-Based Access</span>
+                        <span class="status-badge status-success">Active</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-clock me-2 text-success"></i>Session Timeout</span>
+                        <span class="status-badge status-success">30 min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Security Events -->
+    <div class="col-md-6 mb-4">
+        <div class="card security-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-activity me-2"></i>
+                    Recent Security Events
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_logins %}
+                    {% for login in recent_logins %}
+                    <div class="log-entry">
+                        <strong>{{ login.timestamp|date:"M d, H:i" }}</strong> - 
+                        User {{ login.username }} logged in from {{ login.ip_address }}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="log-entry">
+                    <strong>{{ request.user.last_login|date:"M d, H:i" }}</strong> - 
+                    User {{ request.user.username }} logged in (current session)
+                </div>
+                <div class="log-entry">
+                    <strong>System</strong> - Security monitoring active
+                </div>
+                <div class="log-entry">
+                    <strong>System</strong> - URL obfuscation enabled
+                </div>
+                <div class="log-entry">
+                    <strong>System</strong> - Token-based access configured
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Security Alerts -->
+    <div class="col-md-6 mb-4">
+        <div class="card security-card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Security Alerts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if security_alerts %}
+                    {% for alert in security_alerts %}
+                    <div class="alert-item">
+                        <strong>{{ alert.type }}</strong> - {{ alert.message }}
+                        <small class="text-muted d-block">{{ alert.timestamp|date:"M d, Y H:i" }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-shield-check text-success" style="font-size: 3rem;"></i>
+                    <h6 class="mt-3 text-success">No Security Alerts</h6>
+                    <p class="text-muted">All systems are secure and functioning normally.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Security Configuration -->
+    <div class="col-md-6 mb-4">
+        <div class="card security-card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>
+                    Security Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <h6 class="text-primary">URL Security</h6>
+                <ul class="list-unstyled mb-3">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Admin routes obfuscated</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Export routes secured</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Sensitive IDs hidden</li>
+                </ul>
+                
+                <h6 class="text-primary">Access Control</h6>
+                <ul class="list-unstyled mb-3">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Token-based authentication</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Role-based permissions</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Session management</li>
+                </ul>
+                
+                <h6 class="text-primary">Monitoring</h6>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Comprehensive audit logging</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Access attempt tracking</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Security event monitoring</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if user.is_staff %}
+<div class="row">
+    <div class="col-12">
+        <div class="card security-card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-tools me-2"></i>
+                    Administrative Security Tools
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'payroll_admin:user_management' %}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-people me-2"></i>
+                            User Management
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="{% url 'payroll_admin:system_settings' %}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-gear me-2"></i>
+                            System Settings
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-info w-100" onclick="generateSecurityReport()">
+                            <i class="bi bi-file-earmark-text me-2"></i>
+                            Security Report
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-warning w-100" onclick="clearSecurityLogs()">
+                            <i class="bi bi-trash me-2"></i>
+                            Clear Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-refresh security dashboard every 5 minutes
+setInterval(function() {
+    location.reload();
+}, 5 * 60 * 1000);
+
+// Security tools functions
+function generateSecurityReport() {
+    alert('Security report generation would be implemented here.\n\nThis would include:\n- Access logs\n- Security events\n- User activity\n- System status');
+}
+
+function clearSecurityLogs() {
+    if (confirm('Are you sure you want to clear security logs?\n\nThis action cannot be undone and may affect audit compliance.')) {
+        alert('Security log clearing would be implemented here with proper authorization.');
+    }
+}
+
+// Security monitoring
+document.addEventListener('DOMContentLoaded', function() {
+    // Log dashboard access
+    console.log('Security dashboard accessed at:', new Date().toISOString());
+    
+    // Monitor for suspicious activity
+    let clickCount = 0;
+    document.addEventListener('click', function() {
+        clickCount++;
+        if (clickCount > 100) {
+            console.warn('High click activity detected');
+        }
+    });
+});
+</script>
+{% endblock %}

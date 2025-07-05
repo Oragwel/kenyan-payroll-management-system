@@ -1,0 +1,121 @@
+<!-- Mobile-friendly card view for employees -->
+<div class="d-md-none">
+    {% if page_obj %}
+        {% for employee in page_obj %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-8">
+                            <h6 class="card-title mb-1">
+                                <strong>{{ employee.full_name }}</strong>
+                                {% if employee.is_active %}
+                                    <span class="badge bg-success ms-2">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger ms-2">Inactive</span>
+                                {% endif %}
+                            </h6>
+                            <p class="card-text small text-muted mb-2">
+                                <i class="bi bi-envelope me-1"></i>{{ employee.email|default:"No email" }}
+                            </p>
+                            <div class="mb-2">
+                                <span class="badge bg-primary me-1">{{ employee.payroll_number }}</span>
+                                <span class="badge bg-secondary">{{ employee.department.code }}</span>
+                            </div>
+                            <p class="card-text small mb-1">
+                                <i class="bi bi-building me-1"></i>{{ employee.department.name }}
+                            </p>
+                            <p class="card-text small mb-1">
+                                <i class="bi bi-briefcase me-1"></i>{{ employee.job_title.title }}
+                            </p>
+                            <p class="card-text small mb-1">
+                                <i class="bi bi-person-badge me-1"></i>
+                                <span class="badge bg-{% if employee.employment_type == 'PERMANENT' %}success{% elif employee.employment_type == 'CONTRACT' %}warning{% else %}info{% endif %}">
+                                    {{ employee.get_employment_type_display }}
+                                </span>
+                            </p>
+                            {% if employee.date_hired %}
+                                <p class="card-text small text-muted mb-0">
+                                    <i class="bi bi-calendar me-1"></i>Hired: {{ employee.date_hired|date:"M d, Y" }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        <div class="col-4 text-end">
+                            {% if user.is_staff %}
+                                <input type="checkbox" class="form-check-input employee-checkbox mb-2"
+                                       name="employee_ids" value="{{ employee.id }}">
+                            {% endif %}
+                            <div class="btn-group-vertical" role="group">
+                                <a href="{% url 'employees:employee_detail' employee.pk %}"
+                                   class="btn btn-sm btn-outline-primary mb-1">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'employees:employee_update' employee.pk %}"
+                                       class="btn btn-sm btn-outline-warning mb-1">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    {% if employee.is_active %}
+                                        <a href="{% url 'employees:employee_deactivate' employee.pk %}"
+                                           class="btn btn-sm btn-outline-danger mb-1">
+                                            <i class="bi bi-person-x me-1"></i>Deactivate
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'employees:employee_delete' employee.pk %}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Are you sure you want to delete {{ employee.full_name }}?')">
+                                        <i class="bi bi-trash me-1"></i>Delete
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        <!-- Pagination for mobile cards -->
+        {% if page_obj.has_other_pages %}
+            <nav aria-label="Employee pagination" class="mt-4">
+                <ul class="pagination pagination-sm justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}">
+                                <i class="bi bi-chevron-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.is_active %}&is_active={{ request.GET.is_active }}{% endif %}">
+                                <i class="bi bi-chevron-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-people fs-1 text-muted mb-3"></i>
+            <h5 class="text-muted">No employees found</h5>
+            <p class="text-muted">Try adjusting your search criteria or add new employees.</p>
+        </div>
+    {% endif %}
+</div>

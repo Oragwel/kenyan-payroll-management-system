@@ -1,0 +1,342 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ organization.name }} - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        border-left: 4px solid #007bff;
+        background-color: #f8f9fa;
+    }
+    .dept-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-left: 3px solid #dee2e6;
+    }
+    .dept-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-left-color: #007bff;
+    }
+    .org-type-badge {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">{{ organization.name }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'payroll_admin:organization_dashboard' %}">Organizations</a></li>
+                    <li class="breadcrumb-item active">{{ organization.name }}</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="btn-group">
+            <a href="{% url 'payroll_admin:organization_edit' organization.id %}" class="btn btn-primary">
+                <i class="bi bi-pencil me-2"></i>Edit Organization
+            </a>
+            {% if not organization.is_active %}
+                <button class="btn btn-success set-default-btn" 
+                        data-org-id="{{ organization.id }}" data-org-name="{{ organization.name }}">
+                    <i class="bi bi-star me-2"></i>Set as Default
+                </button>
+            {% endif %}
+            <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Organizations
+            </a>
+        </div>
+    </div>
+
+    <!-- Organization Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card {% if organization.is_active %}border-success{% endif %}">
+                <div class="card-header {% if organization.is_active %}bg-success text-white{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Organization Overview</h5>
+                        <div>
+                            <span class="badge org-type-badge 
+                                {% if organization.organization_type == 'COMPANY' %}bg-primary
+                                {% elif organization.organization_type == 'GOVERNMENT' %}bg-success
+                                {% elif organization.organization_type == 'PARASTATAL' %}bg-warning text-dark
+                                {% elif organization.organization_type == 'NGO' %}bg-info
+                                {% else %}bg-secondary{% endif %}">
+                                {{ organization.get_organization_type_display }}
+                            </span>
+                            {% if organization.is_active %}
+                                <span class="badge status-badge bg-light text-success ms-2">
+                                    <i class="bi bi-star-fill me-1"></i>Default Organization
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Organization Details -->
+    <div class="row mb-4">
+        <!-- Basic Information -->
+        <div class="col-md-6">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Basic Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Official Name:</strong></td>
+                            <td>{{ organization.name }}</td>
+                        </tr>
+                        {% if organization.short_name %}
+                        <tr>
+                            <td><strong>Short Name:</strong></td>
+                            <td>{{ organization.short_name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if organization.trading_name %}
+                        <tr>
+                            <td><strong>Trading Name:</strong></td>
+                            <td>{{ organization.trading_name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if organization.ministry %}
+                        <tr>
+                            <td><strong>Ministry:</strong></td>
+                            <td>{{ organization.ministry }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if organization.sector %}
+                        <tr>
+                            <td><strong>Sector:</strong></td>
+                            <td>{{ organization.sector }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td><strong>Organization Type:</strong></td>
+                            <td>{{ organization.get_organization_type_display }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="col-md-6">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-telephone me-2"></i>Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Address:</strong></td>
+                            <td>{{ organization.full_address }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phone:</strong></td>
+                            <td>{{ organization.phone_number }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td><a href="mailto:{{ organization.email }}">{{ organization.email }}</a></td>
+                        </tr>
+                        {% if organization.website %}
+                        <tr>
+                            <td><strong>Website:</strong></td>
+                            <td><a href="{{ organization.website }}" target="_blank">{{ organization.website }}</a></td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td><strong>Country:</strong></td>
+                            <td>{{ organization.country }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration & Compliance -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-file-text me-2"></i>Registration & Compliance</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>KRA PIN:</strong></td>
+                            <td><code>{{ organization.kra_pin }}</code></td>
+                        </tr>
+                        {% if organization.registration_number %}
+                        <tr>
+                            <td><strong>Registration:</strong></td>
+                            <td>{{ organization.registration_display }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if organization.nssf_employer_number %}
+                        <tr>
+                            <td><strong>NSSF Number:</strong></td>
+                            <td>{{ organization.nssf_employer_number }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if organization.shif_employer_number %}
+                        <tr>
+                            <td><strong>SHIF Number:</strong></td>
+                            <td>{{ organization.shif_employer_number }}</td>
+                        </tr>
+                        {% endif %}
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="col-md-6">
+            <div class="card info-card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Settings</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Default Pay Day:</strong></td>
+                            <td>{{ organization.default_pay_day }} of each month</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td>
+                                {% if organization.is_active %}
+                                    <span class="badge bg-success">Active (Default)</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Created:</strong></td>
+                            <td>{{ organization.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Last Updated:</strong></td>
+                            <td>{{ organization.updated_at|date:"M d, Y" }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Departments -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-building me-2"></i>Departments ({{ departments.count }})</h5>
+                <a href="#" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Add Department
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if departments %}
+                <div class="row">
+                    {% for dept in departments %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card dept-card">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ dept.name }}</h6>
+                                <p class="text-muted small mb-2">Code: {{ dept.code }}</p>
+                                {% if dept.description %}
+                                    <p class="small text-muted mb-2">{{ dept.description }}</p>
+                                {% endif %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-people me-1"></i>
+                                        {{ dept.employee_set.count }} employee{{ dept.employee_set.count|pluralize }}
+                                    </small>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="#" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-outline-warning btn-sm">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-building fs-1 text-muted mb-3"></i>
+                    <h6 class="text-muted">No Departments</h6>
+                    <p class="text-muted">This organization doesn't have any departments yet.</p>
+                    <a href="#" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Create First Department
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Set Default Modal -->
+<div class="modal fade" id="setDefaultModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set Default Organization</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to set <strong id="orgName"></strong> as the default organization?</p>
+                <p class="text-muted small">This will be used for all payroll operations and will appear on payslips.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" id="setDefaultForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">Set as Default</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const setDefaultBtn = document.querySelector('.set-default-btn');
+    if (setDefaultBtn) {
+        const modal = new bootstrap.Modal(document.getElementById('setDefaultModal'));
+        const form = document.getElementById('setDefaultForm');
+        const orgNameSpan = document.getElementById('orgName');
+        
+        setDefaultBtn.addEventListener('click', function() {
+            const orgId = this.dataset.orgId;
+            const orgName = this.dataset.orgName;
+            
+            orgNameSpan.textContent = orgName;
+            form.action = `{% url 'payroll_admin:set_default_organization' 0 %}`.replace('0', orgId);
+            
+            modal.show();
+        });
+    }
+});
+</script>
+{% endblock %}

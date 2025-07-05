@@ -1,0 +1,294 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payroll Generation - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if organization %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 80px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h1 class="display-5 fw-bold text-primary mb-1">
+                                {{ organization.name }}
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Payroll Generation
+                                <span class="badge bg-warning text-dark ms-2">Admin Only</span>
+                            </p>
+                            <small class="text-warning">
+                                <i class="bi bi-shield-exclamation me-1"></i>
+                                Future months are restricted
+                            </small>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-calendar-check me-3"></i>
+                        Payroll Generation
+                        <span class="badge bg-warning text-dark ms-2">Admin Only</span>
+                    </h1>
+                    <p class="lead text-muted">
+                        Generate payroll for current and past months
+                        <br>
+                        <small class="text-warning">
+                            <i class="bi bi-shield-exclamation me-1"></i>
+                            Future months are restricted
+                        </small>
+                    </p>
+                {% endif %}
+            </div>
+            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>
+                    Select Payroll Period
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if error %}
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        {{ error }}
+                    </div>
+                {% endif %}
+
+                {% if success %}
+                    <div class="alert alert-success">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <strong>Payroll Generated Successfully!</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Period: <strong>{{ payroll_period.name }}</strong></li>
+                            <li>Employees Processed: <strong>{{ total_employees }}</strong></li>
+                            <li>New Payslips Created: <strong>{{ payslips_created }}</strong></li>
+                            <li>Existing Payslips Updated: <strong>{{ payslips_updated }}</strong></li>
+                        </ul>
+                        <div class="mt-3">
+                            <a href="{% url 'payroll_processing:payroll_reports' %}" class="btn btn-primary me-2">
+                                <i class="bi bi-graph-up me-1"></i>View Reports
+                            </a>
+                            <a href="/admin/payroll_processing/payrollperiod/{{ payroll_period.id }}/change/" class="btn btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>View Details
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <form method="post" class="row g-3">
+                    {% csrf_token %}
+                    
+                    <div class="col-md-6">
+                        <label for="month" class="form-label fw-semibold">
+                            <i class="bi bi-calendar-month me-1"></i>
+                            Select Month
+                        </label>
+                        <select name="month" id="month" class="form-select" required>
+                            {% for month_num, month_name in months %}
+                                <option value="{{ month_num }}"
+                                    {% if month_num == selected_month or month_num == current_month and not selected_month %}selected{% endif %}
+                                    data-month="{{ month_num }}">
+                                    {{ month_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Only current and past months are allowed</div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="year" class="form-label fw-semibold">
+                            <i class="bi bi-calendar-year me-1"></i>
+                            Select Year
+                        </label>
+                        <select name="year" id="year" class="form-select" required>
+                            {% for year in years %}
+                                <option value="{{ year }}"
+                                    {% if year == selected_year or year == current_year and not selected_year %}selected{% endif %}
+                                    data-year="{{ year }}">
+                                    {{ year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">2020 to {{ current_year }} only</div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>How it works:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><strong>Time Restriction:</strong> Only current month ({{ today|date:"F Y" }}) and past months are allowed</li>
+                                <li><strong>Employee Processing:</strong> System calculates payroll for all active employees with salary structures</li>
+                                <li><strong>Auto Calculations:</strong> PAYE, NSSF, SHIF, and Housing Levy calculated automatically</li>
+                                <li><strong>Update Mode:</strong> If payroll exists for the period, it will be updated with current salary structures</li>
+                                <li><strong>Pay Date:</strong> Automatically set to 3 days after month end</li>
+                            </ul>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> Future month payroll generation is restricted to prevent premature processing.
+                            You can only generate payroll for completed or current months.
+                        </div>
+
+                        <div class="alert alert-danger">
+                            <i class="bi bi-shield-exclamation me-2"></i>
+                            <strong>Security Notice:</strong> This is a restricted administrative function. Only authorized personnel
+                            with admin privileges can generate payroll. All payroll generation activities are logged for audit purposes.
+                        </div>
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-play-circle me-2"></i>
+                                Generate Payroll
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-people fs-1 text-primary mb-2"></i>
+                        <h5>Active Employees</h5>
+                        <p class="text-muted">Ready for payroll processing</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-calculator fs-1 text-success mb-2"></i>
+                        <h5>Auto Calculations</h5>
+                        <p class="text-muted">PAYE, NSSF, SHIF, Housing Levy</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text fs-1 text-info mb-2"></i>
+                        <h5>Payslip Generation</h5>
+                        <p class="text-muted">Professional payslips for all employees</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add some interactivity to the form
+    const monthSelect = document.getElementById('month');
+    const yearSelect = document.getElementById('year');
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    // Current date for validation
+    const currentYear = {{ current_year }};
+    const currentMonth = {{ current_month }};
+
+    // Validate selection and update UI
+    function validateSelection() {
+        const selectedMonth = parseInt(monthSelect.value);
+        const selectedYear = parseInt(yearSelect.value);
+        const selectedMonthName = monthSelect.options[monthSelect.selectedIndex].text;
+
+        // Check if selection is in the future
+        const isFuture = (selectedYear > currentYear) ||
+                        (selectedYear === currentYear && selectedMonth > currentMonth);
+
+        if (isFuture) {
+            // Disable submit button and show warning
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-x-circle me-2"></i>Future Month Not Allowed';
+            submitButton.className = 'btn btn-danger btn-lg';
+
+            // Show warning message
+            showValidationMessage(`Cannot generate payroll for ${selectedMonthName} ${selectedYear}. Only current and past months are allowed.`, 'danger');
+        } else {
+            // Enable submit button
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-play-circle me-2"></i>Generate Payroll';
+            submitButton.className = 'btn btn-success btn-lg';
+
+            // Show success message
+            showValidationMessage(`Ready to generate payroll for ${selectedMonthName} ${selectedYear}`, 'success');
+        }
+    }
+
+    // Show validation message
+    function showValidationMessage(message, type) {
+        // Remove existing validation message
+        const existingMessage = document.getElementById('validation-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        // Create new validation message
+        const alertDiv = document.createElement('div');
+        alertDiv.id = 'validation-message';
+        alertDiv.className = `alert alert-${type} mt-3`;
+        alertDiv.innerHTML = `<i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}`;
+
+        // Insert before submit button
+        const submitContainer = submitButton.closest('.col-12');
+        submitContainer.insertBefore(alertDiv, submitContainer.lastElementChild);
+    }
+
+    // Add event listeners
+    monthSelect.addEventListener('change', validateSelection);
+    yearSelect.addEventListener('change', validateSelection);
+
+    // Initial validation
+    validateSelection();
+
+    // Form submission confirmation
+    form.addEventListener('submit', function(e) {
+        const selectedMonth = monthSelect.options[monthSelect.selectedIndex].text;
+        const selectedYear = yearSelect.value;
+
+        // Double-check validation before submission
+        const selectedMonthNum = parseInt(monthSelect.value);
+        const selectedYearNum = parseInt(selectedYear);
+        const isFuture = (selectedYearNum > currentYear) ||
+                        (selectedYearNum === currentYear && selectedMonthNum > currentMonth);
+
+        if (isFuture) {
+            e.preventDefault();
+            alert('Cannot generate payroll for future months!');
+            return;
+        }
+
+        if (!confirm(`Generate payroll for ${selectedMonth} ${selectedYear}?\n\nThis will process all active employees and create/update their payslips.`)) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

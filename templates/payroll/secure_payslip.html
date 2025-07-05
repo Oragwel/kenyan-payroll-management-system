@@ -1,0 +1,367 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Secure Payslip Access - {{ employee.full_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Security indicator styles */
+.security-indicator {
+    background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    color: white;
+    padding: 12px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+}
+
+.security-indicator i {
+    margin-right: 8px;
+    font-size: 1.2em;
+}
+
+/* Secure access badge */
+.secure-badge {
+    background: #198754;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Enhanced payslip styling for secure access */
+.secure-payslip {
+    border: 2px solid #198754;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(25, 135, 84, 0.15);
+}
+
+.secure-payslip .payslip-header {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+}
+
+.secure-payslip .payslip-header::before {
+    content: "🔒";
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.5rem;
+}
+
+.secure-payslip .payslip-content {
+    padding: 2rem;
+    background: white;
+}
+
+/* Security warning */
+.security-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* Session info */
+.session-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 20px;
+}
+
+/* Print styles for secure payslip */
+@media print {
+    .security-indicator,
+    .security-warning,
+    .session-info,
+    .no-print {
+        display: none !important;
+    }
+    
+    .secure-payslip {
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .secure-payslip .payslip-header::before {
+        display: none !important;
+    }
+}
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4 no-print">
+    <div class="col-12">
+        <!-- Security Indicator -->
+        <div class="security-indicator">
+            <i class="bi bi-shield-lock-fill"></i>
+            SECURE ACCESS MODE - This payslip was accessed using encrypted token authentication
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="bi bi-file-earmark-text me-3"></i>
+                    Secure Payslip Access
+                    <span class="secure-badge">
+                        <i class="bi bi-shield-check"></i>
+                        Verified
+                    </span>
+                </h1>
+                <p class="lead text-muted">
+                    {{ employee.full_name }} - {{ payroll_period.name }}
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <button onclick="printSecurePayslip()" class="btn btn-primary">
+                    <i class="bi bi-printer me-2"></i>Print Payslip
+                </button>
+                <button onclick="downloadSecurePDF()" class="btn btn-success">
+                    <i class="bi bi-download me-2"></i>Download PDF
+                </button>
+                <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Employee
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Security Warning -->
+<div class="security-warning no-print">
+    <h6><i class="bi bi-exclamation-triangle me-2"></i>Security Notice</h6>
+    <p class="mb-0">
+        This payslip was accessed using secure token authentication. The access token has been automatically 
+        revoked after use. Do not share this page or leave it unattended.
+    </p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card secure-payslip">
+            <!-- Secure Payslip Header -->
+            <div class="payslip-header">
+                {% if organization and organization.logo %}
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                             style="height: 60px; width: auto; object-fit: contain; margin-right: 15px;">
+                        <div class="text-center">
+                            <h2 class="mb-1">SECURE PAYSLIP</h2>
+                            <h4 class="mb-0">{{ organization.name }}</h4>
+                        </div>
+                    </div>
+                {% else %}
+                    <h2 class="mb-1">SECURE PAYSLIP</h2>
+                    {% if organization %}
+                        <h4 class="mb-0">{{ organization.name }}</h4>
+                    {% endif %}
+                {% endif %}
+                
+                {% if organization %}
+                    <div class="mt-3">
+                        {% if organization.address_line_1 %}
+                            <p class="mb-1">{{ organization.address_line_1 }}</p>
+                        {% endif %}
+                        {% if organization.phone_number %}
+                            <p class="mb-0">Tel: {{ organization.phone_number }}</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Payslip Content -->
+            <div class="payslip-content">
+                <!-- Employee and Period Information -->
+                <div class="row payslip-section">
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3">Employee Information</h5>
+                        <div class="payslip-item">
+                            <span>Payroll Number:</span>
+                            <strong>{{ employee.payroll_number }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Full Name:</span>
+                            <strong>{{ employee.full_name }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Department:</span>
+                            <span>{{ employee.department.name }} ({{ employee.department.code }})</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Job Title:</span>
+                            <span>{{ employee.job_title.title }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="text-primary mb-3">Pay Period</h5>
+                        <div class="payslip-item">
+                            <span>Period:</span>
+                            <strong>{{ payroll_period.name }}</strong>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Start Date:</span>
+                            <span>{{ payroll_period.start_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>End Date:</span>
+                            <span>{{ payroll_period.end_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="payslip-item">
+                            <span>Pay Date:</span>
+                            <span>{{ payroll_period.pay_date|date:"F d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Earnings Section -->
+                <div class="payslip-section">
+                    <h5 class="text-success mb-3">Earnings</h5>
+                    <div class="payslip-item">
+                        <span>Basic Salary:</span>
+                        <strong>KSh {{ payslip.basic_salary|floatformat:2 }}</strong>
+                    </div>
+                    {% if payslip.total_allowances > 0 %}
+                    <div class="payslip-item">
+                        <span>Total Allowances:</span>
+                        <strong>KSh {{ payslip.total_allowances|floatformat:2 }}</strong>
+                    </div>
+                    {% endif %}
+                    <div class="payslip-item">
+                        <span><strong>Gross Pay:</strong></span>
+                        <strong class="text-success">KSh {{ payslip.gross_pay|floatformat:2 }}</strong>
+                    </div>
+                </div>
+
+                <!-- Deductions Section -->
+                <div class="payslip-section">
+                    <h5 class="text-danger mb-3">Deductions</h5>
+                    <div class="payslip-item">
+                        <span>PAYE Tax:</span>
+                        <span>KSh {{ payslip.paye_tax|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>NSSF Contribution:</span>
+                        <span>KSh {{ payslip.nssf_employee|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>SHIF Contribution:</span>
+                        <span>KSh {{ payslip.shif_contribution|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>Housing Levy:</span>
+                        <span>KSh {{ payslip.housing_levy_employee|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span><strong>Total Deductions:</strong></span>
+                        <strong class="text-danger">KSh {{ payslip.total_deductions|floatformat:2 }}</strong>
+                    </div>
+                </div>
+
+                <!-- Net Pay -->
+                <div class="payslip-total bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="h5 mb-0">NET PAY:</span>
+                        <span class="h4 mb-0">KSh {{ payslip.net_pay|floatformat:2 }}</span>
+                    </div>
+                </div>
+
+                <!-- Employer Contributions (for information) -->
+                <div class="payslip-section">
+                    <h6 class="text-muted mb-3">Employer Contributions (for information only)</h6>
+                    <div class="payslip-item">
+                        <span>NSSF Employer:</span>
+                        <span>KSh {{ payslip.nssf_employer|floatformat:2 }}</span>
+                    </div>
+                    <div class="payslip-item">
+                        <span>Housing Levy Employer:</span>
+                        <span>KSh {{ payslip.housing_levy_employer|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Information -->
+        <div class="session-info no-print">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Access Method:</strong> Secure Token Authentication<br>
+                    <strong>Access Time:</strong> {{ request.user.last_login|date:"F d, Y g:i A" }}
+                </div>
+                <div class="col-md-6">
+                    <strong>User:</strong> {{ request.user.get_full_name|default:request.user.username }}<br>
+                    <strong>Security Level:</strong> Government Grade
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function printSecurePayslip() {
+    // Set page title for print
+    const originalTitle = document.title;
+    document.title = `Secure Payslip - {{ employee.full_name }} - {{ payroll_period.name }}`;
+    
+    // Print the page
+    window.print();
+    
+    // Restore original title
+    document.title = originalTitle;
+}
+
+function downloadSecurePDF() {
+    alert('To download as PDF:\n1. Click "Print Payslip"\n2. In the print dialog, select "Save as PDF"\n3. Choose your save location\n\nNote: This is a secure document - handle with care.');
+    printSecurePayslip();
+}
+
+// Security: Clear page after 30 minutes of inactivity
+let inactivityTimer;
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    inactivityTimer = setTimeout(function() {
+        alert('For security reasons, this page will be cleared due to inactivity.');
+        window.location.href = '{% url "dashboard" %}';
+    }, 30 * 60 * 1000); // 30 minutes
+}
+
+// Reset timer on user activity
+document.addEventListener('mousemove', resetInactivityTimer);
+document.addEventListener('keypress', resetInactivityTimer);
+document.addEventListener('click', resetInactivityTimer);
+
+// Initialize timer
+resetInactivityTimer();
+
+// Security: Prevent right-click context menu
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Security: Warn on page unload
+window.addEventListener('beforeunload', function(e) {
+    e.returnValue = 'Are you sure you want to leave this secure page?';
+});
+</script>
+{% endblock %}

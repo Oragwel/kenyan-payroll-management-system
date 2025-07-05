@@ -1,0 +1,999 @@
+/* Kenyan Payroll System Custom Styles - Mobile & Kindle Responsive */
+
+:root {
+    --primary-color: #1e7e34;
+    --secondary-color: #dc3545;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --kenya-green: #006633;
+    --kenya-red: #cc0000;
+    --kenya-black: #000000;
+
+    /* Responsive spacing variables */
+    --mobile-padding: 0.75rem;
+    --tablet-padding: 1rem;
+    --desktop-padding: 1.5rem;
+}
+
+/* Body and General Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    line-height: 1.6;
+}
+
+/* Navigation Enhancements */
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.navbar {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #228B22 100%) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    transform: translateY(-1px);
+    color: #fff !important;
+}
+
+/* Card Enhancements */
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #228B22 100%);
+    color: white;
+    border: none;
+    padding: 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* Button Enhancements */
+.btn {
+    border-radius: 10px;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #228B22 100%);
+    box-shadow: 0 4px 15px rgba(30, 126, 52, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 126, 52, 0.4);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--kenya-red) 0%, #dc3545 100%);
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    color: #000;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);
+}
+
+/* Form Enhancements */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--kenya-green);
+    box-shadow: 0 0 0 0.2rem rgba(30, 126, 52, 0.25);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Table Enhancements */
+.table {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.table thead th {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #228B22 100%);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(30, 126, 52, 0.05);
+    transform: scale(1.01);
+}
+
+.table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+/* Badge Enhancements */
+.badge {
+    border-radius: 20px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+/* Alert Enhancements */
+.alert {
+    border-radius: 15px;
+    border: none;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(204, 0, 0, 0.1) 100%);
+    border-left: 4px solid var(--kenya-red);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(253, 126, 20, 0.1) 100%);
+    border-left: 4px solid #ffc107;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(111, 66, 193, 0.1) 100%);
+    border-left: 4px solid #17a2b8;
+}
+
+/* Statistics Cards */
+.stat-card {
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    border-left: 5px solid var(--kenya-green);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--kenya-green);
+}
+
+.stat-label {
+    color: #6c757d;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+    letter-spacing: 0.5px;
+}
+
+/* Calculator Specific Styles */
+.calculator-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.calculation-result {
+    background: linear-gradient(135deg, rgba(30, 126, 52, 0.05) 0%, rgba(34, 139, 34, 0.05) 100%);
+    border: 2px solid rgba(30, 126, 52, 0.2);
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.result-item:last-child {
+    border-bottom: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--kenya-green);
+}
+
+.result-label {
+    font-weight: 500;
+}
+
+.result-value {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+    }
+    
+    .table-responsive {
+        border-radius: 15px;
+    }
+}
+
+/* Loading Animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Footer Enhancements */
+footer {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid #dee2e6;
+}
+
+/* Kenya Flag Colors Accent */
+.kenya-accent {
+    border-left: 5px solid var(--kenya-green);
+    border-right: 5px solid var(--kenya-red);
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+/* Form Input Sizing and Layout */
+.form-control {
+    max-width: 250px; /* More compact input width */
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Specific sizing for different input types */
+input[type="email"].form-control {
+    max-width: 280px;
+}
+
+input[type="tel"].form-control,
+input[type="text"].form-control {
+    max-width: 220px;
+}
+
+input[type="date"].form-control {
+    max-width: 180px;
+}
+
+textarea.form-control {
+    max-width: 100%;
+    min-height: 70px;
+    resize: vertical;
+}
+
+select.form-control {
+    max-width: 200px;
+}
+
+/* Compact form sections */
+.form-section {
+    margin-bottom: 1.5rem;
+}
+
+.form-section:last-child {
+    margin-bottom: 0;
+}
+
+.form-control:focus {
+    border-color: var(--kenya-green);
+    box-shadow: 0 0 0 0.2rem rgba(30, 126, 52, 0.25);
+}
+
+/* Compact form inputs for better layout */
+.col-md-4 .form-control,
+.col-md-3 .form-control {
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Form text styling */
+.form-text {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Ensure form doesn't overflow on smaller screens */
+@media (max-width: 768px) {
+    .col-md-4, .col-md-6 {
+        margin-bottom: 1rem;
+    }
+
+    .form-control {
+        font-size: 16px; /* Prevent zoom on iOS */
+        padding: 0.75rem;
+    }
+
+    .form-text {
+        font-size: 0.75rem;
+    }
+}
+
+/* Form section spacing */
+.card-body .row {
+    margin-bottom: 0.5rem;
+}
+
+.card-body .row:last-child {
+    margin-bottom: 0;
+}
+
+/* Form labels */
+.form-label.fw-semibold {
+    font-weight: 600;
+    color: #2d5a3d;
+    margin-bottom: 0.5rem;
+}
+
+.form-label.fw-semibold .text-danger {
+    color: #dc3545 !important;
+}
+
+.form-label.fw-semibold .text-muted {
+    color: #6c757d !important;
+    font-weight: 400;
+}
+
+/* Form sections */
+.form-section {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+    position: relative;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section::before {
+    content: '';
+    position: absolute;
+    left: -15px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--kenya-green), #1e7e34);
+    border-radius: 2px;
+}
+
+/* Card improvements */
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--kenya-green) 0%, #1e7e34 100%);
+    border-bottom: 1px solid #dee2e6;
+    color: white;
+}
+
+.card-header h6 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.card-header i {
+    color: white;
+}
+
+/* Alert improvements */
+.alert {
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    color: #155724;
+    border-left: 4px solid var(--kenya-green);
+}
+
+.alert-info .bi {
+    color: var(--kenya-green);
+}
+
+/* ========================================
+   RESPONSIVE DESIGN - MOBILE & KINDLE
+   ======================================== */
+
+/* Base responsive improvements */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container improvements for mobile */
+.container-fluid {
+    padding-left: var(--mobile-padding);
+    padding-right: var(--mobile-padding);
+}
+
+/* Navigation responsive improvements */
+.navbar-brand {
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.navbar-toggler {
+    border: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+.navbar-nav .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+}
+
+/* Card responsive improvements */
+.card {
+    margin-bottom: 1rem;
+}
+
+.card-body {
+    padding: var(--mobile-padding);
+}
+
+.card-header {
+    padding: var(--mobile-padding);
+    font-size: 0.95rem;
+}
+
+/* Form responsive improvements */
+.form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+    border-radius: 8px;
+}
+
+.form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.form-select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem;
+}
+
+/* Button responsive improvements */
+.btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    min-height: 44px; /* Touch target size */
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    min-height: 38px;
+}
+
+.btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    min-height: 50px;
+}
+
+/* Table responsive improvements */
+.table-responsive {
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.table {
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.table th {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.75rem 0.5rem;
+    border-top: none;
+    background-color: #f8f9fa;
+}
+
+.table td {
+    padding: 0.75rem 0.5rem;
+    vertical-align: middle;
+}
+
+/* Modal responsive improvements */
+.modal-dialog {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 1rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-body {
+    padding: 1rem;
+}
+
+.modal-footer {
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Alert responsive improvements */
+.alert {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+/* Badge responsive improvements */
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Pagination responsive improvements */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Breadcrumb responsive improvements */
+.breadcrumb {
+    font-size: 0.85rem;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+    background: none;
+}
+
+/* Progress bar responsive improvements */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* Spinner responsive improvements */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* ========================================
+   DEVICE-SPECIFIC MEDIA QUERIES
+   ======================================== */
+
+/* Mobile phones (portrait) - 320px to 576px */
+@media (max-width: 575.98px) {
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .navbar-brand {
+        font-size: 1rem;
+        max-width: 150px;
+    }
+
+    .card-body {
+        padding: 0.75rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-group .btn {
+        width: auto;
+        margin-bottom: 0;
+    }
+
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 16px;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100vw - 1rem);
+    }
+
+    /* Hide non-essential columns on mobile */
+    .d-none-mobile {
+        display: none !important;
+    }
+
+    /* Stack form elements vertically */
+    .row.g-3 > .col-md-6,
+    .row.g-3 > .col-md-4,
+    .row.g-3 > .col-md-3 {
+        margin-bottom: 1rem;
+    }
+
+    /* Adjust font sizes for mobile */
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.3rem; }
+    h3 { font-size: 1.1rem; }
+    h4 { font-size: 1rem; }
+    h5 { font-size: 0.9rem; }
+
+    /* Mobile-friendly navigation */
+    .navbar-collapse {
+        margin-top: 0.5rem;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 0.5rem;
+    }
+}
+
+/* Mobile phones (landscape) and small tablets - 576px to 767px */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.2rem;
+        max-width: 180px;
+    }
+
+    .btn {
+        min-width: 120px;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablets - 768px to 991px */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .container {
+        padding-left: var(--tablet-padding);
+        padding-right: var(--tablet-padding);
+    }
+
+    .card-body {
+        padding: var(--tablet-padding);
+    }
+
+    .navbar-brand {
+        font-size: 1.3rem;
+        max-width: 220px;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .btn {
+        min-width: 100px;
+    }
+}
+
+/* Large tablets and small desktops - 992px to 1199px */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .container {
+        padding-left: var(--desktop-padding);
+        padding-right: var(--desktop-padding);
+    }
+
+    .card-body {
+        padding: var(--desktop-padding);
+    }
+
+    .navbar-brand {
+        font-size: 1.4rem;
+        max-width: none;
+    }
+}
+
+/* Extra large screens - 1200px and up */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1140px;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+}
+
+/* Kindle-specific optimizations */
+@media screen and (max-device-width: 1024px) and (orientation: landscape),
+       screen and (max-device-width: 768px) and (orientation: portrait) {
+
+    /* Kindle Fire and similar e-readers */
+    body {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .btn {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 16px;
+        padding: 0.75rem;
+        border: 2px solid #ced4da;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Improve touch targets */
+    .nav-link {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+    }
+
+    .page-link {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .navbar-brand,
+    .btn,
+    .form-control {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Dashboard specific responsive styles */
+.stat-card {
+    transition: transform 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Mobile dashboard optimizations */
+@media (max-width: 575.98px) {
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+    }
+
+    .card-body {
+        padding: 1rem 0.75rem;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+    }
+
+    /* Ensure proper spacing on mobile */
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* Center align dashboard elements on mobile */
+    .dashboard-header {
+        text-align: center;
+    }
+
+    /* Responsive font sizes */
+    .h4 { font-size: 1.25rem; }
+    .h5 { font-size: 1.1rem; }
+
+    /* Better button spacing on mobile */
+    .btn + .btn {
+        margin-top: 0.5rem;
+    }
+}
+
+/* Tablet optimizations */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .stat-value {
+        font-size: 1.75rem;
+    }
+
+    .btn-lg {
+        padding: 0.875rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+
+/* Kenya accent styling */
+.kenya-accent {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid var(--kenya-green);
+}
+
+/* Responsive utility classes */
+.fs-md-1 { font-size: calc(1.375rem + 1.5vw) !important; }
+.h4-md { font-size: calc(1.275rem + 0.3vw) !important; }
+.h2-md { font-size: calc(1.325rem + 0.9vw) !important; }
+
+@media (min-width: 768px) {
+    .fs-md-1 { font-size: 2.5rem !important; }
+    .h4-md { font-size: 1.5rem !important; }
+    .h2-md { font-size: 2rem !important; }
+}
+
+/* Print styles */
+@media print {
+    .navbar,
+    .btn,
+    .pagination,
+    .modal,
+    .alert {
+        display: none !important;
+    }
+
+    .card {
+        border: 1px solid #000;
+        box-shadow: none;
+        page-break-inside: avoid;
+    }
+
+    .table {
+        border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+        border: 1px solid #000;
+        padding: 0.5rem;
+    }
+}

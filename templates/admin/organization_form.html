@@ -1,0 +1,276 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">{{ title }}</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'payroll_admin:organization_dashboard' %}">Organizations</a></li>
+                    <li class="breadcrumb-item active">{{ action }}</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Organizations
+        </a>
+    </div>
+
+    <!-- Organization Form -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Organization Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Basic Information</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.organization_type.id_for_label }}" class="form-label">Organization Type *</label>
+                                {{ form.organization_type }}
+                                {% if form.organization_type.errors %}
+                                    <div class="text-danger small">{{ form.organization_type.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">Official Name *</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small">{{ form.name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.short_name.id_for_label }}" class="form-label">Short Name/Acronym</label>
+                                {{ form.short_name }}
+                                {% if form.short_name.errors %}
+                                    <div class="text-danger small">{{ form.short_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.trading_name.id_for_label }}" class="form-label">Trading Name</label>
+                                {{ form.trading_name }}
+                                {% if form.trading_name.errors %}
+                                    <div class="text-danger small">{{ form.trading_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Organizational Structure -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Organizational Structure</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.ministry.id_for_label }}" class="form-label">Parent Ministry</label>
+                                {{ form.ministry }}
+                                <div class="form-text">Required for government entities and parastatals</div>
+                                {% if form.ministry.errors %}
+                                    <div class="text-danger small">{{ form.ministry.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sector.id_for_label }}" class="form-label">Sector/Industry</label>
+                                {{ form.sector }}
+                                {% if form.sector.errors %}
+                                    <div class="text-danger small">{{ form.sector.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Contact Information</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.address_line_1.id_for_label }}" class="form-label">Address Line 1 *</label>
+                                {{ form.address_line_1 }}
+                                {% if form.address_line_1.errors %}
+                                    <div class="text-danger small">{{ form.address_line_1.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.address_line_2.id_for_label }}" class="form-label">Address Line 2</label>
+                                {{ form.address_line_2 }}
+                                {% if form.address_line_2.errors %}
+                                    <div class="text-danger small">{{ form.address_line_2.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.city.id_for_label }}" class="form-label">City *</label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="text-danger small">{{ form.city.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.postal_code.id_for_label }}" class="form-label">Postal Code</label>
+                                {{ form.postal_code }}
+                                {% if form.postal_code.errors %}
+                                    <div class="text-danger small">{{ form.postal_code.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.country.id_for_label }}" class="form-label">Country *</label>
+                                {{ form.country }}
+                                {% if form.country.errors %}
+                                    <div class="text-danger small">{{ form.country.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number *</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <div class="text-danger small">{{ form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.website.id_for_label }}" class="form-label">Website</label>
+                                {{ form.website }}
+                                {% if form.website.errors %}
+                                    <div class="text-danger small">{{ form.website.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Registration & Compliance -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Registration & Compliance</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.kra_pin.id_for_label }}" class="form-label">KRA PIN *</label>
+                                {{ form.kra_pin }}
+                                <div class="form-text">Format: P123456789A</div>
+                                {% if form.kra_pin.errors %}
+                                    <div class="text-danger small">{{ form.kra_pin.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.registration_number.id_for_label }}" class="form-label">Registration Number</label>
+                                {{ form.registration_number }}
+                                {% if form.registration_number.errors %}
+                                    <div class="text-danger small">{{ form.registration_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.registration_authority.id_for_label }}" class="form-label">Registration Authority</label>
+                                {{ form.registration_authority }}
+                                {% if form.registration_authority.errors %}
+                                    <div class="text-danger small">{{ form.registration_authority.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.nssf_employer_number.id_for_label }}" class="form-label">NSSF Employer Number</label>
+                                {{ form.nssf_employer_number }}
+                                {% if form.nssf_employer_number.errors %}
+                                    <div class="text-danger small">{{ form.nssf_employer_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.shif_employer_number.id_for_label }}" class="form-label">SHIF Employer Number</label>
+                                {{ form.shif_employer_number }}
+                                {% if form.shif_employer_number.errors %}
+                                    <div class="text-danger small">{{ form.shif_employer_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Settings -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="text-primary mb-3">Settings</h6>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.default_pay_day.id_for_label }}" class="form-label">Default Pay Day</label>
+                                {{ form.default_pay_day }}
+                                <div class="form-text">Day of month for salary payments (1-31)</div>
+                                {% if form.default_pay_day.errors %}
+                                    <div class="text-danger small">{{ form.default_pay_day.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.logo.id_for_label }}" class="form-label">Logo</label>
+                                {{ form.logo }}
+                                {% if form.logo.errors %}
+                                    <div class="text-danger small">{{ form.logo.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                        Set as active/default organization
+                                    </label>
+                                </div>
+                                {% if form.is_active.errors %}
+                                    <div class="text-danger small">{{ form.is_active.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>{{ action }} Organization
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Help Sidebar -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Help & Guidelines</h6>
+                </div>
+                <div class="card-body">
+                    <h6>Organization Types:</h6>
+                    <ul class="small">
+                        <li><strong>Private Company:</strong> Traditional businesses and corporations</li>
+                        <li><strong>Government Entity:</strong> Ministries and government departments</li>
+                        <li><strong>Parastatal:</strong> Semi-autonomous government entities (KRA, NHIF, etc.)</li>
+                        <li><strong>NGO:</strong> Non-governmental organizations</li>
+                        <li><strong>International:</strong> UN agencies, embassies, etc.</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Required Fields:</h6>
+                    <ul class="small">
+                        <li>Organization Type</li>
+                        <li>Official Name</li>
+                        <li>Address and Contact Information</li>
+                        <li>KRA PIN (Format: P123456789A)</li>
+                    </ul>
+                    
+                    <h6 class="mt-3">Government Entities:</h6>
+                    <p class="small">For government entities and parastatals, please specify the parent ministry to maintain proper organizational hierarchy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

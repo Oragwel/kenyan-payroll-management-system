@@ -1,0 +1,375 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payroll Periods - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if organization %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 80px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h1 class="display-5 fw-bold text-primary mb-1">
+                                {{ organization.name }}
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Payroll Periods Management
+                                <span class="badge bg-warning text-dark ms-2">Admin Only</span>
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-calendar-range me-3"></i>
+                        Payroll Periods
+                        <span class="badge bg-warning text-dark ms-2">Admin Only</span>
+                    </h1>
+                    <p class="lead text-muted">
+                        View and manage all payroll periods
+                    </p>
+                {% endif %}
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{% url 'payroll_processing:payroll_generation' %}" class="btn btn-success">
+                    <i class="bi bi-plus-circle me-2"></i>Generate New Payroll
+                </a>
+                <a href="{% url 'core:dashboard' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        {% if periods %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list me-2"></i>
+                        All Payroll Periods
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Bulk Actions Bar -->
+                    <div class="bulk-actions-bar mb-3" id="bulkActionsBar" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                            <div>
+                                <span id="selectedCount">0</span> payroll period(s) selected
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-danger" id="bulkDeleteBtn">
+                                    <i class="bi bi-trash me-2"></i>Delete Selected Periods
+                                </button>
+                                <button type="button" class="btn btn-secondary" id="clearSelectionBtn">
+                                    <i class="bi bi-x-circle me-2"></i>Clear Selection
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <form id="bulkDeleteForm" method="post" action="{% url 'payroll_processing:bulk_payroll_period_delete' %}">
+                            {% csrf_token %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="40">
+                                            <input type="checkbox" class="form-check-input" id="selectAll">
+                                        </th>
+                                        <th>Period Name</th>
+                                        <th>Period Dates</th>
+                                        <th>Pay Date</th>
+                                        <th>Status</th>
+                                        <th>Employees</th>
+                                        <th>Total Gross</th>
+                                        <th>Total Net</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                            <tbody>
+                                {% for period in periods %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" class="form-check-input period-checkbox"
+                                                   name="period_ids" value="{{ period.id }}">
+                                        </td>
+                                        <td>
+                                            <strong>{{ period.name }}</strong>
+                                            <br>
+                                            <small class="text-muted">{{ period.period_type }}</small>
+                                        </td>
+                                        <td>
+                                            {{ period.start_date|date:"M d, Y" }} - 
+                                            {{ period.end_date|date:"M d, Y" }}
+                                        </td>
+                                        <td>{{ period.pay_date|date:"M d, Y" }}</td>
+                                        <td>
+                                            {% if period.status == 'DRAFT' %}
+                                                <span class="badge bg-secondary">Draft</span>
+                                            {% elif period.status == 'PROCESSED' %}
+                                                <span class="badge bg-success">Processed</span>
+                                            {% elif period.status == 'APPROVED' %}
+                                                <span class="badge bg-primary">Approved</span>
+                                            {% elif period.status == 'PAID' %}
+                                                <span class="badge bg-info">Paid</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">{{ period.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% with period.payslips.count as payslip_count %}
+                                                {% if payslip_count > 0 %}
+                                                    <strong>{{ payslip_count }}</strong>
+                                                {% else %}
+                                                    <span class="text-muted">0</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% with period.summary as summary %}
+                                                {% if summary %}
+                                                    <strong>KES {{ summary.total_gross_pay|floatformat:0 }}</strong>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            {% with period.summary as summary %}
+                                                {% if summary %}
+                                                    <strong>KES {{ summary.total_net_pay|floatformat:0 }}</strong>
+                                                {% else %}
+                                                    <span class="text-muted">-</span>
+                                                {% endif %}
+                                            {% endwith %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{% url 'payroll_processing:payroll_period_detail' period.id %}"
+                                                   class="btn btn-outline-primary" title="View Details">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                {% if period.payslips.exists %}
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-outline-success dropdown-toggle dropdown-toggle-split"
+                                                                data-bs-toggle="dropdown" title="Download All Payslips">
+                                                            <i class="bi bi-download"></i>
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li>
+                                                                <a class="dropdown-item" href="{% url 'payroll_processing:download_period_payslips' period.id %}?format=pdf">
+                                                                    <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
+                                                                </a>
+                                                            </li>
+                                                            <li>
+                                                                <a class="dropdown-item" href="{% url 'payroll_processing:download_period_payslips' period.id %}?format=excel">
+                                                                    <i class="bi bi-file-earmark-excel me-2"></i>Download Excel
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+                                                {% if period.status == 'DRAFT' %}
+                                                    <a href="{% url 'payroll_processing:payroll_generation' %}"
+                                                       class="btn btn-outline-warning" title="Regenerate">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                    </a>
+                                                {% endif %}
+                                                <a href="{% url 'payroll_processing:payroll_period_delete' period.id %}"
+                                                   class="btn btn-danger btn-sm" title="Delete Period"
+                                                   onclick="return confirm('Are you sure you want to delete {{ period.name }}? This will also delete all associated payslips.')">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+                    <h4 class="text-muted">No Payroll Periods Found</h4>
+                    <p class="text-muted mb-4">
+                        You haven't generated any payroll periods yet. 
+                        Start by generating payroll for a specific month.
+                    </p>
+                    <a href="{% url 'payroll_processing:payroll_generation' %}" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Generate First Payroll
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Summary Cards -->
+{% if periods %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-calendar-range fs-1 text-primary mb-2"></i>
+                <h5>{{ periods.count }}</h5>
+                <p class="text-muted mb-0">Total Periods</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+                <h5>{{ periods|length }}</h5>
+                <p class="text-muted mb-0">Processed</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-people fs-1 text-info mb-2"></i>
+                <h5>
+                    {% with periods.first.payslips.count as latest_count %}
+                        {{ latest_count|default:"0" }}
+                    {% endwith %}
+                </h5>
+                <p class="text-muted mb-0">Latest Period Employees</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-currency-exchange fs-1 text-warning mb-2"></i>
+                <h5>
+                    {% with periods.first.summary as latest_summary %}
+                        {% if latest_summary %}
+                            {{ latest_summary.total_gross_pay|floatformat:0 }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    {% endwith %}
+                </h5>
+                <p class="text-muted mb-0">Latest Gross (KES)</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Add some interactivity to the table
+document.addEventListener('DOMContentLoaded', function() {
+    // Highlight rows on hover
+    const tableRows = document.querySelectorAll('tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+        });
+    });
+
+    // Initialize tooltips for download buttons
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Bulk operations functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const periodCheckboxes = document.querySelectorAll('.period-checkbox');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+    if (selectAllCheckbox && periodCheckboxes.length > 0) {
+        // Select All functionality
+        selectAllCheckbox.addEventListener('change', function() {
+            periodCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionsBar();
+        });
+
+        // Individual checkbox functionality
+        periodCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectAllState();
+                updateBulkActionsBar();
+            });
+        });
+
+        // Clear selection
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', function() {
+                periodCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                selectAllCheckbox.checked = false;
+                updateBulkActionsBar();
+            });
+        }
+
+        // Bulk delete
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', function() {
+                const selectedCount = document.querySelectorAll('.period-checkbox:checked').length;
+
+                if (selectedCount === 0) {
+                    alert('Please select at least one payroll period to delete.');
+                    return;
+                }
+
+                const confirmMessage = selectedCount === 1
+                    ? 'Are you sure you want to delete the selected payroll period and all its payslips?'
+                    : `Are you sure you want to delete ${selectedCount} selected payroll periods and all their payslips?`;
+
+                if (confirm(confirmMessage + '\n\nThis action cannot be undone and will permanently delete all associated payroll data!')) {
+                    bulkDeleteForm.submit();
+                }
+            });
+        }
+
+        function updateSelectAllState() {
+            const checkedCount = document.querySelectorAll('.period-checkbox:checked').length;
+            const totalCount = periodCheckboxes.length;
+
+            selectAllCheckbox.checked = checkedCount === totalCount;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+        }
+
+        function updateBulkActionsBar() {
+            const checkedCount = document.querySelectorAll('.period-checkbox:checked').length;
+
+            if (checkedCount > 0) {
+                bulkActionsBar.style.display = 'block';
+                selectedCountSpan.textContent = checkedCount;
+            } else {
+                bulkActionsBar.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

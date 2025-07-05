@@ -1,0 +1,281 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Reports & Analytics - {% if organization %}{{ organization.name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        margin-bottom: 2rem;
+    }
+    .report-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: none;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    .report-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .report-card.success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); color: white; }
+    .report-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+    .report-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+    
+    .chart-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        text-align: center;
+        transition: transform 0.2s;
+    }
+    .metric-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+    }
+    
+    .metric-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Admin Navigation -->
+    <div class="admin-nav p-4 rounded mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if organization %}
+                    <div class="d-flex align-items-center">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo" 
+                                 class="me-4" style="height: 70px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h2 class="mb-0 fs-1">{{ organization.name }}</h2>
+                            <p class="mb-0 opacity-75 fs-5">Reports & Analytics Dashboard</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h2 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Reports & Analytics Dashboard
+                    </h2>
+                {% endif %}
+            </div>
+            <div class="col-md-6 text-end">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'payroll_admin:dashboard' %}" class="text-white">Admin</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Reports</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Report Actions -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="report-card primary p-4 text-center">
+                <i class="bi bi-file-earmark-pdf display-4 mb-3"></i>
+                <h5>Payroll Reports</h5>
+                <p class="mb-3">Generate comprehensive payroll reports</p>
+                <a href="{% url 'payroll_processing:payroll_reports' %}" class="btn btn-light">
+                    <i class="bi bi-arrow-right me-2"></i>View Reports
+                </a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card success p-4 text-center">
+                <i class="bi bi-people display-4 mb-3"></i>
+                <h5>Employee Analytics</h5>
+                <p class="mb-3">Analyze employee data and trends</p>
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-light">
+                    <i class="bi bi-arrow-right me-2"></i>View Employees
+                </a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card warning p-4 text-center">
+                <i class="bi bi-calendar-check display-4 mb-3"></i>
+                <h5>Payroll Periods</h5>
+                <p class="mb-3">Review payroll period data</p>
+                <a href="{% url 'payroll_processing:payroll_periods' %}" class="btn btn-light">
+                    <i class="bi bi-arrow-right me-2"></i>View Periods
+                </a>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="report-card info p-4 text-center">
+                <i class="bi bi-download display-4 mb-3"></i>
+                <h5>Export Data</h5>
+                <p class="mb-3">Download reports in various formats</p>
+                <button class="btn btn-light" onclick="showExportOptions()">
+                    <i class="bi bi-arrow-right me-2"></i>Export Options
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h4 class="mb-3">
+                <i class="bi bi-bar-chart me-2"></i>Key Metrics Overview
+            </h4>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_employees|default:0 }}</div>
+                <div class="metric-label">Total Employees</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ active_payroll_periods|default:0 }}</div>
+                <div class="metric-label">Active Periods</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_departments|default:0 }}</div>
+                <div class="metric-label">Departments</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_payslips|default:0 }}</div>
+                <div class="metric-label">Total Payslips</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="bi bi-clock-history me-2"></i>Recent Report Activity
+                </h5>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Payroll Report Generated</strong>
+                            <br><small class="text-muted">Monthly payroll summary</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">Today</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Employee Data Export</strong>
+                            <br><small class="text-muted">Excel format download</small>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Yesterday</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Department Analysis</strong>
+                            <br><small class="text-muted">Salary structure review</small>
+                        </div>
+                        <span class="badge bg-info rounded-pill">2 days ago</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h5 class="mb-3">
+                    <i class="bi bi-gear me-2"></i>Quick Actions
+                </h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'payroll_processing:payroll_reports' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-file-earmark-text me-2"></i>Generate Payroll Report
+                    </a>
+                    <a href="{% url 'payroll_processing:payroll_periods' %}" class="btn btn-outline-success">
+                        <i class="bi bi-calendar-plus me-2"></i>Create New Period
+                    </a>
+                    <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-info">
+                        <i class="bi bi-people me-2"></i>Manage Employees
+                    </a>
+                    <button class="btn btn-outline-warning" onclick="showExportOptions()">
+                        <i class="bi bi-download me-2"></i>Export All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Options Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Choose the data you want to export:</p>
+                <div class="list-group">
+                    <a href="{% url 'payroll_processing:payroll_reports' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-earmark-pdf me-2"></i>Payroll Reports (PDF)
+                    </a>
+                    <a href="{% url 'employees:employee_list' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Employee Data (Excel)
+                    </a>
+                    <a href="{% url 'payroll_processing:payroll_periods' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-calendar-check me-2"></i>Payroll Periods
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showExportOptions() {
+    var exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
+    exportModal.show();
+}
+
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate metric cards on load
+    const metricCards = document.querySelectorAll('.metric-card');
+    metricCards.forEach((card, index) => {
+        setTimeout(() => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.5s ease';
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
+        }, index * 100);
+    });
+});
+</script>
+{% endblock %}

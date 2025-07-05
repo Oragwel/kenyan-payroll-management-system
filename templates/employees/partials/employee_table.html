@@ -1,0 +1,272 @@
+{% if page_obj %}
+    <!-- Bulk Actions Bar -->
+    {% if user.is_staff %}
+        <div class="bulk-actions-bar mb-3" id="bulkActionsBar" style="display: none;">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center p-3 bg-light rounded">
+                <div class="mb-2 mb-md-0">
+                    <span id="selectedCount">0</span> employee(s) selected
+                </div>
+                <div class="btn-group-vertical d-md-none w-100">
+                    <button type="button" class="btn btn-danger mb-2" id="bulkDeleteBtn">
+                        <i class="bi bi-trash me-2"></i>Delete Selected
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearSelectionBtn">
+                        <i class="bi bi-x-circle me-2"></i>Clear Selection
+                    </button>
+                </div>
+                <div class="d-none d-md-block">
+                    <button type="button" class="btn btn-danger me-2" id="bulkDeleteBtn">
+                        <i class="bi bi-trash me-2"></i>Delete Selected
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="clearSelectionBtn">
+                        <i class="bi bi-x-circle me-2"></i>Clear Selection
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Mobile Card View -->
+    {% include 'employees/partials/employee_cards.html' %}
+
+    <!-- Desktop Table View -->
+
+    <div class="table-responsive d-none d-md-block">
+        <form id="bulkDeleteForm" method="post" action="{% url 'employees:bulk_employee_delete' %}">
+            {% csrf_token %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        {% if user.is_staff %}
+                            <th width="40">
+                                <input type="checkbox" class="form-check-input" id="selectAll">
+                            </th>
+                        {% endif %}
+                        <th>Payroll #</th>
+                        <th>Name</th>
+                        <th class="d-none d-md-table-cell">Department</th>
+                        <th class="d-none d-lg-table-cell">Job Title</th>
+                        <th class="d-none d-lg-table-cell">Employment Type</th>
+                        <th class="d-none d-xl-table-cell">Date Hired</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            <tbody>
+                {% for employee in page_obj %}
+                    <tr>
+                        {% if user.is_staff %}
+                            <td>
+                                <input type="checkbox" class="form-check-input employee-checkbox"
+                                       name="employee_ids" value="{{ employee.id }}">
+                            </td>
+                        {% endif %}
+                        <td>
+                            <strong>{{ employee.payroll_number }}</strong>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>{{ employee.full_name }}</strong>
+                                <br>
+                                <small class="text-muted">{{ employee.email }}</small>
+                                <!-- Mobile-only info -->
+                                <div class="d-md-none mt-1">
+                                    <small class="text-muted">
+                                        <span class="badge bg-primary me-1">{{ employee.department.code }}</span>
+                                        <span class="d-lg-none">
+                                            {{ employee.job_title.title }}
+                                        </span>
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="d-none d-md-table-cell">
+                            <span class="badge bg-primary">{{ employee.department.code }}</span>
+                            <br>
+                            <small>{{ employee.department.name }}</small>
+                        </td>
+                        <td class="d-none d-lg-table-cell">{{ employee.job_title.title }}</td>
+                        <td class="d-none d-lg-table-cell">
+                            <span class="badge bg-{% if employee.employment_type == 'PERMANENT' %}success{% elif employee.employment_type == 'CONTRACT' %}warning{% else %}info{% endif %}">
+                                {{ employee.get_employment_type_display }}
+                            </span>
+                        </td>
+                        <td class="d-none d-xl-table-cell">{{ employee.date_hired|date:"M d, Y"|default:"Not provided" }}</td>
+                        <td>
+                            {% if employee.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group-vertical d-md-none" role="group">
+                                <a href="{% url 'employees:employee_detail' employee.pk %}"
+                                   class="btn btn-sm btn-outline-primary mb-1">
+                                    <i class="bi bi-eye me-1"></i>View
+                                </a>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'employees:employee_update' employee.pk %}"
+                                       class="btn btn-sm btn-outline-warning mb-1">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <div class="btn-group d-none d-md-flex" role="group">
+                                <a href="{% url 'employees:employee_detail' employee.pk %}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   data-bs-toggle="tooltip" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if user.is_staff %}
+                                    <a href="{% url 'employees:employee_update' employee.pk %}"
+                                       class="btn btn-sm btn-outline-warning"
+                                       data-bs-toggle="tooltip" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if employee.is_active %}
+                                        <a href="{% url 'employees:employee_deactivate' employee.pk %}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           data-bs-toggle="tooltip" title="Deactivate">
+                                            <i class="bi bi-person-x"></i>
+                                        </a>
+                                    {% endif %}
+                                    <a href="{% url 'employees:employee_delete' employee.pk %}"
+                                       class="btn btn-sm btn-danger"
+                                       data-bs-toggle="tooltip" title="Delete Employee"
+                                       onclick="return confirm('Are you sure you want to delete {{ employee.full_name }}?')">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </form>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <nav aria-label="Employee pagination">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link ajax-page" href="#" data-page="1">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link ajax-page" href="#" data-page="{{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link ajax-page" href="#" data-page="{{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link ajax-page" href="#" data-page="{{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link ajax-page" href="#" data-page="{{ page_obj.paginator.num_pages }}">Last</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-people fs-1 text-muted mb-3"></i>
+        <h5 class="text-muted">No employees found</h5>
+        <p class="text-muted">Try adjusting your search criteria or add new employees.</p>
+    </div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const employeeCheckboxes = document.querySelectorAll('.employee-checkbox');
+    const bulkActionsBar = document.getElementById('bulkActionsBar');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    const clearSelectionBtn = document.getElementById('clearSelectionBtn');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+
+    if (selectAllCheckbox && employeeCheckboxes.length > 0) {
+        // Select All functionality
+        selectAllCheckbox.addEventListener('change', function() {
+            employeeCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionsBar();
+        });
+
+        // Individual checkbox functionality
+        employeeCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateSelectAllState();
+                updateBulkActionsBar();
+            });
+        });
+
+        // Clear selection
+        if (clearSelectionBtn) {
+            clearSelectionBtn.addEventListener('click', function() {
+                employeeCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                selectAllCheckbox.checked = false;
+                updateBulkActionsBar();
+            });
+        }
+
+        // Bulk delete
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.addEventListener('click', function() {
+                const selectedCount = document.querySelectorAll('.employee-checkbox:checked').length;
+
+                if (selectedCount === 0) {
+                    alert('Please select at least one employee to delete.');
+                    return;
+                }
+
+                const confirmMessage = selectedCount === 1
+                    ? 'Are you sure you want to delete the selected employee?'
+                    : `Are you sure you want to delete ${selectedCount} selected employees?`;
+
+                if (confirm(confirmMessage + '\n\nThis action cannot be undone!')) {
+                    bulkDeleteForm.submit();
+                }
+            });
+        }
+
+        function updateSelectAllState() {
+            const checkedCount = document.querySelectorAll('.employee-checkbox:checked').length;
+            const totalCount = employeeCheckboxes.length;
+
+            selectAllCheckbox.checked = checkedCount === totalCount;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+        }
+
+        function updateBulkActionsBar() {
+            const checkedCount = document.querySelectorAll('.employee-checkbox:checked').length;
+
+            if (checkedCount > 0) {
+                bulkActionsBar.style.display = 'block';
+                selectedCountSpan.textContent = checkedCount;
+            } else {
+                bulkActionsBar.style.display = 'none';
+            }
+        }
+    }
+});
+</script>

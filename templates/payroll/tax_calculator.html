@@ -1,0 +1,481 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Tax Calculator - {% if organization %}{{ organization.name }}{% else %}Kenyan Payroll Management System{% endif %}{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                {% if organization %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 80px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h1 class="display-5 fw-bold text-primary mb-1">
+                                {{ organization.name }}
+                            </h1>
+                            <p class="lead text-muted mb-0">
+                                Tax Calculator
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-percent me-3"></i>
+                        Tax Calculator
+                    </h1>
+                    <p class="lead text-muted">
+                        Calculate PAYE tax with reliefs and deductions
+                    </p>
+                {% endif %}
+            </div>
+            <a href="{% url 'payroll_processing:payroll_calculator' %}" class="btn btn-outline-primary">
+                <i class="bi bi-calculator me-2"></i>Full Payroll Calculator
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Tax Calculator Form -->
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-input-cursor me-2"></i>
+                    Tax Calculation Input
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="tax-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="taxable_income" class="form-label">
+                                <i class="bi bi-currency-exchange me-1"></i>
+                                Monthly Taxable Income (KES)
+                            </label>
+                            <input type="number" 
+                                   class="form-control form-control-lg" 
+                                   id="taxable_income" 
+                                   name="taxable_income"
+                                   placeholder="Enter taxable income"
+                                   min="0" 
+                                   step="0.01"
+                                   data-bs-toggle="tooltip"
+                                   title="Income after NSSF and other allowable deductions">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="annual_income" class="form-label">
+                                <i class="bi bi-calendar me-1"></i>
+                                Annual Taxable Income (KES)
+                            </label>
+                            <input type="number" 
+                                   class="form-control form-control-lg" 
+                                   id="annual_income" 
+                                   name="annual_income"
+                                   placeholder="Enter annual income"
+                                   min="0" 
+                                   step="0.01"
+                                   data-bs-toggle="tooltip"
+                                   title="Annual taxable income for yearly calculation">
+                        </div>
+                    </div>
+                    
+                    <!-- Tax Relief Section -->
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Tax Reliefs & Deductions
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="insurance_premiums_tax" class="form-label">
+                                        Life/Health Insurance Premiums (Monthly)
+                                        <i class="bi bi-info-circle" 
+                                           data-bs-toggle="tooltip" 
+                                           title="15% relief on premiums, max KES 60,000 per year"></i>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="insurance_premiums_tax" 
+                                           name="insurance_premiums_tax"
+                                           placeholder="Monthly premiums"
+                                           min="0" 
+                                           step="0.01">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="mortgage_interest_tax" class="form-label">
+                                        Mortgage Interest (Monthly)
+                                        <i class="bi bi-info-circle" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Deductible from taxable income, max KES 30,000 per month"></i>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="mortgage_interest_tax" 
+                                           name="mortgage_interest_tax"
+                                           placeholder="Monthly interest"
+                                           min="0" 
+                                           step="0.01">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="pension_contribution_tax" class="form-label">
+                                        Pension Contribution (Monthly)
+                                        <i class="bi bi-info-circle" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Deductible from taxable income, max KES 30,000 per month"></i>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="pension_contribution_tax" 
+                                           name="pension_contribution_tax"
+                                           placeholder="Monthly contribution"
+                                           min="0" 
+                                           step="0.01">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="medical_fund_tax" class="form-label">
+                                        Post-Retirement Medical Fund (Monthly)
+                                        <i class="bi bi-info-circle" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Deductible from taxable income, max KES 15,000 per month"></i>
+                                    </label>
+                                    <input type="number" 
+                                           class="form-control" 
+                                           id="medical_fund_tax" 
+                                           name="medical_fund_tax"
+                                           placeholder="Monthly contribution"
+                                           min="0" 
+                                           step="0.01">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-primary btn-lg me-md-2" onclick="calculateTax()">
+                            <i class="bi bi-calculator me-2"></i>
+                            Calculate Tax
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tax Bands Information -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>
+                    PAYE Tax Bands (2024)
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Income Range (KES)</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0 - 24,000</td>
+                                <td><span class="badge bg-success">10%</span></td>
+                            </tr>
+                            <tr>
+                                <td>24,001 - 32,333</td>
+                                <td><span class="badge bg-warning">25%</span></td>
+                            </tr>
+                            <tr>
+                                <td>32,334 - 500,000</td>
+                                <td><span class="badge bg-info">30%</span></td>
+                            </tr>
+                            <tr>
+                                <td>500,001 - 800,000</td>
+                                <td><span class="badge bg-danger">32.5%</span></td>
+                            </tr>
+                            <tr>
+                                <td>800,001+</td>
+                                <td><span class="badge bg-dark">35%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="mt-3">
+                    <h6 class="text-primary">Tax Reliefs</h6>
+                    <ul class="list-unstyled small">
+                        <li><i class="bi bi-check-circle text-success me-1"></i> Personal Relief: <strong>KES 2,400/month</strong></li>
+                        <li><i class="bi bi-check-circle text-success me-1"></i> Insurance Relief: <strong>15% of premiums</strong></li>
+                        <li><i class="bi bi-check-circle text-success me-1"></i> Max Insurance Relief: <strong>KES 60,000/year</strong></li>
+                    </ul>
+                </div>
+                
+                <div class="mt-3">
+                    <h6 class="text-primary">Allowable Deductions</h6>
+                    <ul class="list-unstyled small">
+                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Mortgage Interest: Max KES 30,000/month</li>
+                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Pension: Max KES 30,000/month</li>
+                        <li><i class="bi bi-arrow-right text-primary me-1"></i> Medical Fund: Max KES 15,000/month</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tax Results -->
+<div class="row">
+    <div class="col-12">
+        <div id="tax-results"></div>
+    </div>
+</div>
+
+<!-- Sample Tax Calculations -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    Quick Tax Examples
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-success w-100" onclick="loadTaxSample(20000)">
+                            <strong>KES 20,000</strong><br>
+                            <small>Low Income</small>
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-warning w-100" onclick="loadTaxSample(30000)">
+                            <strong>KES 30,000</strong><br>
+                            <small>Mid-Low</small>
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-info w-100" onclick="loadTaxSample(50000)">
+                            <strong>KES 50,000</strong><br>
+                            <small>Middle</small>
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-danger w-100" onclick="loadTaxSample(100000)">
+                            <strong>KES 100,000</strong><br>
+                            <small>High</small>
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-dark w-100" onclick="loadTaxSample(600000)">
+                            <strong>KES 600,000</strong><br>
+                            <small>Very High</small>
+                        </button>
+                    </div>
+                    <div class="col-md-2 mb-2">
+                        <button class="btn btn-outline-primary w-100" onclick="loadTaxSample(1000000)">
+                            <strong>KES 1,000,000</strong><br>
+                            <small>Executive</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function calculateTax() {
+    const taxableIncome = parseFloat(document.getElementById('taxable_income').value || 0);
+    const annualIncome = parseFloat(document.getElementById('annual_income').value || 0);
+    
+    // Use whichever income is provided
+    const income = taxableIncome || (annualIncome / 12);
+    
+    if (income <= 0) {
+        clearTaxResults();
+        return;
+    }
+    
+    // Get relief inputs
+    const insurancePremiums = parseFloat(document.getElementById('insurance_premiums_tax').value || 0);
+    const mortgageInterest = parseFloat(document.getElementById('mortgage_interest_tax').value || 0);
+    const pensionContribution = parseFloat(document.getElementById('pension_contribution_tax').value || 0);
+    const medicalFund = parseFloat(document.getElementById('medical_fund_tax').value || 0);
+    
+    // Calculate PAYE
+    const paye = calculatePAYE(income, {
+        insurance_premiums: insurancePremiums,
+        mortgage_interest: mortgageInterest,
+        pension_contribution: pensionContribution,
+        post_retirement_medical: medicalFund
+    });
+    
+    displayTaxResults(income, paye, annualIncome > 0);
+}
+
+function calculatePAYE(income, reliefs = {}) {
+    const personalRelief = 2400;
+    
+    // Apply allowable deductions
+    const mortgageDeduction = Math.min(reliefs.mortgage_interest || 0, 30000);
+    const pensionDeduction = Math.min(reliefs.pension_contribution || 0, 30000);
+    const medicalDeduction = Math.min(reliefs.post_retirement_medical || 0, 15000);
+    
+    const totalDeductions = mortgageDeduction + pensionDeduction + medicalDeduction;
+    const incomeAfterDeductions = Math.max(0, income - totalDeductions);
+    
+    // Calculate tax on income
+    const taxBeforeRelief = calculateTaxOnIncome(incomeAfterDeductions);
+    
+    // Calculate insurance relief
+    const insuranceRelief = Math.min((reliefs.insurance_premiums || 0) * 12 * 0.15, 60000) / 12;
+    
+    const totalReliefs = personalRelief + insuranceRelief;
+    const finalTax = Math.max(0, taxBeforeRelief - totalReliefs);
+    
+    return {
+        income: income,
+        deductions: {
+            mortgage: mortgageDeduction,
+            pension: pensionDeduction,
+            medical: medicalDeduction,
+            total: totalDeductions
+        },
+        incomeAfterDeductions: incomeAfterDeductions,
+        taxBeforeRelief: taxBeforeRelief,
+        reliefs: {
+            personal: personalRelief,
+            insurance: insuranceRelief,
+            total: totalReliefs
+        },
+        finalTax: finalTax,
+        effectiveRate: (finalTax / income) * 100
+    };
+}
+
+function calculateTaxOnIncome(income) {
+    const bands = [
+        { min: 0, max: 24000, rate: 0.10 },
+        { min: 24001, max: 32333, rate: 0.25 },
+        { min: 32334, max: 500000, rate: 0.30 },
+        { min: 500001, max: 800000, rate: 0.325 },
+        { min: 800001, max: Infinity, rate: 0.35 }
+    ];
+    
+    let tax = 0;
+    let remainingIncome = income;
+    
+    for (const band of bands) {
+        if (remainingIncome <= 0) break;
+        
+        const bandWidth = band.max - band.min + 1;
+        const taxableInBand = Math.min(remainingIncome, bandWidth);
+        
+        if (income > band.min) {
+            const actualTaxable = Math.min(taxableInBand, income - band.min + 1);
+            tax += actualTaxable * band.rate;
+            remainingIncome -= actualTaxable;
+        }
+    }
+    
+    return tax;
+}
+
+function displayTaxResults(income, paye, isAnnual) {
+    const resultsContainer = document.getElementById('tax-results');
+    const period = isAnnual ? 'Annual' : 'Monthly';
+    const multiplier = isAnnual ? 1 : 12;
+    
+    resultsContainer.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    ${period} Tax Calculation Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="calculation-result">
+                    <div class="result-item">
+                        <span class="result-label">Taxable Income:</span>
+                        <span class="result-value">${formatCurrency(income * multiplier)}</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Allowable Deductions:</span>
+                        <span class="result-value">${formatCurrency(paye.deductions.total * multiplier)}</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Income After Deductions:</span>
+                        <span class="result-value">${formatCurrency(paye.incomeAfterDeductions * multiplier)}</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Tax Before Relief:</span>
+                        <span class="result-value">${formatCurrency(paye.taxBeforeRelief * multiplier)}</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Tax Reliefs:</span>
+                        <span class="result-value">${formatCurrency(paye.reliefs.total * multiplier)}</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label"><strong>Final PAYE Tax:</strong></span>
+                        <span class="result-value"><strong>${formatCurrency(paye.finalTax * multiplier)}</strong></span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Effective Tax Rate:</span>
+                        <span class="result-value">${paye.effectiveRate.toFixed(2)}%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function clearTaxResults() {
+    const resultsContainer = document.getElementById('tax-results');
+    resultsContainer.innerHTML = '';
+}
+
+function loadTaxSample(income) {
+    document.getElementById('taxable_income').value = income;
+    calculateTax();
+}
+
+// Sync monthly and annual inputs
+document.getElementById('taxable_income').addEventListener('input', function() {
+    const monthly = parseFloat(this.value || 0);
+    document.getElementById('annual_income').value = monthly * 12;
+});
+
+document.getElementById('annual_income').addEventListener('input', function() {
+    const annual = parseFloat(this.value || 0);
+    document.getElementById('taxable_income').value = annual / 12;
+});
+</script>
+{% endblock %}

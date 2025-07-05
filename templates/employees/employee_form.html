@@ -1,0 +1,513 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Kenyan Payroll Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Banking Information Form Styling */
+    .banking-section .form-control {
+        max-width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .banking-section .form-label {
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .banking-section .form-text {
+        font-size: 0.75rem;
+        margin-top: 0.2rem;
+    }
+
+    /* Ensure proper spacing between form sections */
+    .form-section {
+        margin-bottom: 1rem;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .banking-section .col-lg-3,
+        .banking-section .col-lg-4 {
+            margin-bottom: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                {% if organization and organization.logo %}
+                    <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                         class="me-4" style="height: 60px; width: auto; object-fit: contain;">
+                {% endif %}
+                <div>
+                    <h1 class="display-6 fw-bold text-primary mb-2">
+                        <i class="bi bi-person-plus me-3"></i>
+                        {{ title }}
+                    </h1>
+                    <p class="lead text-muted">
+                        {% if organization %}{{ organization.name }} - {% endif %}Enter employee information and details
+                    </p>
+                </div>
+            </div>
+            <div class="btn-group">
+                <a href="{% url 'employees:bulk_employee_import' %}" class="btn btn-success">
+                    <i class="bi bi-upload me-2"></i>Bulk Import
+                </a>
+                <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Employees
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-vcard me-2"></i>
+                    Employee Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-person me-2"></i>
+                                Personal Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info mb-4">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Auto-Generated Payroll Number:</strong> A unique payroll number will be automatically assigned upon registration.
+                            </div>
+
+                            <!-- Identification Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.national_id.id_for_label }}" class="form-label fw-semibold">
+                                        National ID
+                                    </label>
+                                    {{ form.national_id }}
+                                    {% if form.national_id.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.national_id.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Optional - 8-digit ID number</div>
+                                </div>
+                                <div class="col-lg-4 col-md-5 mb-3">
+                                    <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold">
+                                        Email Address <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.email.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-3 mb-3">
+                                    <label for="{{ form.phone_number.id_for_label }}" class="form-label fw-semibold">
+                                        Phone Number <span class="text-muted">(Optional)</span>
+                                    </label>
+                                    {{ form.phone_number }}
+                                    {% if form.phone_number.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.phone_number.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">+254 or 07xx</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Name Fields Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                        First Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.first_name }}
+                                    {% if form.first_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.first_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.middle_name.id_for_label }}" class="form-label fw-semibold">
+                                        Middle Name <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.middle_name }}
+                                    {% if form.middle_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.middle_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                        Last Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.last_name }}
+                                    {% if form.last_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.last_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-12 mb-3">
+                                    <label for="{{ form.gender.id_for_label }}" class="form-label fw-semibold">
+                                        Gender
+                                    </label>
+                                    {{ form.gender }}
+                                    {% if form.gender.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.gender.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Optional</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Personal Details Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.date_of_birth.id_for_label }}" class="form-label fw-semibold">
+                                        Date of Birth <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.date_of_birth }}
+                                    {% if form.date_of_birth.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.date_of_birth.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.marital_status.id_for_label }}" class="form-label fw-semibold">
+                                        Marital Status <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.marital_status }}
+                                    {% if form.marital_status.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.marital_status.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-6 col-md-4 mb-3">
+                                    <label for="{{ form.address.id_for_label }}" class="form-label fw-semibold">
+                                        Address <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.address }}
+                                    {% if form.address.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.address.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Employment Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-briefcase me-2"></i>
+                                Employment Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <!-- Employment Details Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.department.id_for_label }}" class="form-label fw-semibold">
+                                        Department <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.department }}
+                                    {% if form.department.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.department.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.job_title.id_for_label }}" class="form-label fw-semibold">
+                                        Job Title <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.job_title }}
+                                    {% if form.job_title.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.job_title.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-4 mb-3">
+                                    <label for="{{ form.employment_type.id_for_label }}" class="form-label fw-semibold">
+                                        Employment Type <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.employment_type }}
+                                    {% if form.employment_type.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.employment_type.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-3 col-md-12 mb-3">
+                                    <label for="{{ form.date_hired.id_for_label }}" class="form-label fw-semibold">
+                                        Date Hired <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.date_hired }}
+                                    {% if form.date_hired.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.date_hired.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statutory Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Statutory Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <!-- Statutory Information Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label for="{{ form.kra_pin.id_for_label }}" class="form-label fw-semibold">
+                                        KRA PIN <span class="text-success">(Optional)</span>
+                                    </label>
+                                    {{ form.kra_pin }}
+                                    {% if form.kra_pin.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.kra_pin.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        <small class="text-muted">
+                                            Optional - Leave empty if not available.
+                                            <br>If provided, use format: A123456789B
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label for="{{ form.nssf_number.id_for_label }}" class="form-label fw-semibold">
+                                        NSSF Number <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.nssf_number }}
+                                    {% if form.nssf_number.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.nssf_number.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">NSSF membership</div>
+                                </div>
+                                <div class="col-lg-4 col-md-12 mb-3">
+                                    <label for="{{ form.shif_number.id_for_label }}" class="form-label fw-semibold">
+                                        SHIF Number <small class="text-muted">(Optional)</small>
+                                    </label>
+                                    {{ form.shif_number }}
+                                    {% if form.shif_number.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.shif_number.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">SHIF membership</div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Note:</strong> NSSF and SHIF numbers are optional. Contributions are calculated automatically regardless.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Banking Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-bank me-2"></i>
+                                Banking Information
+                            </h6>
+                        </div>
+                        <div class="card-body banking-section">
+                            <!-- Banking Information Row 1 -->
+                            <div class="row form-section">
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <label for="{{ form.bank_code.id_for_label }}" class="form-label fw-semibold">
+                                        Bank Code
+                                    </label>
+                                    {{ form.bank_code }}
+                                    {% if form.bank_code.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.bank_code.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Select code</small>
+                                </div>
+                                <div class="col-lg-4 col-md-6 mb-3">
+                                    <label for="{{ form.bank_name.id_for_label }}" class="form-label fw-semibold">
+                                        Bank Name <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.bank_name }}
+                                    {% if form.bank_name.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.bank_name.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Auto-filled from code</small>
+                                </div>
+                                <div class="col-lg-3 col-md-6 mb-3">
+                                    <label for="{{ form.bank_branch.id_for_label }}" class="form-label fw-semibold">
+                                        Bank Branch
+                                    </label>
+                                    {{ form.bank_branch }}
+                                    {% if form.bank_branch.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.bank_branch.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Optional</small>
+                                </div>
+                                <div class="col-lg-2 col-md-6 mb-3">
+                                    <!-- Spacer column for better alignment -->
+                                </div>
+                            </div>
+
+                            <!-- Account Number Row -->
+                            <div class="row form-section">
+                                <div class="col-lg-6 col-md-12 mb-3">
+                                    <label for="{{ form.account_number.id_for_label }}" class="form-label fw-semibold">
+                                        Account Number <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.account_number }}
+                                    {% if form.account_number.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.account_number.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'employees:employee_list' %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if employee %}Update Employee{% else %}Create Employee{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Bank code to bank name mapping
+    const bankMapping = {
+        '12053': 'National Bank',
+        '68058': 'Equity Bank',
+        '01169': 'KCB Bank',
+        '11081': 'Cooperative Bank',
+        '03017': 'Absa Bank',
+        '74004': 'Premier Bank',
+        '72006': 'Gulf African Bank'
+    };
+
+    // Get form elements
+    const bankCodeSelect = document.getElementById('id_bank_code');
+    const bankNameInput = document.getElementById('id_bank_name');
+
+    if (bankCodeSelect && bankNameInput) {
+        // Auto-populate bank name when bank code is selected
+        bankCodeSelect.addEventListener('change', function() {
+            const selectedCode = this.value;
+            if (selectedCode && bankMapping[selectedCode]) {
+                // Only update bank name field, keep bank code as the code value
+                bankNameInput.value = bankMapping[selectedCode];
+                bankNameInput.style.backgroundColor = '#e8f5e8'; // Light green to indicate auto-filled
+                bankNameInput.setAttribute('readonly', true); // Make it readonly when auto-populated
+
+                // Show a small notification
+                showBankNotification(`Bank name auto-populated: ${bankMapping[selectedCode]} (Code: ${selectedCode})`);
+            } else {
+                bankNameInput.value = '';
+                bankNameInput.style.backgroundColor = '';
+                bankNameInput.removeAttribute('readonly'); // Allow manual entry if no code selected
+            }
+        });
+
+        // If bank code is already selected on page load, populate bank name
+        if (bankCodeSelect.value && bankMapping[bankCodeSelect.value]) {
+            bankNameInput.value = bankMapping[bankCodeSelect.value];
+            bankNameInput.style.backgroundColor = '#e8f5e8';
+        }
+    }
+
+    // Function to show bank notification
+    function showBankNotification(message) {
+        // Remove existing notification if any
+        const existingNotification = document.querySelector('.bank-notification');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'bank-notification alert alert-success alert-dismissible fade show';
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.style.minWidth = '300px';
+        notification.innerHTML = `
+            <i class="bi bi-check-circle me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        // Add to page
+        document.body.appendChild(notification);
+
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            if (notification && notification.parentNode) {
+                notification.remove();
+            }
+        }, 3000);
+    }
+
+    // Form is ready - payroll number will be auto-generated on save
+    console.log('Employee form loaded - payroll number will be auto-generated');
+});
+</script>
+{% endblock %}

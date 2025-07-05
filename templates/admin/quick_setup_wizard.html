@@ -1,0 +1,309 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Quick Setup Wizard - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wizard-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .wizard-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px 10px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+    .wizard-content {
+        background: white;
+        border-radius: 0 0 10px 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+    }
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 1rem;
+        font-weight: bold;
+        color: #6c757d;
+    }
+    .step.active {
+        background: #007bff;
+        color: white;
+    }
+    .step.completed {
+        background: #28a745;
+        color: white;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        background: #f8f9fa;
+    }
+    .form-section h6 {
+        color: #495057;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    .org-type-card {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .org-type-card:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    .org-type-card.selected {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+    .org-type-card input[type="radio"] {
+        display: none;
+    }
+    .feature-list {
+        list-style: none;
+        padding: 0;
+    }
+    .feature-list li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    .feature-list li:last-child {
+        border-bottom: none;
+    }
+    .feature-list i {
+        color: #28a745;
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="wizard-container">
+        <!-- Wizard Header -->
+        <div class="wizard-header">
+            <h1 class="mb-3">
+                <i class="bi bi-magic me-3"></i>Quick Setup Wizard
+            </h1>
+            <p class="mb-0 opacity-75">Get your payroll system up and running in minutes</p>
+        </div>
+
+        <!-- Wizard Content -->
+        <div class="wizard-content p-4">
+            <!-- Step Indicator -->
+            <div class="step-indicator">
+                <div class="step active">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+            </div>
+
+            <form method="post" id="setupForm">
+                {% csrf_token %}
+                
+                <!-- Step 1: Organization Type -->
+                <div class="form-section">
+                    <h6><i class="bi bi-building me-2"></i>Step 1: Choose Your Organization Type</h6>
+                    <p class="text-muted mb-3">Select the type that best describes your organization</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="org-type-card" for="type_company">
+                                <input type="radio" name="organization_type" value="COMPANY" id="type_company" checked>
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-briefcase fs-3 text-primary me-3"></i>
+                                    <div>
+                                        <strong>Private Company</strong>
+                                        <br>
+                                        <small class="text-muted">Traditional businesses and corporations</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="org-type-card" for="type_government">
+                                <input type="radio" name="organization_type" value="GOVERNMENT" id="type_government">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-bank fs-3 text-success me-3"></i>
+                                    <div>
+                                        <strong>Government Entity</strong>
+                                        <br>
+                                        <small class="text-muted">Ministries and government departments</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="org-type-card" for="type_parastatal">
+                                <input type="radio" name="organization_type" value="PARASTATAL" id="type_parastatal">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-building fs-3 text-warning me-3"></i>
+                                    <div>
+                                        <strong>Parastatal</strong>
+                                        <br>
+                                        <small class="text-muted">Semi-autonomous government entities</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="org-type-card" for="type_ngo">
+                                <input type="radio" name="organization_type" value="NGO" id="type_ngo">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-heart fs-3 text-info me-3"></i>
+                                    <div>
+                                        <strong>NGO</strong>
+                                        <br>
+                                        <small class="text-muted">Non-governmental organizations</small>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Basic Information -->
+                <div class="form-section">
+                    <h6><i class="bi bi-info-circle me-2"></i>Step 2: Basic Information</h6>
+                    <p class="text-muted mb-3">Enter your organization's basic details</p>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label for="organization_name" class="form-label">Organization Name *</label>
+                            <input type="text" class="form-control" id="organization_name" name="organization_name" 
+                                   placeholder="Enter your organization's official name" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="short_name" class="form-label">Short Name/Acronym</label>
+                            <input type="text" class="form-control" id="short_name" name="short_name" 
+                                   placeholder="e.g., KRA, MOH">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" 
+                                   placeholder="Organization address">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city" 
+                                   placeholder="City" value="Nairobi">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" 
+                                   placeholder="+254 XXX XXX XXX">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                   placeholder="info@organization.com">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="kra_pin" class="form-label">KRA PIN</label>
+                            <input type="text" class="form-control" id="kra_pin" name="kra_pin" 
+                                   placeholder="P123456789A" pattern="P\d{9}[A-Z]">
+                            <div class="form-text">Format: P123456789A</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: What You'll Get -->
+                <div class="form-section">
+                    <h6><i class="bi bi-check-circle me-2"></i>Step 3: What You'll Get</h6>
+                    <p class="text-muted mb-3">Your payroll system will be set up with these features:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="feature-list">
+                                <li><i class="bi bi-check-circle-fill"></i>Complete organization profile</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Basic departments (Admin, HR, Finance)</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Employee management system</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Payroll processing capabilities</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="feature-list">
+                                <li><i class="bi bi-check-circle-fill"></i>Kenyan tax compliance (KRA, NSSF, SHIF)</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Professional payslip generation</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Reporting and analytics</li>
+                                <li><i class="bi bi-check-circle-fill"></i>Multi-user access control</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'payroll_admin:organization_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Organizations
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-rocket me-2"></i>Setup My Organization
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle organization type selection
+    const orgTypeCards = document.querySelectorAll('.org-type-card');
+    const orgTypeInputs = document.querySelectorAll('input[name="organization_type"]');
+    
+    orgTypeCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selected class from all cards
+            orgTypeCards.forEach(c => c.classList.remove('selected'));
+            // Add selected class to clicked card
+            this.classList.add('selected');
+        });
+    });
+    
+    orgTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            // Remove selected class from all cards
+            orgTypeCards.forEach(c => c.classList.remove('selected'));
+            // Add selected class to parent card
+            this.closest('.org-type-card').classList.add('selected');
+        });
+    });
+    
+    // Set initial selection
+    const checkedInput = document.querySelector('input[name="organization_type"]:checked');
+    if (checkedInput) {
+        checkedInput.closest('.org-type-card').classList.add('selected');
+    }
+    
+    // Form validation
+    const form = document.getElementById('setupForm');
+    form.addEventListener('submit', function(e) {
+        const orgName = document.getElementById('organization_name').value.trim();
+        if (!orgName) {
+            e.preventDefault();
+            alert('Please enter your organization name.');
+            document.getElementById('organization_name').focus();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

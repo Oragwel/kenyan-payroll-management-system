@@ -1,0 +1,288 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Payroll Period Details - {{ period.name }} - {% if organization %}{{ organization.name }}{% else %}{{ block.super }}{% endif %}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .period-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .stats-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+    .stats-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .stats-card.success { background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%); color: white; }
+    .stats-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+    .stats-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+    
+    .department-section {
+        margin-bottom: 2rem;
+    }
+    .department-header {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 0 8px 8px 0;
+    }
+    .payroll-table {
+        font-size: 0.9rem;
+    }
+    .payroll-table th {
+        background: #f8f9fa;
+        border-top: none;
+        font-weight: 600;
+        color: #495057;
+    }
+    .payroll-table td {
+        vertical-align: middle;
+    }
+    .amount {
+        font-weight: 600;
+        font-family: 'Courier New', monospace;
+    }
+    .amount.positive {
+        color: #28a745;
+    }
+    .amount.negative {
+        color: #dc3545;
+    }
+    .employee-link {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .employee-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Period Header -->
+    <div class="period-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                {% if organization %}
+                    <div class="d-flex align-items-center mb-3">
+                        {% if organization.logo %}
+                            <img src="{{ organization.logo.url }}" alt="{{ organization.name }} Logo"
+                                 class="me-4" style="height: 70px; width: auto; object-fit: contain;">
+                        {% endif %}
+                        <div>
+                            <h2 class="mb-1">{{ organization.name }}</h2>
+                            <h1 class="mb-2">{{ period.name }}</h1>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1 class="mb-2">{{ period.name }}</h1>
+                {% endif %}
+                <p class="mb-1 opacity-75">
+                    <i class="bi bi-calendar-range me-2"></i>
+                    {{ period.start_date|date:"F d, Y" }} - {{ period.end_date|date:"F d, Y" }}
+                </p>
+                <p class="mb-0 opacity-75">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Status:
+                    {% if period.is_closed %}
+                        <span class="badge bg-light text-dark">Closed</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Open</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="btn-group">
+                    <a href="{% url 'payroll_processing:payroll_periods' %}" class="btn btn-light">
+                        <i class="bi bi-arrow-left me-2"></i>Back to Periods
+                    </a>
+                    {% if payslips %}
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-download me-2"></i>Download All
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'payroll_processing:download_period_payslips' period.id %}?format=pdf">
+                                        <i class="bi bi-file-earmark-pdf me-2"></i>Download as PDF
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'payroll_processing:download_period_payslips' period.id %}?format=excel">
+                                        <i class="bi bi-file-earmark-excel me-2"></i>Download as Excel
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stats-card primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-people fs-1 mb-3"></i>
+                    <h3 class="mb-0">{{ total_employees }}</h3>
+                    <p class="mb-0">Employees</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card success">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack fs-1 mb-3"></i>
+                    <h3 class="mb-0">KSh {{ total_gross|floatformat:0 }}</h3>
+                    <p class="mb-0">Total Gross</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card info">
+                <div class="card-body text-center">
+                    <i class="bi bi-wallet2 fs-1 mb-3"></i>
+                    <h3 class="mb-0">KSh {{ total_net|floatformat:0 }}</h3>
+                    <p class="mb-0">Total Net Pay</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stats-card warning">
+                <div class="card-body text-center">
+                    <i class="bi bi-receipt fs-1 mb-3"></i>
+                    <h3 class="mb-0">KSh {{ total_deductions|floatformat:0 }}</h3>
+                    <p class="mb-0">Total Deductions</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payroll Details by Department -->
+    {% if departments %}
+        {% for dept_name, dept_payslips in departments.items %}
+        <div class="department-section">
+            <div class="department-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-building me-2"></i>{{ dept_name }}
+                    <span class="badge bg-primary ms-2">{{ dept_payslips|length }} employee{{ dept_payslips|length|pluralize }}</span>
+                </h5>
+            </div>
+            
+            <div class="card">
+                <div class="table-responsive">
+                    <table class="table table-hover payroll-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Employee #</th>
+                                <th>Job Title</th>
+                                <th class="text-end">Basic Salary</th>
+                                <th class="text-end">Allowances</th>
+                                <th class="text-end">Gross Pay</th>
+                                <th class="text-end">PAYE</th>
+                                <th class="text-end">NSSF</th>
+                                <th class="text-end">SHIF</th>
+                                <th class="text-end">Total Deductions</th>
+                                <th class="text-end">Net Pay</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payslip in dept_payslips %}
+                            <tr>
+                                <td>
+                                    <a href="#" class="employee-link">
+                                        <strong>{{ payslip.employee.full_name }}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ payslip.employee.employee_number }}</td>
+                                <td>{{ payslip.employee.job_title.title|default:"N/A" }}</td>
+                                <td class="text-end">
+                                    <span class="amount positive">KSh {{ payslip.basic_salary|floatformat:0 }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount positive">KSh {{ payslip.total_allowances|floatformat:0 }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount positive">
+                                        <strong>KSh {{ payslip.gross_pay|floatformat:0 }}</strong>
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount negative">KSh {{ payslip.paye_deduction|floatformat:0 }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount negative">KSh {{ payslip.nssf_employee_deduction|floatformat:0 }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount negative">KSh {{ payslip.shif_deduction|floatformat:0 }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount negative">
+                                        <strong>KSh {{ payslip.total_deductions|floatformat:0 }}</strong>
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="amount positive">
+                                        <strong>KSh {{ payslip.net_pay|floatformat:0 }}</strong>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'payroll_processing:view_payslip' payslip.id %}"
+                                           class="btn btn-outline-primary" title="View Payslip">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url 'payroll_processing:view_payslip' payslip.id %}"
+                                           class="btn btn-outline-success" title="Download PDF">
+                                            <i class="bi bi-download"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                <h5 class="text-muted">No Payroll Data</h5>
+                <p class="text-muted">No payslips have been generated for this period yet.</p>
+                <a href="{% url 'payroll_processing:payroll_generation' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Generate Payroll
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Add any additional JavaScript functionality here if needed
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

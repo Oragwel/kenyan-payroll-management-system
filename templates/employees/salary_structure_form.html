@@ -1,0 +1,444 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Kenyan Payroll Management System{% endblock %}
+
+{% block page_header %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-6 fw-bold text-primary mb-2">
+                    <i class="bi bi-currency-exchange me-3"></i>
+                    {{ title }}
+                </h1>
+                <p class="lead text-muted">
+                    Configure salary components and allowances
+                </p>
+            </div>
+            <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left me-2"></i>Back to Employee
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-person-badge me-2"></i>
+                    {{ employee.full_name }} - Salary Structure
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Basic Information
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.employee.id_for_label }}" class="form-label">
+                                        Employee <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.employee }}
+                                    {% if form.employee.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.employee.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="{{ form.effective_date.id_for_label }}" class="form-label">
+                                        Effective Date <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.effective_date }}
+                                    {% if form.effective_date.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.effective_date.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="form-check mt-4">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            Active Salary Structure
+                                        </label>
+                                    </div>
+                                    {% if form.is_active.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.is_active.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Basic Salary -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-cash me-2"></i>
+                                Basic Salary
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.basic_salary.id_for_label }}" class="form-label">
+                                        Basic Salary (KES) <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.basic_salary }}
+                                    {% if form.basic_salary.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.basic_salary.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Base salary before allowances</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Allowances -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-plus-circle me-2"></i>
+                                Allowances (Taxable)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.house_allowance.id_for_label }}" class="form-label">
+                                        House Allowance (KES)
+                                    </label>
+                                    {{ form.house_allowance }}
+                                    {% if form.house_allowance.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.house_allowance.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.transport_allowance.id_for_label }}" class="form-label">
+                                        Transport Allowance (KES)
+                                    </label>
+                                    {{ form.transport_allowance }}
+                                    {% if form.transport_allowance.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.transport_allowance.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.medical_allowance.id_for_label }}" class="form-label">
+                                        Medical Allowance (KES)
+                                    </label>
+                                    {{ form.medical_allowance }}
+                                    {% if form.medical_allowance.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.medical_allowance.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.lunch_allowance.id_for_label }}" class="form-label">
+                                        Lunch Allowance (KES)
+                                    </label>
+                                    {{ form.lunch_allowance }}
+                                    {% if form.lunch_allowance.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.lunch_allowance.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.communication_allowance.id_for_label }}" class="form-label">
+                                        Communication Allowance (KES)
+                                    </label>
+                                    {{ form.communication_allowance }}
+                                    {% if form.communication_allowance.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.communication_allowance.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.other_allowances.id_for_label }}" class="form-label">
+                                        Other Allowances (KES)
+                                    </label>
+                                    {{ form.other_allowances }}
+                                    {% if form.other_allowances.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.other_allowances.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Benefits -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-gift me-2"></i>
+                                Benefits (Non-Cash, Taxable)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.car_benefit_value.id_for_label }}" class="form-label">
+                                        Car Benefit Value (KES)
+                                    </label>
+                                    {{ form.car_benefit_value }}
+                                    {% if form.car_benefit_value.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.car_benefit_value.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Monthly value of company car</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.housing_benefit_value.id_for_label }}" class="form-label">
+                                        Housing Benefit Value (KES)
+                                    </label>
+                                    {{ form.housing_benefit_value }}
+                                    {% if form.housing_benefit_value.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.housing_benefit_value.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Monthly value of company housing</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Insurance & Pension -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-shield-check me-2"></i>
+                                Insurance & Pension (For Tax Relief)
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.life_insurance_premium.id_for_label }}" class="form-label">
+                                        Life Insurance Premium (KES)
+                                    </label>
+                                    {{ form.life_insurance_premium }}
+                                    {% if form.life_insurance_premium.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.life_insurance_premium.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.health_insurance_premium.id_for_label }}" class="form-label">
+                                        Health Insurance Premium (KES)
+                                    </label>
+                                    {{ form.health_insurance_premium }}
+                                    {% if form.health_insurance_premium.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.health_insurance_premium.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="{{ form.education_insurance_premium.id_for_label }}" class="form-label">
+                                        Education Insurance Premium (KES)
+                                    </label>
+                                    {{ form.education_insurance_premium }}
+                                    {% if form.education_insurance_premium.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.education_insurance_premium.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.pension_contribution.id_for_label }}" class="form-label">
+                                        Pension Contribution (KES)
+                                    </label>
+                                    {{ form.pension_contribution }}
+                                    {% if form.pension_contribution.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.pension_contribution.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Max KES 30,000/month for tax relief</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.post_retirement_medical_fund.id_for_label }}" class="form-label">
+                                        Post-Retirement Medical Fund (KES)
+                                    </label>
+                                    {{ form.post_retirement_medical_fund }}
+                                    {% if form.post_retirement_medical_fund.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.post_retirement_medical_fund.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Max KES 15,000/month for tax relief</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tax Relief Items -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="bi bi-percent me-2"></i>
+                                Tax Relief Items
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.mortgage_interest.id_for_label }}" class="form-label">
+                                        Mortgage Interest (KES)
+                                    </label>
+                                    {{ form.mortgage_interest }}
+                                    {% if form.mortgage_interest.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.mortgage_interest.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Max KES 30,000/month deductible</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Gross Salary Preview -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">
+                                <i class="bi bi-calculator me-2"></i>
+                                Salary Summary
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div id="salary-preview">
+                                <div class="text-center text-muted">
+                                    <p>Enter salary components to see the preview</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'employees:employee_detail' employee.pk %}" class="btn btn-outline-secondary btn-lg me-md-2">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if salary_structure %}Update Salary Structure{% else %}Create Salary Structure{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Calculate salary preview when inputs change
+    const salaryInputs = document.querySelectorAll('input[type="number"]');
+    salaryInputs.forEach(input => {
+        input.addEventListener('input', updateSalaryPreview);
+    });
+    
+    // Initial calculation
+    updateSalaryPreview();
+});
+
+function updateSalaryPreview() {
+    const basicSalary = parseFloat(document.getElementById('{{ form.basic_salary.id_for_label }}').value || 0);
+    const houseAllowance = parseFloat(document.getElementById('{{ form.house_allowance.id_for_label }}').value || 0);
+    const transportAllowance = parseFloat(document.getElementById('{{ form.transport_allowance.id_for_label }}').value || 0);
+    const medicalAllowance = parseFloat(document.getElementById('{{ form.medical_allowance.id_for_label }}').value || 0);
+    const lunchAllowance = parseFloat(document.getElementById('{{ form.lunch_allowance.id_for_label }}').value || 0);
+    const communicationAllowance = parseFloat(document.getElementById('{{ form.communication_allowance.id_for_label }}').value || 0);
+    const otherAllowances = parseFloat(document.getElementById('{{ form.other_allowances.id_for_label }}').value || 0);
+    const carBenefit = parseFloat(document.getElementById('{{ form.car_benefit_value.id_for_label }}').value || 0);
+    const housingBenefit = parseFloat(document.getElementById('{{ form.housing_benefit_value.id_for_label }}').value || 0);
+    
+    const totalAllowances = houseAllowance + transportAllowance + medicalAllowance + 
+                           lunchAllowance + communicationAllowance + otherAllowances;
+    const totalBenefits = carBenefit + housingBenefit;
+    const grossSalary = basicSalary + totalAllowances + totalBenefits;
+    
+    document.getElementById('salary-preview').innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">Salary Breakdown</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Basic Salary:</span>
+                    <strong>${formatCurrency(basicSalary)}</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Allowances:</span>
+                    <span>${formatCurrency(totalAllowances)}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total Benefits:</span>
+                    <span>${formatCurrency(totalBenefits)}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Gross Salary:</strong>
+                    <strong class="text-success">${formatCurrency(grossSalary)}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6 class="text-primary">Quick Deductions Preview</h6>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>NSSF (Est.):</span>
+                    <span>${formatCurrency(calculateNSSF(grossSalary).employee)}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>SHIF (Est.):</span>
+                    <span>${formatCurrency(calculateSHIF(grossSalary))}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Housing Levy (Est.):</span>
+                    <span>${formatCurrency(calculateHousingLevy(grossSalary).employee)}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>PAYE (Est.):</span>
+                    <span>${formatCurrency(calculatePAYE(grossSalary - calculateNSSF(grossSalary).employee))}</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Est. Net Pay:</strong>
+                    <strong class="text-success">${formatCurrency(grossSalary - (calculateNSSF(grossSalary).employee + calculateSHIF(grossSalary) + calculateHousingLevy(grossSalary).employee + calculatePAYE(grossSalary - calculateNSSF(grossSalary).employee)))}</strong>
+                </div>
+            </div>
+        </div>
+    `;
+}
+</script>
+{% endblock %}
