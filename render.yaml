@@ -4,8 +4,7 @@ services:
     env: python
     plan: starter
     buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
+      pip install -r requirements-minimal.txt
       python manage.py collectstatic --noinput
     startCommand: |
       python manage.py migrate
@@ -17,7 +16,7 @@ services:
       - key: DEBUG
         value: False
       - key: DJANGO_SETTINGS_MODULE
-        value: payroll.settings.production
+        value: payroll.settings.minimal
       - key: DJANGO_SUPERUSER_USERNAME
         value: admin
       - key: DJANGO_SUPERUSER_EMAIL

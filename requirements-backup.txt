@@ -1,0 +1,46 @@
+# Simplified requirements for Railway deployment
+# Start with core functionality, add advanced features later
+
+# Core Django
+Django==4.2.7
+djangorestframework==3.14.0
+
+# Database
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+
+# Production deployment
+gunicorn==21.2.0
+whitenoise==6.6.0
+django-environ==0.11.2
+
+# Forms and UI
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
+
+# Security
+django-cors-headers==4.3.1
+django-ratelimit==4.1.0
+django-axes==6.1.1
+cryptography==41.0.7
+
+# Basic utilities
+python-dateutil==2.8.2
+pytz==2023.3
+requests==2.31.0
+six==1.16.0
+
+# Image processing
+Pillow==10.1.0
+
+# Excel operations (lightweight)
+openpyxl==3.1.2
+
+# PDF generation (lightweight)
+reportlab==4.0.4
+
+# We'll add these back after basic deployment works:
+# weasyprint==60.2
+# pandas==2.1.3
+# xlsxwriter==3.1.9
+# xlrd==2.0.1
