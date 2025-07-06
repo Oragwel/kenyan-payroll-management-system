@@ -31,11 +31,20 @@ from django.http import HttpResponse, HttpResponseRedirect
 def simple_login(request):
     """Simple CSRF-exempt login for frontend"""
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
 
         # Debug logging
         print(f"🔍 Frontend login attempt - Username: '{username}', Password length: {len(password) if password else 0}")
+
+        # Validate input
+        if not username:
+            print("❌ No username provided")
+            return HttpResponse('Username is required', status=400)
+
+        if not password:
+            print("❌ No password provided")
+            return HttpResponse('Password is required', status=400)
 
         # Check if user exists
         from django.contrib.auth.models import User
@@ -59,7 +68,12 @@ def simple_login(request):
             print(f"❌ Authentication failed for {username}")
             return HttpResponse(f'Invalid credentials for user "{username}". Check password.', status=401)
     else:
-        return render(request, 'registration/login.html')
+        # GET request - show the login form
+        context = {
+            'title': 'System Login',
+            'site_header': 'Payroll System Login',
+        }
+        return render(request, 'registration/login.html', context)
 
 @csrf_exempt
 def admin_login(request):

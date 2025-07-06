@@ -214,14 +214,13 @@
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">
+                            <label for="username" class="form-label fw-semibold">
                                 <i class="bi bi-person me-2"></i>Username
                             </label>
                             <input type="text"
                                    class="form-control"
-                                   id="{{ form.username.id_for_label }}"
-                                   name="{{ form.username.name }}"
-                                   value="{{ form.username.value|default:'' }}"
+                                   id="username"
+                                   name="username"
                                    placeholder="Enter your username"
                                    autocomplete="off"
                                    autocorrect="off"
@@ -237,13 +236,13 @@
                         </div>
                         
                         <div class="mb-4">
-                            <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">
+                            <label for="password" class="form-label fw-semibold">
                                 <i class="bi bi-lock me-2"></i>Password
                             </label>
                             <input type="password"
                                    class="form-control"
-                                   id="{{ form.password.id_for_label }}"
-                                   name="{{ form.password.name }}"
+                                   id="password"
+                                   name="password"
                                    placeholder="Enter your password"
                                    autocomplete="new-password"
                                    autocorrect="off"
