@@ -1,6 +1,6 @@
 """
-Ultra-minimal settings for guaranteed deployment success
-Absolute bare minimum to get Django running
+Basic settings for guaranteed deployment success
+Only Django built-in apps - no custom apps initially
 """
 
 import os
@@ -23,7 +23,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
-# Application definition - MINIMAL
+# Application definition - ONLY DJANGO BUILT-INS
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -31,10 +31,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Only include apps that exist and are essential
-    'employees',
-    'organizations',
-    'core',
 ]
 
 MIDDLEWARE = [
@@ -53,7 +49,7 @@ ROOT_URLCONF = 'payroll.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -102,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Nairobi'
+TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
@@ -110,16 +106,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 # Use WhiteNoise for static file serving
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
