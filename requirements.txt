@@ -16,5 +16,5 @@ pytz==2023.3
 # Excel processing and file handling - lightweight, Python 3.13 compatible
 openpyxl==3.1.2
 
-# Image processing for logos
-Pillow==10.1.0
+# Image processing for logos - temporarily disabled for Python 3.13 compatibility
+# Pillow>=10.2.0

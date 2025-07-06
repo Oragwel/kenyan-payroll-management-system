@@ -1,50 +1,50 @@
-2025-07-06T17:16:35.762974657Z       [11/151] Compiling C object pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/meson-generated_pandas__libs_tslibs_base.pyx.c.o
-2025-07-06T17:16:35.762977127Z       FAILED: pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/meson-generated_pandas__libs_tslibs_base.pyx.c.o
-2025-07-06T17:16:35.762981128Z       cc -Ipandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p -Ipandas/_libs/tslibs -I../../pandas/_libs/tslibs -I../../../../pip-build-env-3hkfu6o3/overlay/lib/python3.13/site-packages/numpy/core/include -I../../pandas/_libs/include -I/usr/local/include/python3.13 -fvisibility=hidden -fdiagnostics-color=always -DNDEBUG -D_FILE_OFFSET_BITS=64 -w -std=c99 -O3 -DNPY_NO_DEPRECATED_API=0 -DNPY_TARGET_VERSION=NPY_1_21_API_VERSION -fPIC -MD -MQ pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/meson-generated_pandas__libs_tslibs_base.pyx.c.o -MF pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/meson-generated_pandas__libs_tslibs_base.pyx.c.o.d -o pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/meson-generated_pandas__libs_tslibs_base.pyx.c.o -c pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c
-2025-07-06T17:16:35.762995729Z       pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c: In function ‘__Pyx_PyInt_As_long’:
-2025-07-06T17:16:35.762998579Z       pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c:5397:27: error: too few arguments to function ‘_PyLong_AsByteArray’
-2025-07-06T17:16:35.763000739Z        5397 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
-2025-07-06T17:16:35.763002939Z             |                           ^~~~~~~~~~~~~~~~~~~
-2025-07-06T17:16:35.76300503Z       In file included from /usr/local/include/python3.13/longobject.h:107,
-2025-07-06T17:16:35.76300715Z                        from /usr/local/include/python3.13/Python.h:81,
-2025-07-06T17:16:35.76300928Z                        from pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c:6:
-2025-07-06T17:16:35.76301142Z       /usr/local/include/python3.13/cpython/longobject.h:111:17: note: declared here
-2025-07-06T17:16:35.76301354Z         111 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
-2025-07-06T17:16:35.76301563Z             |                 ^~~~~~~~~~~~~~~~~~~
-2025-07-06T17:16:35.76301778Z       pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c: In function ‘__Pyx_PyInt_As_int’:
-2025-07-06T17:16:35.763019941Z       pandas/_libs/tslibs/base.cpython-313-x86_64-linux-gnu.so.p/pandas/_libs/tslibs/base.pyx.c:5631:27: error: too few arguments to function ‘_PyLong_AsByteArray’
-2025-07-06T17:16:35.763021991Z        5631 |                 int ret = _PyLong_AsByteArray((PyLongObject *)v,
-2025-07-06T17:16:35.763024081Z             |                           ^~~~~~~~~~~~~~~~~~~
-2025-07-06T17:16:35.763026111Z       /usr/local/include/python3.13/cpython/longobject.h:111:17: note: declared here
-2025-07-06T17:16:35.763028171Z         111 | PyAPI_FUNC(int) _PyLong_AsByteArray(PyLongObject* v,
-2025-07-06T17:16:35.763030192Z             |                 ^~~~~~~~~~~~~~~~~~~
-2025-07-06T17:16:35.763032282Z       [12/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/ccalendar.pyx
-2025-07-06T17:16:35.763034392Z       [13/151] Compiling C object pandas/_libs/tslibs/parsing.cpython-313-x86_64-linux-gnu.so.p/.._src_parser_tokenizer.c.o
-2025-07-06T17:16:35.763039752Z       [14/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/np_datetime.pyx
-2025-07-06T17:16:35.763041962Z       [15/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/nattype.pyx
-2025-07-06T17:16:35.763044073Z       [16/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/dtypes.pyx
-2025-07-06T17:16:35.763046173Z       [17/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/conversion.pyx
-2025-07-06T17:16:35.763048343Z       [18/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/tzconversion.pyx
-2025-07-06T17:16:35.763050423Z       [19/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/fields.pyx
-2025-07-06T17:16:35.763052443Z       [20/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/parsing.pyx
-2025-07-06T17:16:35.763054514Z       [21/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/offsets.pyx
-2025-07-06T17:16:35.763056544Z       [22/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/strptime.pyx
-2025-07-06T17:16:35.763058584Z       [23/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/vectorized.pyx
-2025-07-06T17:16:35.763060634Z       [24/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/timezones.pyx
-2025-07-06T17:16:35.763062684Z       [25/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/period.pyx
-2025-07-06T17:16:35.763066675Z       [26/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/timestamps.pyx
-2025-07-06T17:16:35.763068855Z       [27/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/tslibs/timedeltas.pyx
-2025-07-06T17:16:35.763071025Z       [28/151] Compiling Cython source /tmp/pip-install-ihmkasw6/pandas_21ce3a324ef046fca452b4a814be6aac/pandas/_libs/algos.pyx
-2025-07-06T17:16:35.763073195Z       ninja: build stopped: subcommand failed.
-2025-07-06T17:16:35.763075265Z       [end of output]
-2025-07-06T17:16:35.763077345Z   
-2025-07-06T17:16:35.763079456Z   note: This error originates from a subprocess, and is likely not a problem with pip.
-2025-07-06T17:16:35.768905554Z error: metadata-generation-failed
-2025-07-06T17:16:35.768916415Z 
-2025-07-06T17:16:35.768919005Z × Encountered error while generating package metadata.
-2025-07-06T17:16:35.768921465Z ╰─> See above for output.
-2025-07-06T17:16:35.768924386Z 
-2025-07-06T17:16:35.768930736Z note: This is an issue with the package mentioned above, not pip.
-2025-07-06T17:16:35.768934266Z hint: See above for details.
-2025-07-06T17:16:36.007686765Z ==> Build failed 😞
-2025-07-06T17:16:36.007702396Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2025-07-06T17:52:26.082031072Z Collecting python-dateutil==2.8.2 (from -r requirements.txt (line 13))
+2025-07-06T17:52:26.084339433Z   Using cached python_dateutil-2.8.2-py2.py3-none-any.whl.metadata (8.2 kB)
+2025-07-06T17:52:26.140834439Z Collecting pytz==2023.3 (from -r requirements.txt (line 14))
+2025-07-06T17:52:26.142837533Z   Using cached pytz-2023.3-py2.py3-none-any.whl.metadata (22 kB)
+2025-07-06T17:52:26.196026301Z Collecting openpyxl==3.1.2 (from -r requirements.txt (line 17))
+2025-07-06T17:52:26.198402894Z   Using cached openpyxl-3.1.2-py2.py3-none-any.whl.metadata (2.5 kB)
+2025-07-06T17:52:26.473345684Z Collecting Pillow==10.1.0 (from -r requirements.txt (line 20))
+2025-07-06T17:52:26.475351388Z   Using cached Pillow-10.1.0.tar.gz (50.8 MB)
+2025-07-06T17:52:27.797166836Z   Installing build dependencies: started
+2025-07-06T17:52:28.861746867Z   Installing build dependencies: finished with status 'done'
+2025-07-06T17:52:28.862946829Z   Getting requirements to build wheel: started
+2025-07-06T17:52:29.255781522Z   Getting requirements to build wheel: finished with status 'error'
+2025-07-06T17:52:29.262519051Z   error: subprocess-exited-with-error
+2025-07-06T17:52:29.262553772Z   
+2025-07-06T17:52:29.262559192Z   × Getting requirements to build wheel did not run successfully.
+2025-07-06T17:52:29.262563653Z   │ exit code: 1
+2025-07-06T17:52:29.262568382Z   ╰─> [21 lines of output]
+2025-07-06T17:52:29.262572383Z       Traceback (most recent call last):
+2025-07-06T17:52:29.262577013Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
+2025-07-06T17:52:29.262580903Z           main()
+2025-07-06T17:52:29.262584633Z           ~~~~^^
+2025-07-06T17:52:29.262588553Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
+2025-07-06T17:52:29.262593143Z           json_out["return_val"] = hook(**hook_input["kwargs"])
+2025-07-06T17:52:29.262596913Z                                    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+2025-07-06T17:52:29.262601454Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 143, in get_requires_for_build_wheel
+2025-07-06T17:52:29.262621354Z           return hook(config_settings)
+2025-07-06T17:52:29.262623924Z         File "/tmp/pip-build-env-1jlyfkup/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 331, in get_requires_for_build_wheel
+2025-07-06T17:52:29.262626274Z           return self._get_build_requires(config_settings, requirements=[])
+2025-07-06T17:52:29.262628404Z                  ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-07-06T17:52:29.262631754Z         File "/tmp/pip-build-env-1jlyfkup/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 301, in _get_build_requires
+2025-07-06T17:52:29.262634034Z           self.run_setup()
+2025-07-06T17:52:29.262636254Z           ~~~~~~~~~~~~~~^^
+2025-07-06T17:52:29.262639184Z         File "/tmp/pip-build-env-1jlyfkup/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 317, in run_setup
+2025-07-06T17:52:29.262641364Z           exec(code, locals())
+2025-07-06T17:52:29.262643484Z           ~~~~^^^^^^^^^^^^^^^^
+2025-07-06T17:52:29.262645625Z         File "<string>", line 30, in <module>
+2025-07-06T17:52:29.262648025Z         File "<string>", line 27, in get_version
+2025-07-06T17:52:29.262650215Z       KeyError: '__version__'
+2025-07-06T17:52:29.262652445Z       [end of output]
+2025-07-06T17:52:29.262654685Z   
+2025-07-06T17:52:29.262657325Z   note: This error originates from a subprocess, and is likely not a problem with pip.
+2025-07-06T17:52:29.273326319Z error: subprocess-exited-with-error
+2025-07-06T17:52:29.27335422Z 
+2025-07-06T17:52:29.27335861Z × Getting requirements to build wheel did not run successfully.
+2025-07-06T17:52:29.27336137Z │ exit code: 1
+2025-07-06T17:52:29.27336489Z ╰─> See above for output.
+2025-07-06T17:52:29.273367661Z 
+2025-07-06T17:52:29.27337095Z note: This error originates from a subprocess, and is likely not a problem with pip.
+2025-07-06T17:52:29.524713431Z ==> Build failed 😞
+2025-07-06T17:52:29.524742092Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys

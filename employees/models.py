@@ -90,8 +90,9 @@ class Organization(models.Model):
         help_text="SHIF employer registration number"
     )
 
-    # Logo and Branding
-    logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    # Logo and Branding - temporarily disabled due to Python 3.13 Pillow compatibility
+    # logo = models.ImageField(upload_to='company_logos/', blank=True, null=True)
+    logo = models.CharField(max_length=255, blank=True, null=True, help_text="Logo path - temporarily disabled for Python 3.13 compatibility")
 
     # Payroll Settings
     default_pay_day = models.IntegerField(
