@@ -1,0 +1,39 @@
+# Ultra-minimal requirements for reliable deployment
+# Core functionality only - we'll add features incrementally
+
+# Core Django (essential)
+Django==4.2.7
+
+# Database (essential)
+psycopg2-binary==2.9.9
+
+# Production server (essential)
+gunicorn==21.2.0
+
+# Static files (essential)
+whitenoise==6.6.0
+
+# Environment variables (essential)
+django-environ==0.11.2
+
+# Database URL parsing (essential)
+dj-database-url==2.1.0
+
+# Basic utilities (lightweight)
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Forms (lightweight)
+django-crispy-forms==2.1
+
+# Basic security (lightweight)
+django-cors-headers==4.3.1
+
+# Image processing (pre-compiled binary)
+Pillow==10.1.0
+
+# Basic PDF (lightweight)
+reportlab==4.0.4
+
+# Basic Excel (pure Python)
+openpyxl==3.1.2
