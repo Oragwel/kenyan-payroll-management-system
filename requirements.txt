@@ -1,6 +1,22 @@
-# SQLite-only requirements - no PostgreSQL dependencies
-# This will eliminate psycopg2 compilation issues
+# Full payroll system requirements with SQLite
+# Essential packages for complete UI functionality
 
 Django==4.2.7
 gunicorn==21.2.0
 whitenoise==6.6.0
+
+# Forms and UI
+django-crispy-forms==2.1
+
+# Basic utilities
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Image processing (for logos)
+Pillow==10.1.0
+
+# Basic PDF generation
+reportlab==4.0.4
+
+# Excel operations
+openpyxl==3.1.2
