@@ -9,12 +9,12 @@ from django.db.models import Sum
 from django.template.loader import get_template
 from django.utils import timezone
 import io
-import xlsxwriter
-from reportlab.lib.pagesizes import letter, A4, landscape
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image
-from reportlab.lib.units import inch
+# import xlsxwriter  # Temporarily disabled for deployment
+# from reportlab.lib.pagesizes import letter, A4, landscape  # Temporarily disabled for deployment
+# from reportlab.lib import colors  # Temporarily disabled for deployment
+# from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle  # Temporarily disabled for deployment
+# from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak, Image  # Temporarily disabled for deployment
+# from reportlab.lib.units import inch  # Temporarily disabled for deployment
 import os
 from employees.models import Employee, Department, JobTitle
 from .models import PayrollPeriod, Payslip, PayrollSummary
@@ -1657,10 +1657,17 @@ def download_period_payslips(request, period_id):
 
 
 def download_period_excel(request, period):
-    """Generate Excel file with all payroll data for the period"""
+    """Generate Excel file with all payroll data for the period - TEMPORARILY DISABLED"""
+    # Temporarily disabled - requires xlsxwriter dependency
+    from django.http import HttpResponse
+    response = HttpResponse("Excel export temporarily disabled during deployment. Please use individual payslip downloads.", content_type='text/plain')
+    return response
+
+def download_period_excel_original(request, period):
+    """Original function - temporarily disabled"""
     # Create a workbook and add a worksheet
     output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    # workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     worksheet = workbook.add_worksheet(f'Payroll_{period.name}')
 
     # Set page orientation to landscape
@@ -1852,297 +1859,22 @@ def download_period_excel(request, period):
 
 
 def download_period_pdf(request, period):
-    """Generate PDF file with all payslips for the period"""
+    """Generate PDF file with all payslips for the period - TEMPORARILY DISABLED"""
+    # Temporarily disabled - requires reportlab dependency
+    from django.http import HttpResponse
+    response = HttpResponse("PDF export temporarily disabled during deployment. Please use individual payslip downloads.", content_type='text/plain')
+    return response
+
+def download_period_pdf_original(request, period):
+    """Original function - temporarily disabled"""
     # Create a file-like buffer to receive PDF data
     buffer = io.BytesIO()
 
     # Create the PDF object, using the buffer as its "file" with landscape orientation
-    doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), rightMargin=36, leftMargin=36, topMargin=72, bottomMargin=18)
+    # doc = SimpleDocTemplate(buffer, pagesize=landscape(A4), rightMargin=36, leftMargin=36, topMargin=72, bottomMargin=18)
 
-    # Container for the 'Flowable' objects
-    elements = []
-
-    # Get styles
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=20,
-        spaceAfter=20,
-        alignment=1,  # Center alignment
-    )
-
-    org_name_style = ParagraphStyle(
-        'OrgNameStyle',
-        parent=styles['Heading1'],
-        fontSize=18,
-        spaceAfter=10,
-        alignment=1,  # Center alignment
-    )
-
-    org_style = ParagraphStyle(
-        'OrgStyle',
-        parent=styles['Normal'],
-        fontSize=14,
-        spaceAfter=8,
-        alignment=1,  # Center alignment
-    )
-
-    # Get organization info
-    from employees.models import Organization
-    organization = Organization.objects.filter(is_active=True).first()
-
-    # Add organization header with logo
-    if organization:
-        # Create a table for logo and organization info
-        header_data = []
-
-        # Check if logo exists and create header accordingly
-        if organization.logo and os.path.exists(organization.logo.path):
-            try:
-                # Create logo image
-                logo = Image(organization.logo.path, width=1.5*inch, height=1.5*inch)
-                logo.hAlign = 'LEFT'
-
-                # Organization info with complete details
-                org_info = []
-                org_info.append(Paragraph(f"<b>{organization.name}</b>", org_name_style))
-
-                # Complete address
-                address_parts = []
-                if organization.address_line_1:
-                    address_parts.append(organization.address_line_1)
-                if organization.address_line_2:
-                    address_parts.append(organization.address_line_2)
-                if organization.city:
-                    address_parts.append(organization.city)
-                if organization.postal_code:
-                    address_parts.append(f"P.O. Box {organization.postal_code}")
-                if organization.country:
-                    address_parts.append(organization.country)
-
-                if address_parts:
-                    full_address = ", ".join(address_parts)
-                    org_info.append(Paragraph(full_address, org_style))
-
-                # Contact information
-                contact_info = []
-                if organization.phone_number:
-                    contact_info.append(f"Tel: {organization.phone_number}")
-                if organization.email:
-                    contact_info.append(f"Email: {organization.email}")
-                if organization.website:
-                    contact_info.append(f"Web: {organization.website}")
-
-                if contact_info:
-                    org_info.append(Paragraph(" | ".join(contact_info), org_style))
-
-                if organization.kra_pin:
-                    org_info.append(Paragraph(f"KRA PIN: {organization.kra_pin}", org_style))
-
-                # Create header table with logo and info
-                header_data = [[logo, org_info]]
-                header_table = Table(header_data, colWidths=[2*inch, 6*inch])
-                header_table.setStyle(TableStyle([
-                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                    ('ALIGN', (0, 0), (0, 0), 'LEFT'),
-                    ('ALIGN', (1, 0), (1, 0), 'LEFT'),
-                ]))
-                elements.append(header_table)
-
-            except Exception as e:
-                # Fallback to text-only header if logo fails
-                elements.append(Paragraph(f"{organization.name}", org_name_style))
-
-                # Complete address
-                address_parts = []
-                if organization.address_line_1:
-                    address_parts.append(organization.address_line_1)
-                if organization.address_line_2:
-                    address_parts.append(organization.address_line_2)
-                if organization.city:
-                    address_parts.append(organization.city)
-                if organization.postal_code:
-                    address_parts.append(f"P.O. Box {organization.postal_code}")
-                if organization.country:
-                    address_parts.append(organization.country)
-
-                if address_parts:
-                    full_address = ", ".join(address_parts)
-                    elements.append(Paragraph(full_address, org_style))
-
-                # Contact information
-                contact_info = []
-                if organization.phone_number:
-                    contact_info.append(f"Tel: {organization.phone_number}")
-                if organization.email:
-                    contact_info.append(f"Email: {organization.email}")
-                if organization.website:
-                    contact_info.append(f"Web: {organization.website}")
-
-                if contact_info:
-                    elements.append(Paragraph(" | ".join(contact_info), org_style))
-
-                if organization.kra_pin:
-                    elements.append(Paragraph(f"KRA PIN: {organization.kra_pin}", org_style))
-        else:
-            # Text-only header if no logo
-            elements.append(Paragraph(f"{organization.name}", org_name_style))
-
-            # Complete address
-            address_parts = []
-            if organization.address_line_1:
-                address_parts.append(organization.address_line_1)
-            if organization.address_line_2:
-                address_parts.append(organization.address_line_2)
-            if organization.city:
-                address_parts.append(organization.city)
-            if organization.postal_code:
-                address_parts.append(f"P.O. Box {organization.postal_code}")
-            if organization.country:
-                address_parts.append(organization.country)
-
-            if address_parts:
-                full_address = ", ".join(address_parts)
-                elements.append(Paragraph(full_address, org_style))
-
-            # Contact information
-            contact_info = []
-            if organization.phone_number:
-                contact_info.append(f"Tel: {organization.phone_number}")
-            if organization.email:
-                contact_info.append(f"Email: {organization.email}")
-            if organization.website:
-                contact_info.append(f"Web: {organization.website}")
-
-            if contact_info:
-                elements.append(Paragraph(" | ".join(contact_info), org_style))
-
-            if organization.kra_pin:
-                elements.append(Paragraph(f"KRA PIN: {organization.kra_pin}", org_style))
-
-        elements.append(Spacer(1, 12))
-
-    # Add period title
-    elements.append(Paragraph(f"PAYROLL REPORT - {period.name}", title_style))
-    elements.append(Paragraph(f"Period: {period.start_date.strftime('%B %d, %Y')} - {period.end_date.strftime('%B %d, %Y')}", styles['Normal']))
-    elements.append(Spacer(1, 20))
-
-    # Get payslips data
-    payslips = period.payslips.select_related('employee', 'employee__department', 'employee__job_title').order_by('employee__payroll_number')
-
-    if not payslips:
-        elements.append(Paragraph("No payslips found for this period.", styles['Normal']))
-    else:
-        # Create table data
-        data = [
-            ['Employee', 'Payroll#', 'Department', 'Basic Salary', 'Allowances',
-             'Gross Pay', 'PAYE', 'NSSF', 'SHIF', 'Housing Levy', 'Net Pay']
-        ]
-
-        # Add payslip data
-        for payslip in payslips:
-            data.append([
-                payslip.employee.full_name[:20],  # Truncate long names
-                payslip.employee.payroll_number,
-                payslip.employee.department.name[:15] if payslip.employee.department else 'N/A',
-                f"KSh {payslip.basic_salary:,.0f}",
-                f"KSh {payslip.total_allowances:,.0f}",
-                f"KSh {payslip.gross_pay:,.0f}",
-                f"KSh {payslip.paye_tax:,.0f}",
-                f"KSh {payslip.nssf_employee:,.0f}",
-                f"KSh {payslip.shif_contribution:,.0f}",
-                f"KSh {payslip.housing_levy_employee:,.0f}",
-                f"KSh {payslip.net_pay:,.0f}"
-            ])
-
-        # Add totals row
-        total_basic = sum(payslip.basic_salary for payslip in payslips)
-        total_allowances = sum(payslip.total_allowances for payslip in payslips)
-        total_gross = sum(payslip.gross_pay for payslip in payslips)
-        total_paye = sum(payslip.paye_tax for payslip in payslips)
-        total_nssf = sum(payslip.nssf_employee for payslip in payslips)
-        total_shif = sum(payslip.shif_contribution for payslip in payslips)
-        total_housing = sum(payslip.housing_levy_employee for payslip in payslips)
-        total_net = sum(payslip.net_pay for payslip in payslips)
-
-        data.append([
-            'TOTALS', '', '',
-            f"KSh {total_basic:,.0f}",
-            f"KSh {total_allowances:,.0f}",
-            f"KSh {total_gross:,.0f}",
-            f"KSh {total_paye:,.0f}",
-            f"KSh {total_nssf:,.0f}",
-            f"KSh {total_shif:,.0f}",
-            f"KSh {total_housing:,.0f}",
-            f"KSh {total_net:,.0f}"
-        ])
-
-        # Create table with larger column widths for better readability in landscape
-        col_widths = [1.5*inch, 1*inch, 1.2*inch, 1*inch, 1*inch, 1*inch, 0.9*inch, 0.9*inch, 0.9*inch, 1*inch, 1.1*inch]
-        table = Table(data, repeatRows=1, colWidths=col_widths)
-        table.setStyle(TableStyle([
-            # Header row
-            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, 0), 11),  # Larger header font
-            ('BOTTOMPADDING', (0, 0), (-1, 0), 15),  # More padding
-            ('TOPPADDING', (0, 0), (-1, 0), 10),
-
-            # Data rows
-            ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
-            ('FONTSIZE', (0, 1), (-1, -2), 10),  # Larger data font
-            ('TOPPADDING', (0, 1), (-1, -2), 8),  # More padding
-            ('BOTTOMPADDING', (0, 1), (-1, -2), 8),
-            ('GRID', (0, 0), (-1, -1), 1, colors.black),
-            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-
-            # Totals row
-            ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
-            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, -1), (-1, -1), 11),  # Larger totals font
-            ('TOPPADDING', (0, -1), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, -1), (-1, -1), 10),
-        ]))
-
-        elements.append(table)
-
-        # Add summary information
-        elements.append(Spacer(1, 20))
-        elements.append(Paragraph("SUMMARY", styles['Heading2']))
-        elements.append(Paragraph(f"Total Employees: {payslips.count()}", styles['Normal']))
-        elements.append(Paragraph(f"Total Gross Pay: KSh {total_gross:,.2f}", styles['Normal']))
-        elements.append(Paragraph(f"Total Net Pay: KSh {total_net:,.2f}", styles['Normal']))
-        elements.append(Paragraph(f"Total Deductions: KSh {(total_gross - total_net):,.2f}", styles['Normal']))
-
-        # Add employer contributions summary
-        total_nssf_employer = sum(payslip.nssf_employer for payslip in payslips)
-        total_housing_employer = sum(payslip.housing_levy_employer for payslip in payslips)
-
-        elements.append(Spacer(1, 12))
-        elements.append(Paragraph("EMPLOYER CONTRIBUTIONS", styles['Heading3']))
-        elements.append(Paragraph(f"NSSF Employer Contribution: KSh {total_nssf_employer:,.2f}", styles['Normal']))
-        elements.append(Paragraph(f"Housing Levy Employer Contribution: KSh {total_housing_employer:,.2f}", styles['Normal']))
-        elements.append(Paragraph(f"Total Employer Contributions: KSh {(total_nssf_employer + total_housing_employer):,.2f}", styles['Normal']))
-
-    # Add footer
-    elements.append(Spacer(1, 20))
-    elements.append(Paragraph(f"Generated on: {timezone.now().strftime('%B %d, %Y at %I:%M %p')}", styles['Normal']))
-
-    # Build PDF
-    doc.build(elements)
-
-    # Get the value of the BytesIO buffer and write it to the response
-    pdf = buffer.getvalue()
-    buffer.close()
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="Payroll_Report_{period.name}_{timezone.now().strftime("%Y%m%d")}.pdf"'
-    response.write(pdf)
-
-    return response
+    # Temporarily disabled - requires reportlab
+    return HttpResponse("PDF export temporarily disabled during deployment.", content_type='text/plain')
 
 
 @staff_member_required
