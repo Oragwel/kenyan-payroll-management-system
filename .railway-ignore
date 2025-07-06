@@ -1,0 +1,14 @@
+# Railway ignore file
+.git/
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+docs/
+*.md
+media/
+db.sqlite3
+.pytest_cache/
+.coverage
+htmlcov/
