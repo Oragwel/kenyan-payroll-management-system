@@ -51,11 +51,11 @@
 {% endblock %}
 
 {% block content %}
+<!-- Automatic redirect disabled - stay in Django admin -->
 <script>
-// Redirect to enhanced dashboard for better user experience
-if (window.location.pathname === '/admin/') {
-    window.location.href = '/admin/dashboard/';
-}
+// Auto-redirect disabled to allow access to Django admin interface
+// Users can manually navigate to enhanced dashboard if needed
+console.log('Django Admin Interface Loaded');
 </script>
 
 <div class="dashboard-welcome">

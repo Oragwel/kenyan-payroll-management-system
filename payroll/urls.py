@@ -92,10 +92,21 @@ def admin_login(request):
             print(f"✅ Admin authentication successful for {username}")
             auth_login(request, user)
 
-            # Get next URL or default to admin home
-            next_url = request.POST.get('next') or request.GET.get('next') or '/admin/'
-            print(f"🔄 Admin login - Redirecting to: {next_url}")
-            return HttpResponseRedirect(next_url)
+            # Get next URL or default to Django admin home
+            next_url = request.POST.get('next') or request.GET.get('next')
+
+            # Ensure we redirect to a valid admin URL
+            if next_url:
+                # If next_url is just '/admin/', it's valid
+                if next_url == '/admin/' or next_url.startswith('/admin/') and not next_url.startswith('/admin/dashboard'):
+                    redirect_url = next_url
+                else:
+                    redirect_url = '/admin/'
+            else:
+                redirect_url = '/admin/'
+
+            print(f"🔄 Admin login - Redirecting to: {redirect_url}")
+            return HttpResponseRedirect(redirect_url)
         else:
             print(f"❌ Admin authentication failed for {username}")
             return HttpResponse(f'Invalid admin credentials for user "{username}". Check password.', status=401)
