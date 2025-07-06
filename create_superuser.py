@@ -25,18 +25,40 @@ def create_superuser():
     username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
     email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
     password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin123')
-    
-    if User.objects.filter(username=username).exists():
+
+    print(f"🔍 Checking for superuser '{username}'...")
+
+    # Check if user exists
+    existing_user = User.objects.filter(username=username).first()
+    if existing_user:
         print(f"ℹ️ Superuser '{username}' already exists")
+        print(f"   Email: {existing_user.email}")
+        print(f"   Is active: {existing_user.is_active}")
+        print(f"   Is superuser: {existing_user.is_superuser}")
+
+        # Update password to ensure it matches
+        existing_user.set_password(password)
+        existing_user.save()
+        print(f"🔄 Updated password for existing superuser")
     else:
-        User.objects.create_superuser(
+        # Create new superuser
+        user = User.objects.create_superuser(
             username=username,
             email=email,
             password=password
         )
         print(f"✅ Superuser '{username}' created successfully")
         print(f"   Username: {username}")
+        print(f"   Email: {email}")
         print(f"   Password: {password}")
+
+    # Verify the user can authenticate
+    from django.contrib.auth import authenticate
+    auth_user = authenticate(username=username, password=password)
+    if auth_user:
+        print(f"✅ Authentication test successful for '{username}'")
+    else:
+        print(f"❌ Authentication test failed for '{username}'")
 
 if __name__ == "__main__":
     create_superuser()
