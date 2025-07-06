@@ -20,7 +20,29 @@ ALLOWED_HOSTS = [
     '.render.com',
     'localhost',
     '127.0.0.1',
+    'kenyan-payroll-management-system.onrender.com',
 ]
+
+# CSRF Settings for production
+CSRF_TRUSTED_ORIGINS = [
+    'https://kenyan-payroll-management-system.onrender.com',
+    'https://*.onrender.com',
+    'http://kenyan-payroll-management-system.onrender.com',  # In case of HTTP redirects
+]
+
+# Additional CSRF settings for deployment
+CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
+CSRF_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
+
+# Session settings for deployment
+SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
+SESSION_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
+
+# Additional security settings
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = False  # Render handles SSL termination
 
 # Application definition - FULL PAYROLL SYSTEM
 INSTALLED_APPS = [
