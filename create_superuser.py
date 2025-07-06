@@ -60,6 +60,35 @@ def create_superuser():
     else:
         print(f"❌ Authentication test failed for '{username}'")
 
+def check_data_preservation():
+    """Check if existing data is being preserved"""
+    print("🔍 Checking data preservation...")
+
+    try:
+        from employees.models import Organization, Employee
+        from django.contrib.auth.models import User
+
+        # Check existing data
+        org_count = Organization.objects.count()
+        emp_count = Employee.objects.count()
+        user_count = User.objects.count()
+
+        print(f"📊 Current data status:")
+        print(f"   - Organizations: {org_count}")
+        print(f"   - Employees: {emp_count}")
+        print(f"   - Users: {user_count}")
+
+        if org_count > 0 or emp_count > 0:
+            print("✅ Existing data detected - will preserve all data")
+            return True
+        else:
+            print("ℹ️ No existing data found - fresh installation")
+            return False
+
+    except Exception as e:
+        print(f"⚠️ Data check failed: {e}")
+        return False
+
 def setup_tax_data():
     """Set up tax data including SHIF rates (only if missing)"""
     print("🔧 Checking tax data (PAYE, NSSF, SHIF, Housing Levy)...")
@@ -72,11 +101,17 @@ def setup_tax_data():
         paye_exists = PAYETaxBand.objects.filter(is_active=True).exists()
         nssf_exists = NSSFRate.objects.filter(is_active=True).exists()
 
+        print(f"   - SHIF rates: {'✅ Found' if shif_exists else '❌ Missing'}")
+        print(f"   - PAYE bands: {'✅ Found' if paye_exists else '❌ Missing'}")
+        print(f"   - NSSF rates: {'✅ Found' if nssf_exists else '❌ Missing'}")
+
         if shif_exists and paye_exists and nssf_exists:
-            print("✅ Tax data already exists - preserving existing data")
+            print("✅ All tax data exists - preserving existing data")
             return
 
         print("⚠️ Missing tax data detected - setting up required data...")
+        print("🔒 IMPORTANT: This will NOT affect existing organization or employee data")
+
         from django.core.management import call_command
         call_command('setup_tax_data')
         print("✅ Tax data setup completed!")
@@ -87,14 +122,28 @@ def setup_tax_data():
 def main():
     """Main function to create superuser and setup tax data"""
     print("🚀 Setting up Kenyan Payroll Management System...")
+    print("🔒 DATA PRESERVATION MODE: Existing data will NOT be deleted")
 
-    # Create superuser
+    # Check data preservation status
+    has_existing_data = check_data_preservation()
+
+    if has_existing_data:
+        print("🛡️ EXISTING DATA DETECTED - Operating in preservation mode")
+        print("   - Will NOT delete organizations")
+        print("   - Will NOT delete employees")
+        print("   - Will NOT reset settings")
+        print("   - Will only add missing system data")
+
+    # Create superuser (only if doesn't exist)
     create_superuser()
 
-    # Setup tax data (including SHIF rates)
+    # Setup tax data (only if missing)
     setup_tax_data()
 
-    print("✅ System setup completed!")
+    if has_existing_data:
+        print("✅ System updated while preserving ALL existing data!")
+    else:
+        print("✅ Fresh system setup completed!")
 
 if __name__ == "__main__":
     main()

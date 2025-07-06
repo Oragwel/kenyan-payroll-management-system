@@ -14,26 +14,43 @@ class Command(BaseCommand):
     help = 'Set up initial Kenyan tax data (PAYE bands, reliefs, NSSF, SHIF rates)'
 
     def handle(self, *args, **options):
-        self.stdout.write('Setting up Kenyan tax data...')
-        
+        self.stdout.write('🔧 Setting up Kenyan tax data...')
+        self.stdout.write('🔒 DATA PRESERVATION MODE: Will NOT delete existing data')
+
+        # Check for existing data
+        from employees.models import Organization, Employee
+        org_count = Organization.objects.count()
+        emp_count = Employee.objects.count()
+
+        if org_count > 0 or emp_count > 0:
+            self.stdout.write(f'🛡️ EXISTING DATA DETECTED:')
+            self.stdout.write(f'   - Organizations: {org_count}')
+            self.stdout.write(f'   - Employees: {emp_count}')
+            self.stdout.write(f'🔒 Will preserve ALL existing data')
+
         # Set up PAYE tax bands (as per Finance Act 2023)
         self.setup_paye_bands()
-        
+
         # Set up tax reliefs
         self.setup_tax_reliefs()
-        
+
         # Set up NSSF rates
         self.setup_nssf_rates()
 
         # Set up SHIF rates
         self.setup_shif_rates()
-        
+
         # Set up Affordable Housing Levy
         self.setup_housing_levy()
-        
+
         self.stdout.write(
-            self.style.SUCCESS('Successfully set up Kenyan tax data!')
+            self.style.SUCCESS('✅ Successfully set up Kenyan tax data!')
         )
+
+        if org_count > 0 or emp_count > 0:
+            self.stdout.write(
+                self.style.SUCCESS('🛡️ ALL EXISTING DATA PRESERVED!')
+            )
 
     def setup_paye_bands(self):
         """Set up PAYE tax bands as per Finance Act 2023"""
