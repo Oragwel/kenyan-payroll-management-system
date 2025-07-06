@@ -60,5 +60,29 @@ def create_superuser():
     else:
         print(f"❌ Authentication test failed for '{username}'")
 
-if __name__ == "__main__":
+def setup_tax_data():
+    """Set up tax data including SHIF rates"""
+    print("🔧 Setting up tax data (PAYE, NSSF, SHIF, Housing Levy)...")
+
+    try:
+        from django.core.management import call_command
+        call_command('setup_tax_data')
+        print("✅ Tax data setup completed!")
+    except Exception as e:
+        print(f"⚠️ Tax data setup failed: {e}")
+        print("This is not critical - system will still work")
+
+def main():
+    """Main function to create superuser and setup tax data"""
+    print("🚀 Setting up Kenyan Payroll Management System...")
+
+    # Create superuser
     create_superuser()
+
+    # Setup tax data (including SHIF rates)
+    setup_tax_data()
+
+    print("✅ System setup completed!")
+
+if __name__ == "__main__":
+    main()
