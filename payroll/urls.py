@@ -30,12 +30,39 @@ def simple_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+
+        # Debug logging
+        print(f"🔍 Login attempt - Username: '{username}', Password length: {len(password) if password else 0}")
+
+        # Check if user exists
+        from django.contrib.auth.models import User
+        try:
+            db_user = User.objects.get(username=username)
+            print(f"✅ User found in database: {db_user.username}, Active: {db_user.is_active}")
+        except User.DoesNotExist:
+            print(f"❌ User '{username}' not found in database")
+            return HttpResponse(f'User "{username}" not found in database', status=401)
+
+        # Try authentication
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            print(f"✅ Authentication successful for {username}")
             auth_login(request, user)
-            return HttpResponseRedirect('/dashboard/')
+
+            # Check if this is an admin login (from admin interface)
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url and '/admin/' in next_url:
+                print(f"🔄 Redirecting to admin: {next_url}")
+                return HttpResponseRedirect(next_url)
+            elif next_url:
+                print(f"🔄 Redirecting to: {next_url}")
+                return HttpResponseRedirect(next_url)
+            else:
+                print(f"🔄 Redirecting to dashboard")
+                return HttpResponseRedirect('/dashboard/')
         else:
-            return HttpResponse('Invalid credentials', status=401)
+            print(f"❌ Authentication failed for {username}")
+            return HttpResponse(f'Invalid credentials for user "{username}". Check password.', status=401)
     else:
         return render(request, 'registration/login.html')
 
@@ -58,6 +85,7 @@ urlpatterns = [
 
     # Admin interface
     path('admin/', admin.site.urls),  # Django admin (will be customized with templates)
+    path('admin/login/', simple_login, name='admin_login'),  # Use our CSRF-exempt login for admin too
     path('admin/payroll/', include('employees.admin_urls', namespace='payroll_admin')),
 
     # Secure access URLs (token-based authentication) - Temporarily disabled
