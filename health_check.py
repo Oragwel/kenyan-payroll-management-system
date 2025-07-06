@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
 # Set Django settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'payroll.settings.basic')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'payroll.settings.sqlite')
 
 try:
     # Test Django setup

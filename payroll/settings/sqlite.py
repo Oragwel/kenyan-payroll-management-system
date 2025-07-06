@@ -43,7 +43,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'payroll.urls'
+ROOT_URLCONF = 'payroll.urls_minimal'
 
 TEMPLATES = [
     {
