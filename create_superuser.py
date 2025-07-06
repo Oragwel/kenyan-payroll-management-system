@@ -61,10 +61,22 @@ def create_superuser():
         print(f"❌ Authentication test failed for '{username}'")
 
 def setup_tax_data():
-    """Set up tax data including SHIF rates"""
-    print("🔧 Setting up tax data (PAYE, NSSF, SHIF, Housing Levy)...")
+    """Set up tax data including SHIF rates (only if missing)"""
+    print("🔧 Checking tax data (PAYE, NSSF, SHIF, Housing Levy)...")
 
     try:
+        from statutory_deductions.models import SHIFRate, PAYETaxBand, NSSFRate
+
+        # Check if essential tax data already exists
+        shif_exists = SHIFRate.objects.filter(is_active=True).exists()
+        paye_exists = PAYETaxBand.objects.filter(is_active=True).exists()
+        nssf_exists = NSSFRate.objects.filter(is_active=True).exists()
+
+        if shif_exists and paye_exists and nssf_exists:
+            print("✅ Tax data already exists - preserving existing data")
+            return
+
+        print("⚠️ Missing tax data detected - setting up required data...")
         from django.core.management import call_command
         call_command('setup_tax_data')
         print("✅ Tax data setup completed!")

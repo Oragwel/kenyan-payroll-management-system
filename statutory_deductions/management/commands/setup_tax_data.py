@@ -38,9 +38,12 @@ class Command(BaseCommand):
     def setup_paye_bands(self):
         """Set up PAYE tax bands as per Finance Act 2023"""
         self.stdout.write('Setting up PAYE tax bands...')
-        
-        # Clear existing bands
-        PAYETaxBand.objects.filter(is_active=True).update(is_active=False)
+
+        # Check if PAYE bands already exist
+        existing_bands = PAYETaxBand.objects.filter(is_active=True)
+        if existing_bands.exists():
+            self.stdout.write('✓ PAYE tax bands already exist - preserving existing data')
+            return
         
         # Current PAYE bands (effective July 1, 2023)
         bands = [
@@ -65,9 +68,12 @@ class Command(BaseCommand):
     def setup_tax_reliefs(self):
         """Set up tax reliefs"""
         self.stdout.write('Setting up tax reliefs...')
-        
-        # Clear existing reliefs
-        TaxRelief.objects.filter(is_active=True).update(is_active=False)
+
+        # Check if tax reliefs already exist
+        existing_reliefs = TaxRelief.objects.filter(is_active=True)
+        if existing_reliefs.exists():
+            self.stdout.write('✓ Tax reliefs already exist - preserving existing data')
+            return
         
         # Personal relief
         TaxRelief.objects.create(
@@ -120,9 +126,12 @@ class Command(BaseCommand):
     def setup_nssf_rates(self):
         """Set up NSSF rates (effective February 2024)"""
         self.stdout.write('Setting up NSSF rates...')
-        
-        # Clear existing rates
-        NSSFRate.objects.filter(is_active=True).update(is_active=False)
+
+        # Check if NSSF rates already exist
+        existing_rates = NSSFRate.objects.filter(is_active=True)
+        if existing_rates.exists():
+            self.stdout.write('✓ NSSF rates already exist - preserving existing data')
+            return
         
         # Tier 1: KES 7,000 limit, 6% contribution
         NSSFRate.objects.create(
@@ -151,8 +160,11 @@ class Command(BaseCommand):
         self.stdout.write('Setting up SHIF rates...')
         self.stdout.write('Note: SHIF replaced NHIF as part of Universal Health Coverage reforms')
 
-        # Clear existing rates
-        SHIFRate.objects.filter(is_active=True).update(is_active=False)
+        # Check if SHIF rates already exist
+        existing_rates = SHIFRate.objects.filter(is_active=True)
+        if existing_rates.exists():
+            self.stdout.write('✓ SHIF rates already exist - preserving existing data')
+            return
 
         # SHIF: 2.75% of gross salary, minimum KES 300
         SHIFRate.objects.create(
@@ -167,9 +179,12 @@ class Command(BaseCommand):
     def setup_housing_levy(self):
         """Set up Affordable Housing Levy rates"""
         self.stdout.write('Setting up Affordable Housing Levy rates...')
-        
-        # Clear existing rates
-        AffordableHousingLevyRate.objects.filter(is_active=True).update(is_active=False)
+
+        # Check if housing levy rates already exist
+        existing_rates = AffordableHousingLevyRate.objects.filter(is_active=True)
+        if existing_rates.exists():
+            self.stdout.write('✓ Housing levy rates already exist - preserving existing data')
+            return
         
         # Housing Levy: 1.5% each for employee and employer
         AffordableHousingLevyRate.objects.create(
