@@ -173,6 +173,12 @@ function calculatePayroll() {
             if (data.error) {
                 throw new Error(data.error);
             }
+
+            // Debug logging for SHIF calculation
+            console.log('🔍 Server response:', data);
+            console.log('📊 SHIF data:', data.shif);
+            console.log('💰 SHIF contribution:', data.shif?.contribution);
+
             displayServerResults(data);
         })
         .catch(error => {
@@ -192,6 +198,7 @@ function calculateClientSide(grossSalary, insurancePremiums, mortgageInterest, p
 
     // Calculate SHIF
     const shif = calculateSHIF(grossSalary);
+    console.log('🔍 Client-side SHIF calculation:', shif);
 
     // Calculate Housing Levy
     const housingLevy = calculateHousingLevy(grossSalary);
@@ -238,7 +245,7 @@ function displayServerResults(data) {
 
             <div class="result-item">
                 <span class="result-label">SHIF:</span>
-                <span class="result-value">${formatCurrency(data.shif.contribution)}</span>
+                <span class="result-value">${formatCurrency(data.shif?.contribution || 0)}${!data.shif?.contribution ? ' <small class="text-danger">(Error)</small>' : ''}</span>
             </div>
 
             <div class="result-item">
