@@ -16,13 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-# Configure admin site to use our custom login
+# Configure admin site to use our custom login and logout
 admin.site.login_url = '/admin/login/'
-from django.shortcuts import redirect, render
+admin.site.logout_url = '/admin/logout/'
+from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
-from core.views import public_landing, dashboard, CustomLoginView, CustomLogoutView
-from django.contrib.auth import views as auth_views
+from core.views import public_landing, dashboard
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login as auth_login
 from django.http import HttpResponse, HttpResponseRedirect
@@ -135,21 +135,65 @@ def admin_login(request):
         }
         return render(request, 'admin/login.html', context)
 
+@csrf_exempt
+def smart_logout(request):
+    """Smart logout that redirects based on context (admin vs frontend)"""
+    from django.contrib.auth import logout
+    from django.contrib import messages
+
+    print(f"🔍 Logout request from user: {request.user.username if request.user.is_authenticated else 'Anonymous'}")
+
+    # Determine where the logout request came from
+    referer = request.META.get('HTTP_REFERER', '')
+    next_url = request.GET.get('next', '')
+
+    # Check if logout came from Django admin
+    is_admin_logout = (
+        '/admin/' in referer or
+        '/admin/' in next_url or
+        request.path.startswith('/admin/') or
+        'admin' in request.GET.get('from', '') or
+        request.path == '/admin/logout/'
+    )
+
+    if request.user.is_authenticated:
+        username = request.user.username
+        logout(request)
+        print(f"✅ User '{username}' logged out successfully")
+
+        if is_admin_logout:
+            print(f"🔄 Admin logout detected - redirecting to Django admin login")
+            # Don't add messages for admin logout (admin handles its own messages)
+            return HttpResponseRedirect('/admin/login/')
+        else:
+            print(f"🔄 Frontend logout detected - redirecting to public landing page")
+            messages.success(request, f'You have been successfully logged out.')
+            return HttpResponseRedirect('/')
+    else:
+        # User not authenticated
+        if is_admin_logout:
+            print(f"🔄 Unauthenticated admin access - redirecting to Django admin login")
+            return HttpResponseRedirect('/admin/login/')
+        else:
+            print(f"🔄 Unauthenticated frontend access - redirecting to public landing page")
+            return HttpResponseRedirect('/')
+
 urlpatterns = [
     # Public landing page (no authentication required)
     path('', public_landing, name='public_landing'),
 
     # Authentication URLs - CSRF exempt for debugging
     path('login/', simple_login, name='login'),  # Frontend login
-    path('logout/', CustomLogoutView.as_view(), name='logout'),
+    path('logout/', smart_logout, name='logout'),  # Smart logout (admin vs frontend)
     path('clear-passwords/', lambda request: render(request, 'registration/clear_saved_passwords.html'), name='clear_passwords'),
 
     # Protected dashboard (authentication required)
     path('dashboard/', dashboard, name='dashboard'),
     path('home/', dashboard, name='home'),  # Alias for backward compatibility
 
-    # Admin interface - with custom login
+    # Admin interface - with custom login and logout
     path('admin/login/', admin_login, name='admin_login'),  # CSRF-exempt login for admin
+    path('admin/logout/', lambda request: smart_logout(request), name='admin_logout'),  # Admin logout
     path('admin/', admin.site.urls),  # Django admin (will be customized with templates)
     path('admin/payroll/', include('employees.admin_urls', namespace='payroll_admin')),
 
