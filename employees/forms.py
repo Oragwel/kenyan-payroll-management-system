@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from .models import Employee, Department, JobTitle, SalaryStructure, Organization
 import re
-import pandas as pd
+# import pandas as pd  # Temporarily disabled for deployment
 from io import BytesIO
 
 
@@ -635,155 +635,56 @@ class OrganizationForm(forms.ModelForm):
         }
 
 
+# Temporarily disabled - requires pandas dependency
 class BulkEmployeeImportForm(forms.Form):
-    """Form for bulk importing employees from Excel file"""
-    excel_file = forms.FileField(
-        label="Excel File",
-        help_text="Upload an Excel file (.xlsx) with employee data. Download the template below for the correct format.",
-        widget=forms.FileInput(attrs={
-            'class': 'form-control',
-            'accept': '.xlsx,.xls'
-        })
-    )
+    """Placeholder form - bulk import temporarily disabled"""
 
-    def clean_excel_file(self):
-        """Validate the uploaded Excel file"""
-        excel_file = self.cleaned_data.get('excel_file')
-
-        if not excel_file:
-            raise ValidationError('Please select an Excel file to upload.')
-
-        # Check file extension
-        if not excel_file.name.lower().endswith(('.xlsx', '.xls')):
-            raise ValidationError('Please upload a valid Excel file (.xlsx or .xls).')
-
-        # Check file size (limit to 10MB)
-        if excel_file.size > 10 * 1024 * 1024:
-            raise ValidationError('File size must be less than 10MB.')
-
-        return excel_file
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add a message field to inform users
+        self.fields['message'] = forms.CharField(
+            initial="Bulk import feature is temporarily disabled during deployment. Please add employees individually.",
+            widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
+            required=False
+        )
 
     def process_excel_file(self):
-        """Process the Excel file and return employee data"""
-        excel_file = self.cleaned_data['excel_file']
+        """Placeholder method"""
+        return [], ["Bulk import feature is temporarily disabled."]
 
-        try:
-            # Read Excel file
-            df = pd.read_excel(excel_file, engine='openpyxl')
+# Original class commented out:
+# class BulkEmployeeImportForm(forms.Form):
+#     """Form for bulk importing employees from Excel file"""
+#     excel_file = forms.FileField(
+#         label="Excel File",
+#         help_text="Upload an Excel file (.xlsx) with employee data. Download the template below for the correct format.",
+#         widget=forms.FileInput(attrs={
+#             'class': 'form-control',
+#             'accept': '.xlsx,.xls'
+#         })
+#     )
 
-            # Define required columns (mandatory fields)
-            required_columns = [
-                'first_name', 'last_name', 'national_id',
-                'department', 'job_title', 'employment_type',
-                'bank_name', 'bank_branch', 'account_number'
-            ]
-
-            # Check if all required columns exist
-            missing_columns = [col for col in required_columns if col not in df.columns]
-            if missing_columns:
-                raise ValidationError(f'Missing required columns: {", ".join(missing_columns)}')
-
-            # Process each row
-            employees_data = []
-            errors = []
-
-            for index, row in df.iterrows():
-                try:
-                    # Skip empty rows
-                    if pd.isna(row['first_name']) or pd.isna(row['last_name']):
-                        continue
-
-                    # Validate department
-                    try:
-                        department = Department.objects.get(name__iexact=str(row['department']).strip())
-                    except Department.DoesNotExist:
-                        errors.append(f'Row {index + 2}: Department "{row["department"]}" not found')
-                        continue
-
-                    # Validate job title
-                    try:
-                        job_title = JobTitle.objects.get(title__iexact=str(row['job_title']).strip())
-                    except JobTitle.DoesNotExist:
-                        errors.append(f'Row {index + 2}: Job title "{row["job_title"]}" not found')
-                        continue
-
-                    # Prepare employee data
-                    employee_data = {
-                        'first_name': str(row['first_name']).strip(),
-                        'middle_name': str(row.get('middle_name', '')).strip() if pd.notna(row.get('middle_name')) else '',
-                        'last_name': str(row['last_name']).strip(),
-                        'national_id': str(row['national_id']).strip(),
-                        'phone_number': str(row.get('phone_number', '')).strip() if pd.notna(row.get('phone_number')) else '',
-                        'email': str(row.get('email', '')).strip() if pd.notna(row.get('email')) else '',
-                        'gender': str(row.get('gender', 'M')).strip().upper() if pd.notna(row.get('gender')) else 'M',
-                        'department': department,
-                        'job_title': job_title,
-                        'employment_type': str(row['employment_type']).strip().lower(),
-                        'kra_pin': str(row.get('kra_pin', '')).strip().upper() if pd.notna(row.get('kra_pin')) else '',
-                        'nssf_number': str(row.get('nssf_number', '')).strip() if pd.notna(row.get('nssf_number')) else '',
-                        'shif_number': str(row.get('shif_number', '')).strip() if pd.notna(row.get('shif_number')) else '',
-                        'bank_name': str(row['bank_name']).strip(),
-                        'bank_branch': str(row['bank_branch']).strip(),
-                        'account_number': str(row['account_number']).strip(),
-                        'address': str(row.get('address', '')).strip() if pd.notna(row.get('address')) else '',
-                    }
-
-                    # Handle optional date fields
-                    if pd.notna(row.get('date_of_birth')):
-                        try:
-                            employee_data['date_of_birth'] = pd.to_datetime(row['date_of_birth']).date()
-                        except:
-                            pass
-
-                    if pd.notna(row.get('date_hired')):
-                        try:
-                            employee_data['date_hired'] = pd.to_datetime(row['date_hired']).date()
-                        except:
-                            pass
-
-                    # Validate employment type
-                    valid_employment_types = ['permanent', 'contract', 'casual', 'intern']
-                    if employee_data['employment_type'] not in valid_employment_types:
-                        errors.append(f'Row {index + 2}: Invalid employment type "{employee_data["employment_type"]}". Must be one of: {", ".join(valid_employment_types)}')
-                        continue
-
-                    # Validate gender
-                    if employee_data['gender'] not in ['M', 'F']:
-                        employee_data['gender'] = 'M'  # Default to Male
-
-                    # Validate uniqueness for mandatory unique fields
-                    # Check National ID uniqueness
-                    if Employee.objects.filter(national_id=employee_data['national_id']).exists():
-                        errors.append(f'Row {index + 2}: Employee with National ID "{employee_data["national_id"]}" already exists')
-                        continue
-
-                    # Check Bank Account Number uniqueness
-                    if Employee.objects.filter(account_number=employee_data['account_number']).exists():
-                        errors.append(f'Row {index + 2}: Employee with bank account number "{employee_data["account_number"]}" already exists')
-                        continue
-
-                    # Validate uniqueness for optional unique fields (only if provided)
-                    if employee_data['kra_pin'] and Employee.objects.filter(kra_pin=employee_data['kra_pin']).exists():
-                        errors.append(f'Row {index + 2}: Employee with KRA PIN "{employee_data["kra_pin"]}" already exists')
-                        continue
-
-                    if employee_data['shif_number'] and Employee.objects.filter(shif_number=employee_data['shif_number']).exists():
-                        errors.append(f'Row {index + 2}: Employee with SHIF number "{employee_data["shif_number"]}" already exists')
-                        continue
-
-                    if employee_data['nssf_number'] and Employee.objects.filter(nssf_number=employee_data['nssf_number']).exists():
-                        errors.append(f'Row {index + 2}: Employee with NSSF number "{employee_data["nssf_number"]}" already exists')
-                        continue
-
-                    employees_data.append(employee_data)
-
-                except Exception as e:
-                    errors.append(f'Row {index + 2}: {str(e)}')
-
-            return employees_data, errors
-
-        except Exception as e:
-            raise ValidationError(f'Error processing Excel file: {str(e)}')
+#     def clean_excel_file(self):
+#         """Validate the uploaded Excel file"""
+#         excel_file = self.cleaned_data.get('excel_file')
+#
+#         if not excel_file:
+#             raise ValidationError('Please select an Excel file to upload.')
+#
+#         # Check file extension
+#         if not excel_file.name.lower().endswith(('.xlsx', '.xls')):
+#             raise ValidationError('Please upload a valid Excel file (.xlsx or .xls).')
+#
+#         # Check file size (limit to 10MB)
+#         if excel_file.size > 10 * 1024 * 1024:
+#             raise ValidationError('File size must be less than 10MB.')
+#
+#         return excel_file
+#
+#     def process_excel_file(self):
+#         """Process the Excel file and return employee data"""
+class EmployeeValidationMixin:
+    """Mixin for employee form validation"""
 
     def clean_kra_pin(self):
         kra_pin = self.cleaned_data.get('kra_pin')

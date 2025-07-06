@@ -1,50 +1,50 @@
-2025-07-06T12:39:32.187904049Z Collecting django-crispy-forms==2.1 (from -r requirements.txt (line 9))
-2025-07-06T12:39:32.189021291Z   Using cached django_crispy_forms-2.1-py3-none-any.whl.metadata (5.0 kB)
-2025-07-06T12:39:32.206797082Z Collecting python-dateutil==2.8.2 (from -r requirements.txt (line 12))
-2025-07-06T12:39:32.207891172Z   Using cached python_dateutil-2.8.2-py2.py3-none-any.whl.metadata (8.2 kB)
-2025-07-06T12:39:32.246994709Z Collecting pytz==2023.3 (from -r requirements.txt (line 13))
-2025-07-06T12:39:32.248163573Z   Using cached pytz-2023.3-py2.py3-none-any.whl.metadata (22 kB)
-2025-07-06T12:39:32.404933013Z Collecting Pillow==10.1.0 (from -r requirements.txt (line 16))
-2025-07-06T12:39:32.406240004Z   Using cached Pillow-10.1.0.tar.gz (50.8 MB)
-2025-07-06T12:39:33.340590287Z   Installing build dependencies: started
-2025-07-06T12:39:34.065201676Z   Installing build dependencies: finished with status 'done'
-2025-07-06T12:39:34.065817009Z   Getting requirements to build wheel: started
-2025-07-06T12:39:34.3477468Z   Getting requirements to build wheel: finished with status 'error'
-2025-07-06T12:39:34.353988881Z   error: subprocess-exited-with-error
-2025-07-06T12:39:34.354003772Z   
-2025-07-06T12:39:34.354008922Z   × Getting requirements to build wheel did not run successfully.
-2025-07-06T12:39:34.354013453Z   │ exit code: 1
-2025-07-06T12:39:34.354018033Z   ╰─> [21 lines of output]
-2025-07-06T12:39:34.354022083Z       Traceback (most recent call last):
-2025-07-06T12:39:34.354026543Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 389, in <module>
-2025-07-06T12:39:34.354030334Z           main()
-2025-07-06T12:39:34.354034114Z           ~~~~^^
-2025-07-06T12:39:34.354038004Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 373, in main
-2025-07-06T12:39:34.354042714Z           json_out["return_val"] = hook(**hook_input["kwargs"])
-2025-07-06T12:39:34.354046624Z                                    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^
-2025-07-06T12:39:34.354050815Z         File "/opt/render/project/src/.venv/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/_in_process/_in_process.py", line 143, in get_requires_for_build_wheel
-2025-07-06T12:39:34.354054585Z           return hook(config_settings)
-2025-07-06T12:39:34.354058405Z         File "/tmp/pip-build-env-f6jpljj7/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 331, in get_requires_for_build_wheel
-2025-07-06T12:39:34.354073816Z           return self._get_build_requires(config_settings, requirements=[])
-2025-07-06T12:39:34.354076756Z                  ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-2025-07-06T12:39:34.354079666Z         File "/tmp/pip-build-env-f6jpljj7/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 301, in _get_build_requires
-2025-07-06T12:39:34.354082337Z           self.run_setup()
-2025-07-06T12:39:34.354084706Z           ~~~~~~~~~~~~~~^^
-2025-07-06T12:39:34.354087727Z         File "/tmp/pip-build-env-f6jpljj7/overlay/lib/python3.13/site-packages/setuptools/build_meta.py", line 317, in run_setup
-2025-07-06T12:39:34.354090057Z           exec(code, locals())
-2025-07-06T12:39:34.354092387Z           ~~~~^^^^^^^^^^^^^^^^
-2025-07-06T12:39:34.354094727Z         File "<string>", line 30, in <module>
-2025-07-06T12:39:34.354096997Z         File "<string>", line 27, in get_version
-2025-07-06T12:39:34.354099267Z       KeyError: '__version__'
-2025-07-06T12:39:34.354101527Z       [end of output]
-2025-07-06T12:39:34.354103768Z   
-2025-07-06T12:39:34.354106578Z   note: This error originates from a subprocess, and is likely not a problem with pip.
-2025-07-06T12:39:34.362943211Z error: subprocess-exited-with-error
-2025-07-06T12:39:34.362955742Z 
-2025-07-06T12:39:34.362959712Z × Getting requirements to build wheel did not run successfully.
-2025-07-06T12:39:34.362962642Z │ exit code: 1
-2025-07-06T12:39:34.362965492Z ╰─> See above for output.
-2025-07-06T12:39:34.362967942Z 
-2025-07-06T12:39:34.362970952Z note: This error originates from a subprocess, and is likely not a problem with pip.
-2025-07-06T12:39:34.513136001Z ==> Build failed 😞
-2025-07-06T12:39:34.513148541Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2025-07-06T12:55:05.076140685Z     ...<2 lines>...
+2025-07-06T12:55:05.076143485Z         databases=databases,
+2025-07-06T12:55:05.076146115Z     )
+2025-07-06T12:55:05.076148905Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/core/checks/registry.py", line 88, in run_checks
+2025-07-06T12:55:05.076153905Z     new_errors = check(app_configs=app_configs, databases=databases)
+2025-07-06T12:55:05.076156565Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/core/checks/urls.py", line 42, in check_url_namespaces_unique
+2025-07-06T12:55:05.076159375Z     all_namespaces = _load_all_namespaces(resolver)
+2025-07-06T12:55:05.076162155Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/core/checks/urls.py", line 61, in _load_all_namespaces
+2025-07-06T12:55:05.076164525Z     url_patterns = getattr(resolver, "url_patterns", [])
+2025-07-06T12:55:05.076167425Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+2025-07-06T12:55:05.076169825Z     res = instance.__dict__[self.name] = self.func(instance)
+2025-07-06T12:55:05.076172515Z                                          ~~~~~~~~~^^^^^^^^^^
+2025-07-06T12:55:05.076190716Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 715, in url_patterns
+2025-07-06T12:55:05.076194166Z     patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
+2025-07-06T12:55:05.076197096Z                        ^^^^^^^^^^^^^^^^^^^
+2025-07-06T12:55:05.076199466Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/utils/functional.py", line 57, in __get__
+2025-07-06T12:55:05.076202426Z     res = instance.__dict__[self.name] = self.func(instance)
+2025-07-06T12:55:05.076205076Z                                          ~~~~~~~~~^^^^^^^^^^
+2025-07-06T12:55:05.076207736Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/urls/resolvers.py", line 708, in urlconf_module
+2025-07-06T12:55:05.076210587Z     return import_module(self.urlconf_name)
+2025-07-06T12:55:05.076213836Z   File "/usr/local/lib/python3.13/importlib/__init__.py", line 88, in import_module
+2025-07-06T12:55:05.076216347Z     return _bootstrap._gcd_import(name[level:], package, level)
+2025-07-06T12:55:05.076218877Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-07-06T12:55:05.076221667Z   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2025-07-06T12:55:05.076224607Z   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2025-07-06T12:55:05.076227717Z   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2025-07-06T12:55:05.076230337Z   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2025-07-06T12:55:05.076233117Z   File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+2025-07-06T12:55:05.076252888Z   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2025-07-06T12:55:05.076256348Z   File "/opt/render/project/src/payroll/urls.py", line 38, in <module>
+2025-07-06T12:55:05.076258938Z     path('admin/payroll/', include('employees.admin_urls', namespace='payroll_admin')),
+2025-07-06T12:55:05.076261588Z                            ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-07-06T12:55:05.076267478Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/django/urls/conf.py", line 38, in include
+2025-07-06T12:55:05.076270758Z     urlconf_module = import_module(urlconf_module)
+2025-07-06T12:55:05.076273428Z   File "/usr/local/lib/python3.13/importlib/__init__.py", line 88, in import_module
+2025-07-06T12:55:05.076276198Z     return _bootstrap._gcd_import(name[level:], package, level)
+2025-07-06T12:55:05.076278668Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2025-07-06T12:55:05.076281778Z   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2025-07-06T12:55:05.076284429Z   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2025-07-06T12:55:05.076286938Z   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2025-07-06T12:55:05.076289398Z   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2025-07-06T12:55:05.076291879Z   File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+2025-07-06T12:55:05.076294509Z   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2025-07-06T12:55:05.076297029Z   File "/opt/render/project/src/employees/admin_urls.py", line 2, in <module>
+2025-07-06T12:55:05.076299529Z     from . import admin_views
+2025-07-06T12:55:05.076302029Z   File "/opt/render/project/src/employees/admin_views.py", line 10, in <module>
+2025-07-06T12:55:05.076304499Z     from .forms import OrganizationForm, DepartmentForm
+2025-07-06T12:55:05.076307329Z   File "/opt/render/project/src/employees/forms.py", line 9, in <module>
+2025-07-06T12:55:05.076317499Z     import pandas as pd
+2025-07-06T12:55:05.076320099Z ModuleNotFoundError: No module named 'pandas'
