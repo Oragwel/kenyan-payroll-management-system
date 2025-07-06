@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenyan Payroll Management System - Secure Access</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --kenya-green: #006600;
+            --kenya-red: #cc0000;
+            --kenya-black: #000000;
+            --kenya-white: #ffffff;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--kenya-green) 0%, #1e7e34 100%);
+            color: white;
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--kenya-green), #1e7e34);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, var(--kenya-green), #1e7e34);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .btn-kenya {
+            background: linear-gradient(135deg, var(--kenya-green), #1e7e34);
+            border: none;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-kenya:hover {
+            background: linear-gradient(135deg, #1e7e34, var(--kenya-green));
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,102,0,0.3);
+        }
+        
+        .security-badge {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+        
+        .kenya-flag {
+            background: linear-gradient(to bottom, 
+                var(--kenya-black) 0%, var(--kenya-black) 25%,
+                var(--kenya-red) 25%, var(--kenya-red) 50%,
+                var(--kenya-green) 50%, var(--kenya-green) 75%,
+                var(--kenya-white) 75%, var(--kenya-white) 100%);
+            height: 4px;
+            width: 100%;
+            margin: 1rem 0;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="security-badge pulse">
+                        <i class="bi bi-shield-lock me-2"></i>
+                        SECURE ACCESS REQUIRED
+                    </div>
+                    <h1 class="display-4 fw-bold mb-4">
+                        Kenyan Payroll Management System
+                    </h1>
+                    <p class="lead mb-4">
+                        Professional payroll processing with full Kenyan tax compliance. 
+                        PAYE, NSSF, SHIF, and Housing Levy calculations automated for accuracy and efficiency.
+                    </p>
+                    <div class="kenya-flag"></div>
+                    <div class="d-flex align-items-center mt-4">
+                        <i class="bi bi-geo-alt-fill me-2 fs-4"></i>
+                        <span class="fs-5">Built for Kenya • Compliant with KRA Requirements</span>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="text-center">
+                        <i class="bi bi-building fs-1 mb-4 d-block"></i>
+                        <h3>Enterprise Payroll Solution</h3>
+                        <p>Trusted by organizations across Kenya for accurate and compliant payroll processing.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="display-5 fw-bold text-primary mb-3">System Features</h2>
+                    <p class="lead text-muted">Comprehensive payroll management designed for Kenyan businesses</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Automated Calculations</h4>
+                        <p class="text-muted">
+                            PAYE, NSSF, SHIF, and Housing Levy calculations 
+                            automatically computed according to current Kenyan tax laws.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">KRA Compliance</h4>
+                        <p class="text-muted">
+                            Fully compliant with Kenya Revenue Authority requirements 
+                            and updated with latest tax regulations.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Employee Management</h4>
+                        <p class="text-muted">
+                            Comprehensive employee records with salary structures, 
+                            benefits, and statutory deductions management.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Professional Payslips</h4>
+                        <p class="text-muted">
+                            Generate detailed payslips with all deductions, 
+                            allowances, and net pay calculations clearly displayed.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Reports & Analytics</h4>
+                        <p class="text-muted">
+                            Comprehensive payroll reports for management 
+                            and compliance with detailed analytics.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="feature-card text-center">
+                        <div class="feature-icon">
+                            <i class="bi bi-lock"></i>
+                        </div>
+                        <h4 class="fw-bold mb-3">Secure & Private</h4>
+                        <p class="text-muted">
+                            Enterprise-grade security with role-based access 
+                            control and data protection measures.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Section -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 col-md-8">
+                    <div class="login-card">
+                        <div class="login-header">
+                            <i class="bi bi-shield-lock fs-1 mb-3"></i>
+                            <h3 class="mb-0">Secure Access Portal</h3>
+                            <p class="mb-0 mt-2 opacity-75">Login to access the payroll management system</p>
+                        </div>
+                        <div class="p-4">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Restricted System:</strong> This payroll management system is for authorized personnel only. 
+                                All access attempts are logged and monitored.
+                            </div>
+                            
+                            <div class="text-center">
+                                <a href="/login/" class="btn btn-kenya btn-lg mb-3">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                                    System Login
+                                </a>
+                                
+                                <div class="mt-4">
+                                    <h6 class="text-muted mb-3">Need Access?</h6>
+                                    <p class="text-muted small">
+                                        Contact your system administrator or HR department 
+                                        to request access to the payroll management system.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="fw-bold">Kenyan Payroll Management System</h6>
+                    <p class="small mb-0">Professional payroll processing for Kenyan businesses</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="small mb-0">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Secure • Compliant • Professional
+                    </p>
+                    <p class="small mb-0 text-muted">
+                        © 2025 Payroll Management System. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

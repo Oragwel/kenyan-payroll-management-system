@@ -4,6 +4,7 @@ Optimized for Vercel deployment with PostgreSQL
 """
 
 import os
+import logging
 import dj_database_url
 from .base import *
 
@@ -30,13 +31,26 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 
 # Database configuration for Vercel Postgres
-DATABASES = {
-    'default': dj_database_url.parse(
-        os.environ.get('DATABASE_URL'),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
-}
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.parse(
+            os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # Fallback database configuration
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'payroll_db'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+        }
+    }
 
 # Static files configuration for Vercel
 STATIC_URL = '/static/'
@@ -58,7 +72,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'core.middleware.SecurityHeadersMiddleware',  # Custom security middleware
 ]
 
 # Security settings for production
@@ -195,19 +208,20 @@ PAYROLL_SETTINGS = {
 }
 
 # Error reporting (optional - add Sentry DSN if available)
-if os.environ.get('SENTRY_DSN'):
-    import sentry_sdk
-    from sentry_sdk.integrations.django import DjangoIntegration
-    from sentry_sdk.integrations.logging import LoggingIntegration
-    
-    sentry_logging = LoggingIntegration(
-        level=logging.INFO,
-        event_level=logging.ERROR
-    )
-    
-    sentry_sdk.init(
-        dsn=os.environ.get('SENTRY_DSN'),
-        integrations=[DjangoIntegration(), sentry_logging],
-        traces_sample_rate=0.1,
-        send_default_pii=True
-    )
+# Uncomment and install sentry-sdk if you want to use Sentry for error tracking
+# if os.environ.get('SENTRY_DSN'):
+#     import sentry_sdk
+#     from sentry_sdk.integrations.django import DjangoIntegration
+#     from sentry_sdk.integrations.logging import LoggingIntegration
+#
+#     sentry_logging = LoggingIntegration(
+#         level=logging.INFO,
+#         event_level=logging.ERROR
+#     )
+#
+#     sentry_sdk.init(
+#         dsn=os.environ.get('SENTRY_DSN'),
+#         integrations=[DjangoIntegration(), sentry_logging],
+#         traces_sample_rate=0.1,
+#         send_default_pii=True
+#     )

@@ -1,0 +1,18 @@
+<!-- Option B: Minimal Employer Contributions Display -->
+<div class="payslip-section">
+    <h6 class="text-muted mb-2">
+        <i class="bi bi-info-circle me-1"></i>
+        Employer Legal Obligations
+    </h6>
+    <div class="row">
+        <div class="col-6">
+            <small class="text-muted">NSSF (Employer): KES {{ payslip.nssf_employer|floatformat:2 }}</small>
+        </div>
+        <div class="col-6">
+            <small class="text-muted">Housing Levy (Employer): KES {{ payslip.housing_levy_employer|floatformat:2 }}</small>
+        </div>
+    </div>
+    <small class="text-muted d-block mt-1">
+        <em>These amounts are paid by the company as required by law and do not affect your salary.</em>
+    </small>
+</div>
