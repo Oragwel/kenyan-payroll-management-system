@@ -30,13 +30,13 @@ CSRF_TRUSTED_ORIGINS = [
     'http://kenyan-payroll-management-system.onrender.com',  # In case of HTTP redirects
 ]
 
-# Additional CSRF settings for deployment
-CSRF_COOKIE_SECURE = True  # Only send CSRF cookie over HTTPS
+# Additional CSRF settings for deployment - temporarily relaxed
+CSRF_COOKIE_SECURE = False  # Allow HTTP for debugging
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
 CSRF_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
 
-# Session settings for deployment
-SESSION_COOKIE_SECURE = True  # Only send session cookie over HTTPS
+# Session settings for deployment - temporarily relaxed
+SESSION_COOKIE_SECURE = False  # Allow HTTP for debugging
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
 SESSION_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
 
@@ -64,7 +64,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',  # Temporarily disabled for debugging
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
