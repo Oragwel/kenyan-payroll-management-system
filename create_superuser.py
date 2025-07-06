@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE_DIR))
 
 # Set Django settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'payroll.settings.sqlite')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'payroll.settings.production')
 
 # Setup Django
 django.setup()
@@ -22,9 +22,9 @@ from django.contrib.auth.models import User
 
 def create_superuser():
     """Create superuser if it doesn't exist"""
-    username = 'admin'
-    email = 'admin@example.com'
-    password = 'admin123'
+    username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
+    email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+    password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin123')
     
     if User.objects.filter(username=username).exists():
         print(f"ℹ️ Superuser '{username}' already exists")
