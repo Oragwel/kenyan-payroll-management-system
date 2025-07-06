@@ -15,6 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+
+# Configure admin site to use our custom login
+admin.site.login_url = '/admin/login/'
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.conf.urls.static import static
@@ -51,14 +54,21 @@ def simple_login(request):
 
             # Check if this is an admin login (from admin interface)
             next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url and '/admin/' in next_url:
-                print(f"🔄 Redirecting to admin: {next_url}")
-                return HttpResponseRedirect(next_url)
+            referer = request.META.get('HTTP_REFERER', '')
+            current_path = request.path
+
+            print(f"🔍 Login context - Path: {current_path}, Next: {next_url}, Referer: {referer}")
+
+            # If accessed via /admin/login/ or next URL contains admin, go to admin
+            if '/admin/login/' in current_path or (next_url and '/admin/' in next_url) or '/admin/' in referer:
+                admin_redirect = next_url if next_url and '/admin/' in next_url else '/admin/'
+                print(f"🔄 Admin login detected - Redirecting to: {admin_redirect}")
+                return HttpResponseRedirect(admin_redirect)
             elif next_url:
-                print(f"🔄 Redirecting to: {next_url}")
+                print(f"🔄 Custom redirect to: {next_url}")
                 return HttpResponseRedirect(next_url)
             else:
-                print(f"🔄 Redirecting to dashboard")
+                print(f"🔄 Frontend login - Redirecting to dashboard")
                 return HttpResponseRedirect('/dashboard/')
         else:
             print(f"❌ Authentication failed for {username}")
@@ -83,9 +93,9 @@ urlpatterns = [
     path('dashboard/', dashboard, name='dashboard'),
     path('home/', dashboard, name='home'),  # Alias for backward compatibility
 
-    # Admin interface
+    # Admin interface - with custom login
+    path('admin/login/', simple_login, name='admin_login'),  # CSRF-exempt login for admin
     path('admin/', admin.site.urls),  # Django admin (will be customized with templates)
-    path('admin/login/', simple_login, name='admin_login'),  # Use our CSRF-exempt login for admin too
     path('admin/payroll/', include('employees.admin_urls', namespace='payroll_admin')),
 
     # Secure access URLs (token-based authentication) - Temporarily disabled

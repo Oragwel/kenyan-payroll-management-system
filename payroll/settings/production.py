@@ -135,6 +135,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Admin configuration
+LOGIN_URL = '/login/'  # Default login URL for @login_required
+LOGIN_REDIRECT_URL = '/dashboard/'  # Where to go after login (frontend)
+LOGOUT_REDIRECT_URL = '/'  # Where to go after logout
+
 # Authentication settings
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'  # For frontend login
