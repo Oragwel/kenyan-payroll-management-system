@@ -277,21 +277,51 @@
 
 4. **Python Runtime**: Updated to Python 3.12 to match build environment
 
-## Next Steps for Deployment:
+## ✅ Database Setup Complete - Supabase PostgreSQL
 
-1. **Set up PostgreSQL Database**:
-   - Create a Vercel Postgres database
-   - Get the DATABASE_URL from Vercel dashboard
+Database credentials received from Vercel/Supabase:
+- Database Type: Supabase PostgreSQL
+- Host: aws-0-us-east-1.pooler.supabase.com
+- Database: postgres
+- User: postgres.tjfnxsozfmxhcanlhgcc
+
+## 🔧 Environment Variables to Configure in Vercel:
+
+### Required Variables (copy these to Vercel dashboard):
+
+```
+DATABASE_URL=postgres://postgres.tjfnxsozfmxhcanlhgcc:rdNGSmdBk6oXS7RS@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+SECRET_KEY=your-generated-secret-key-here
+DEBUG=False
+DJANGO_SETTINGS_MODULE=payroll.settings.production
+ALLOWED_HOSTS=.vercel.app,.now.sh
+```
+
+### Optional Variables:
+```
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@yourcompany.com
+```
+
+## 🚀 Next Steps:
+
+1. **Generate Secret Key**:
+   ```python
+   import secrets
+   print(secrets.token_urlsafe(50))
+   ```
 
 2. **Configure Environment Variables in Vercel**:
-   - DATABASE_URL (from Vercel Postgres)
-   - SECRET_KEY (generate a secure key)
-   - DEBUG=False
-   - ALLOWED_HOSTS (add your Vercel domain)
+   - Go to your Vercel project dashboard
+   - Settings → Environment Variables
+   - Add the variables listed above
 
 3. **Deploy**:
-   - Push changes to GitHub
-   - Trigger new deployment in Vercel
+   - Changes are already pushed to GitHub
+   - Trigger new deployment in Vercel dashboard
 
 ## Fixed Files:
 - build_files.sh: Updated to handle SQLite absence and use dummy database

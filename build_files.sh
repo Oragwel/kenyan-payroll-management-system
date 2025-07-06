@@ -158,6 +158,14 @@ if [ -n "$DATABASE_URL" ]; then
     echo "🗄️ DATABASE_URL found, running migrations..."
     export DJANGO_SETTINGS_MODULE=payroll.settings.production
     python3 manage.py migrate --noinput || echo "⚠️ Migration failed, but continuing..."
+
+    # Create superuser if environment variables are provided
+    if [ -n "$DJANGO_SUPERUSER_PASSWORD" ]; then
+        echo "👤 Creating production superuser..."
+        python3 manage.py create_production_superuser || echo "⚠️ Superuser creation failed, but continuing..."
+    else
+        echo "ℹ️ No DJANGO_SUPERUSER_PASSWORD found, skipping superuser creation..."
+    fi
 else
     echo "⚠️ No DATABASE_URL found, skipping database operations..."
 fi

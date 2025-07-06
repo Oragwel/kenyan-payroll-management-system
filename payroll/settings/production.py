@@ -12,15 +12,7 @@ from .base import *
 DEBUG = False
 
 # Allowed hosts for production
-ALLOWED_HOSTS = [
-    '.vercel.app',
-    '.now.sh',
-    'localhost',
-    '127.0.0.1',
-    # Add your custom domain here
-    # 'your-domain.com',
-    # 'www.your-domain.com',
-]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '.vercel.app,.now.sh,localhost,127.0.0.1').split(',')
 
 # CORS settings for API access
 CORS_ALLOWED_ORIGINS = [
@@ -30,7 +22,7 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-# Database configuration for Vercel Postgres
+# Database configuration for Supabase/Vercel Postgres
 if os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.parse(
@@ -38,6 +30,10 @@ if os.environ.get('DATABASE_URL'):
             conn_max_age=600,
             conn_health_checks=True,
         )
+    }
+    # Ensure SSL is enabled for Supabase
+    DATABASES['default']['OPTIONS'] = {
+        'sslmode': 'require',
     }
 else:
     # Fallback database configuration
@@ -49,6 +45,9 @@ else:
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', 'localhost'),
             'PORT': os.environ.get('DB_PORT', '5432'),
+            'OPTIONS': {
+                'sslmode': 'require',
+            },
         }
     }
 
