@@ -1,0 +1,8 @@
+# Safe requirements - core functionality only
+# No compilation issues
+
+Django==4.2.7
+gunicorn==21.2.0
+whitenoise==6.6.0
+python-dateutil==2.8.2
+pytz==2023.3
