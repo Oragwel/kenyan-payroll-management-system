@@ -307,99 +307,116 @@ def bulk_employee_import(request):
 def download_employee_template(request):
     """Download Excel template for bulk employee import"""
     from django.http import HttpResponse
-    import pandas as pd
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill
     from io import BytesIO
 
-    # Create sample data with proper column headers
-    template_data = {
-        'first_name': ['John', 'Jane'],
-        'middle_name': ['Doe', 'Smith'],
-        'last_name': ['Mwangi', 'Wanjiku'],
-        'national_id': ['12345678', '87654321'],  # MANDATORY & UNIQUE
-        'phone_number': ['+254712345678', '+254787654321'],
-        'email': ['john.mwangi@garissa.go.ke', 'jane.wanjiku@garissa.go.ke'],
-        'gender': ['M', 'F'],
-        'date_of_birth': ['1990-01-15', '1985-05-20'],
-        'address': ['P.O. Box 123, Garissa', 'P.O. Box 456, Garissa'],
-        'department': ['Administration', 'Finance'],
-        'job_title': ['Officer', 'Manager'],
-        'employment_type': ['permanent', 'contract'],
-        'date_hired': ['2023-01-01', '2022-06-15'],
-        'kra_pin': ['A123456789B', 'C987654321D'],  # OPTIONAL & UNIQUE
-        'nssf_number': ['123456789', '987654321'],  # OPTIONAL & UNIQUE
-        'shif_number': ['SHIF123456', 'SHIF789012'],  # OPTIONAL & UNIQUE
-        'bank_code': ['68058', '01169'],  # OPTIONAL - Bank codes
-        'bank_name': ['Equity Bank', 'KCB Bank'],
-        'bank_branch': ['Garissa Branch', 'Garissa Branch'],
-        'account_number': ['1234567890', '0987654321']  # MANDATORY & UNIQUE
-    }
+    # Create workbook
+    wb = Workbook()
 
-    # Create DataFrame
-    df = pd.DataFrame(template_data)
+    # Employee Template Sheet
+    ws = wb.active
+    ws.title = "Employee_Template"
 
-    # Create Excel file in memory
+    # Headers
+    headers = [
+        'first_name', 'middle_name', 'last_name', 'national_id', 'phone_number',
+        'email', 'gender', 'date_of_birth', 'address', 'department', 'job_title',
+        'employment_type', 'date_hired', 'kra_pin', 'nssf_number', 'shif_number',
+        'bank_code', 'bank_name', 'bank_branch', 'account_number'
+    ]
+
+    # Add headers with formatting
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.font = Font(bold=True)
+        cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+
+    # Sample data
+    sample_data = [
+        ['John', 'Doe', 'Mwangi', '12345678', '+254712345678', 'john.mwangi@garissa.go.ke',
+         'M', '1990-01-15', 'P.O. Box 123, Garissa', 'Administration', 'Officer',
+         'permanent', '2023-01-01', 'A123456789B', '123456789', 'SHIF123456',
+         '68058', 'Equity Bank', 'Garissa Branch', '1234567890'],
+        ['Jane', 'Smith', 'Wanjiku', '87654321', '+254787654321', 'jane.wanjiku@garissa.go.ke',
+         'F', '1985-05-20', 'P.O. Box 456, Garissa', 'Finance', 'Manager',
+         'contract', '2022-06-15', 'C987654321D', '987654321', 'SHIF789012',
+         '01169', 'KCB Bank', 'Garissa Branch', '0987654321']
+    ]
+
+    # Add sample data
+    for row_idx, row_data in enumerate(sample_data, 2):
+        for col_idx, value in enumerate(row_data, 1):
+            ws.cell(row=row_idx, column=col_idx, value=value)
+
+    # Instructions Sheet
+    instructions_ws = wb.create_sheet("Instructions")
+    instructions = [
+        '1. Fill in employee data in the Employee_Template sheet',
+        '2. MANDATORY FIELDS (Required): first_name, last_name, national_id, department, job_title, employment_type, bank_name, bank_branch, account_number',
+        '3. OPTIONAL FIELDS: middle_name, phone_number, email, gender, date_of_birth, address, date_hired, kra_pin, nssf_number, shif_number, bank_code',
+        '4. UNIQUE FIELDS (Must be unique across all employees):',
+        '   - National ID (MANDATORY & UNIQUE): 8 digits, cannot be duplicated',
+        '   - Bank Account Number (MANDATORY & UNIQUE): Cannot be duplicated',
+        '   - KRA PIN (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
+        '   - SHIF Number (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
+        '   - NSSF Number (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
+        '5. Department must match exactly: Administration, Finance, Human Resources, ICT, Health Services, Education, Agriculture, Water, Roads, Ugatuzi, Municipality',
+        '6. Job Title must match exactly: County Secretary, Chief Officer, Director, Manager, Officer, Assistant, Clerk, Driver, Security Guard, Casual Worker',
+        '7. Employment Type: permanent, contract, casual, intern',
+        '8. Gender: M or F (optional)',
+        '9. Date format: YYYY-MM-DD (e.g., 2023-01-15)',
+        '10. National ID: Exactly 8 digits (e.g., 12345678)',
+        '11. KRA PIN format: A123456789B (optional but unique if provided)',
+        '12. Bank Code (optional): 12053 (National Bank), 68058 (Equity Bank), 01169 (KCB Bank), 11081 (Cooperative Bank), 03017 (Absa Bank), 74004 (Premier Bank), 72006 (Gulf African Bank)',
+        '13. Phone format: +254712345678',
+        '14. Remove sample data before uploading your actual employee data',
+        '15. Ensure all unique fields have different values for each employee'
+    ]
+
+    # Add instructions to sheet
+    for row_idx, instruction in enumerate(instructions, 1):
+        instructions_ws.cell(row=row_idx, column=1, value=instruction)
+
+    # Departments reference sheet
+    dept_ws = wb.create_sheet("Departments")
+    dept_ws.cell(row=1, column=1, value="Available_Departments").font = Font(bold=True)
+    departments = [
+        'Administration', 'Finance', 'Human Resources', 'ICT',
+        'Health Services', 'Education', 'Agriculture', 'Water',
+        'Roads', 'Ugatuzi', 'Municipality'
+    ]
+    for row_idx, dept in enumerate(departments, 2):
+        dept_ws.cell(row=row_idx, column=1, value=dept)
+
+    # Job titles reference sheet
+    job_ws = wb.create_sheet("Job_Titles")
+    job_ws.cell(row=1, column=1, value="Available_Job_Titles").font = Font(bold=True)
+    job_titles = [
+        'County Secretary', 'Chief Officer', 'Director', 'Manager',
+        'Officer', 'Assistant', 'Clerk', 'Driver',
+        'Security Guard', 'Casual Worker'
+    ]
+    for row_idx, title in enumerate(job_titles, 2):
+        job_ws.cell(row=row_idx, column=1, value=title)
+
+    # Bank codes reference sheet
+    bank_ws = wb.create_sheet("Bank_Codes")
+    bank_ws.cell(row=1, column=1, value="Bank_Code").font = Font(bold=True)
+    bank_ws.cell(row=1, column=2, value="Bank_Name").font = Font(bold=True)
+
+    bank_data = [
+        ('12053', 'National Bank'), ('68058', 'Equity Bank'), ('01169', 'KCB Bank'),
+        ('11081', 'Cooperative Bank'), ('03017', 'Absa Bank'), ('74004', 'Premier Bank'),
+        ('72006', 'Gulf African Bank')
+    ]
+    for row_idx, (code, name) in enumerate(bank_data, 2):
+        bank_ws.cell(row=row_idx, column=1, value=code)
+        bank_ws.cell(row=row_idx, column=2, value=name)
+
+    # Save to BytesIO
     output = BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        # Write template data
-        df.to_excel(writer, sheet_name='Employee_Template', index=False)
-
-        # Create instructions sheet
-        instructions = pd.DataFrame({
-            'Instructions': [
-                '1. Fill in employee data in the Employee_Template sheet',
-                '2. MANDATORY FIELDS (Required): first_name, last_name, national_id, department, job_title, employment_type, bank_name, bank_branch, account_number',
-                '3. OPTIONAL FIELDS: middle_name, phone_number, email, gender, date_of_birth, address, date_hired, kra_pin, nssf_number, shif_number, bank_code',
-                '4. UNIQUE FIELDS (Must be unique across all employees):',
-                '   - National ID (MANDATORY & UNIQUE): 8 digits, cannot be duplicated',
-                '   - Bank Account Number (MANDATORY & UNIQUE): Cannot be duplicated',
-                '   - KRA PIN (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
-                '   - SHIF Number (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
-                '   - NSSF Number (OPTIONAL & UNIQUE): If provided, cannot be duplicated',
-                '5. Department must match exactly: Administration, Finance, Human Resources, ICT, Health Services, Education, Agriculture, Water, Roads, Ugatuzi, Municipality',
-                '6. Job Title must match exactly: County Secretary, Chief Officer, Director, Manager, Officer, Assistant, Clerk, Driver, Security Guard, Casual Worker',
-                '7. Employment Type: permanent, contract, casual, intern',
-                '8. Gender: M or F (optional)',
-                '9. Date format: YYYY-MM-DD (e.g., 2023-01-15)',
-                '10. National ID: Exactly 8 digits (e.g., 12345678)',
-                '11. KRA PIN format: A123456789B (optional but unique if provided)',
-                '12. Bank Code (optional): 12053 (National Bank), 68058 (Equity Bank), 01169 (KCB Bank), 11081 (Cooperative Bank), 03017 (Absa Bank), 74004 (Premier Bank), 72006 (Gulf African Bank)',
-                '13. Phone format: +254712345678',
-                '14. Remove sample data before uploading your actual employee data',
-                '15. Ensure all unique fields have different values for each employee'
-            ]
-        })
-        instructions.to_excel(writer, sheet_name='Instructions', index=False)
-
-        # Create departments reference sheet
-        departments_df = pd.DataFrame({
-            'Available_Departments': [
-                'Administration', 'Finance', 'Human Resources', 'ICT',
-                'Health Services', 'Education', 'Agriculture', 'Water',
-                'Roads', 'Ugatuzi', 'Municipality'
-            ]
-        })
-        departments_df.to_excel(writer, sheet_name='Departments', index=False)
-
-        # Create job titles reference sheet
-        job_titles_df = pd.DataFrame({
-            'Available_Job_Titles': [
-                'County Secretary', 'Chief Officer', 'Director', 'Manager',
-                'Officer', 'Assistant', 'Clerk', 'Driver',
-                'Security Guard', 'Casual Worker'
-            ]
-        })
-        job_titles_df.to_excel(writer, sheet_name='Job_Titles', index=False)
-
-        # Create bank codes reference sheet
-        bank_codes_df = pd.DataFrame({
-            'Bank_Code': ['12053', '68058', '01169', '11081', '03017', '74004', '72006'],
-            'Bank_Name': [
-                'National Bank', 'Equity Bank', 'KCB Bank', 'Cooperative Bank',
-                'Absa Bank', 'Premier Bank', 'Gulf African Bank'
-            ]
-        })
-        bank_codes_df.to_excel(writer, sheet_name='Bank_Codes', index=False)
-
+    wb.save(output)
     output.seek(0)
 
     # Create response
