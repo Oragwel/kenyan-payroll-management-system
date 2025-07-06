@@ -635,22 +635,134 @@ class OrganizationForm(forms.ModelForm):
         }
 
 
-# Temporarily disabled - requires pandas dependency
 class BulkEmployeeImportForm(forms.Form):
-    """Placeholder form - bulk import temporarily disabled"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Add a message field to inform users
-        self.fields['message'] = forms.CharField(
-            initial="Bulk import feature is temporarily disabled during deployment. Please add employees individually.",
-            widget=forms.TextInput(attrs={'readonly': 'readonly', 'class': 'form-control'}),
-            required=False
-        )
+    """Form for bulk importing employees from Excel file"""
+    excel_file = forms.FileField(
+        label="Excel File",
+        help_text="Upload an Excel file (.xlsx) with employee data. Download the template below for the correct format.",
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.xlsx,.xls'
+        })
+    )
 
     def process_excel_file(self):
-        """Placeholder method"""
-        return [], ["Bulk import feature is temporarily disabled."]
+        """Process uploaded Excel file and return employee data"""
+        import pandas as pd
+        from decimal import Decimal
+
+        excel_file = self.cleaned_data['excel_file']
+        errors = []
+        employees_data = []
+
+        try:
+            # Read Excel file
+            df = pd.read_excel(excel_file, sheet_name=0)
+
+            # Required fields
+            required_fields = [
+                'first_name', 'last_name', 'national_id', 'department',
+                'job_title', 'employment_type', 'bank_name', 'account_number'
+            ]
+
+            # Check for required columns
+            missing_columns = [col for col in required_fields if col not in df.columns]
+            if missing_columns:
+                errors.append(f"Missing required columns: {', '.join(missing_columns)}")
+                return employees_data, errors
+
+            # Process each row
+            for index, row in df.iterrows():
+                row_num = index + 2  # Excel row number (accounting for header)
+
+                try:
+                    # Validate required fields
+                    for field in required_fields:
+                        if pd.isna(row[field]) or str(row[field]).strip() == '':
+                            errors.append(f"Row {row_num}: {field} is required")
+                            continue
+
+                    # Get or create department
+                    try:
+                        department = Department.objects.get(name=str(row['department']).strip())
+                    except Department.DoesNotExist:
+                        errors.append(f"Row {row_num}: Department '{row['department']}' does not exist")
+                        continue
+
+                    # Get or create job title
+                    try:
+                        job_title = JobTitle.objects.get(title=str(row['job_title']).strip())
+                    except JobTitle.DoesNotExist:
+                        errors.append(f"Row {row_num}: Job title '{row['job_title']}' does not exist")
+                        continue
+
+                    # Validate employment type
+                    employment_type = str(row['employment_type']).strip().upper()
+                    if employment_type not in ['PERMANENT', 'CONTRACT', 'CASUAL', 'INTERN']:
+                        errors.append(f"Row {row_num}: Invalid employment type '{employment_type}'")
+                        continue
+
+                    # Validate National ID (8 digits)
+                    national_id = str(row['national_id']).strip()
+                    if not national_id.isdigit() or len(national_id) != 8:
+                        errors.append(f"Row {row_num}: National ID must be exactly 8 digits")
+                        continue
+
+                    # Prepare employee data
+                    employee_data = {
+                        'first_name': str(row['first_name']).strip(),
+                        'last_name': str(row['last_name']).strip(),
+                        'national_id': national_id,
+                        'department': department,
+                        'job_title': job_title,
+                        'employment_type': employment_type,
+                        'bank_name': str(row['bank_name']).strip(),
+                        'account_number': str(row['account_number']).strip(),
+                    }
+
+                    # Optional fields
+                    optional_fields = {
+                        'middle_name': 'middle_name',
+                        'phone_number': 'phone_number',
+                        'email': 'email',
+                        'gender': 'gender',
+                        'address': 'address',
+                        'kra_pin': 'kra_pin',
+                        'nssf_number': 'nssf_number',
+                        'shif_number': 'shif_number',
+                        'bank_code': 'bank_code',
+                        'bank_branch': 'bank_branch',
+                    }
+
+                    for excel_field, model_field in optional_fields.items():
+                        if excel_field in df.columns and not pd.isna(row[excel_field]):
+                            value = str(row[excel_field]).strip()
+                            if value:
+                                employee_data[model_field] = value
+
+                    # Handle date fields
+                    date_fields = ['date_of_birth', 'date_hired']
+                    for field in date_fields:
+                        if field in df.columns and not pd.isna(row[field]):
+                            try:
+                                if isinstance(row[field], str):
+                                    from datetime import datetime
+                                    date_value = datetime.strptime(row[field], '%Y-%m-%d').date()
+                                else:
+                                    date_value = row[field].date() if hasattr(row[field], 'date') else row[field]
+                                employee_data[field] = date_value
+                            except (ValueError, AttributeError):
+                                errors.append(f"Row {row_num}: Invalid date format for {field}")
+
+                    employees_data.append(employee_data)
+
+                except Exception as e:
+                    errors.append(f"Row {row_num}: Error processing row - {str(e)}")
+
+        except Exception as e:
+            errors.append(f"Error reading Excel file: {str(e)}")
+
+        return employees_data, errors
 
 # Original class commented out:
 # class BulkEmployeeImportForm(forms.Form):
