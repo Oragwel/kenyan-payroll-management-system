@@ -3,9 +3,15 @@
 # Build script for Vercel deployment
 echo "🚀 Starting build process for Kenyan Payroll System..."
 
-# Install dependencies
+# Install dependencies (use minimal requirements for Vercel)
 echo "📦 Installing Python dependencies..."
-pip3 install -r requirements.txt
+if [ -f "requirements-vercel.txt" ]; then
+    echo "Using minimal requirements for Vercel deployment..."
+    pip3 install -r requirements-vercel.txt
+else
+    echo "Using full requirements..."
+    pip3 install -r requirements.txt
+fi
 
 # Create staticfiles_build directory structure
 echo "📂 Creating output directories..."
@@ -156,7 +162,7 @@ EOF
 # Check if DATABASE_URL is available for migrations
 if [ -n "$DATABASE_URL" ]; then
     echo "🗄️ DATABASE_URL found, running migrations..."
-    export DJANGO_SETTINGS_MODULE=payroll.settings.production
+    export DJANGO_SETTINGS_MODULE=payroll.settings.vercel
     python3 manage.py migrate --noinput || echo "⚠️ Migration failed, but continuing..."
 
     # Create superuser if environment variables are provided

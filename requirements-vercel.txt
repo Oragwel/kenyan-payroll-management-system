@@ -1,0 +1,41 @@
+# Minimal requirements for Vercel deployment
+# Optimized to stay under 250MB limit
+
+# Core Django
+Django==4.2.7
+djangorestframework==3.14.0
+
+# Database
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+
+# Production deployment
+gunicorn==21.2.0
+whitenoise==6.6.0
+django-environ==0.11.2
+
+# Forms and UI (lightweight)
+django-crispy-forms==2.1
+crispy-bootstrap5==0.7
+
+# Security (essential only)
+django-cors-headers==4.3.1
+django-ratelimit==4.1.0
+
+# Basic utilities
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Image processing (essential)
+Pillow==10.1.0
+
+# Excel operations (lightweight alternative)
+openpyxl==3.1.2
+
+# PDF generation (lightweight alternative to weasyprint)
+reportlab==4.0.4
+
+# Basic utilities
+requests==2.31.0
+six==1.16.0
+cryptography==41.0.7

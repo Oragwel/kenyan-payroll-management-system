@@ -1,0 +1,131 @@
+# Vercel deployment ignore file
+# Exclude files to reduce deployment size
+
+# Development files
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Database files
+db.sqlite3
+db.sqlite3-journal
+*.db
+
+# Media files (uploaded content)
+media/
+company_logos/
+
+# Documentation
+docs/
+*.md
+README.md
+CHANGELOG.md
+LICENSE
+
+# Development tools
+.git/
+.gitignore
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+server.log
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Development scripts
+install.sh
+install.bat
+deploy.sh
+
+# Backup files
+*.bak
+*.backup
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Node modules (if any)
+node_modules/
+
+# Python cache
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage reports
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# Environment files (except production)
+.env
+.env.local
+.env.development
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Static files (will be built during deployment)
+staticfiles/
+static_collected/
+
+# Development requirements
+requirements-dev.txt
+
+# Analysis and documentation files
+payslip_options_analysis.md
+COMMIT_PLAN.md
+DEPLOYMENT_GUIDE.md
+KENYAN_STATUTORY_COMPLIANCE.md
+NHIF_TO_SHIF_TRANSITION.md
+PAYSLIP_PRINTING_GUIDE.md
+SECURITY_IMPLEMENTATION.md
+VERCEL_ENV_IMPORT_GUIDE.md
+VERCEL_SETUP_INSTRUCTIONS.md
+
+# Test and verification scripts
+test_*.py
+verify_*.py
+fix_*.py
+add_*.py
+generate_*.py
+
+# HTML test files
+payslip_option_*.html
+mobile_demo.html

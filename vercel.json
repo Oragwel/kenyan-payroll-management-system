@@ -5,16 +5,9 @@
       "src": "payroll/wsgi.py",
       "use": "@vercel/python",
       "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.12",
+        "maxLambdaSize": "50mb",
+        "runtime": "python3.9",
         "maxDuration": 30
-      }
-    },
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "staticfiles_build"
       }
     }
   ],
@@ -33,8 +26,13 @@
     }
   ],
   "env": {
-    "DJANGO_SETTINGS_MODULE": "payroll.settings.production",
+    "DJANGO_SETTINGS_MODULE": "payroll.settings.vercel",
     "PYTHONPATH": ".",
     "DEBUG": "False"
+  },
+  "functions": {
+    "payroll/wsgi.py": {
+      "maxDuration": 30
+    }
   }
 }
