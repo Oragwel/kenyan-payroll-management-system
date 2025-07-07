@@ -14,7 +14,7 @@ python-dateutil==2.8.2
 pytz==2023.3
 
 # Excel processing and file handling - lightweight, Python 3.13 compatible
-openpyxl==3.1.2
+# openpyxl==3.1.2
 
 # Image processing for logos - temporarily disabled for Python 3.13 compatibility
 # Pillow>=10.2.0
