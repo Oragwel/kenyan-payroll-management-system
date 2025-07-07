@@ -7,13 +7,7 @@ import os
 import dj_database_url
 from pathlib import Path
 
-# ✅ Safety check to prevent falling back to SQLite accidentally
-if not os.environ.get('DATABASE_URL'):
-    raise Exception("DATABASE_URL is not set. Aborting startup.")
 
-DATABASES = {
-     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
-}
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -97,6 +91,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'payroll.wsgi.application'
+
+# ✅ Safety check to prevent falling back to SQLite accidentally
+if not os.environ.get('DATABASE_URL'):
+    raise Exception("DATABASE_URL is not set. Aborting startup.")
+
+DATABASES = {
+     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
