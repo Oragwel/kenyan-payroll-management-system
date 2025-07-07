@@ -1,0 +1,78 @@
+{
+  "name": "Kenyan Payroll Management System",
+  "description": "A comprehensive payroll management system designed for Kenyan employment structure and compliance requirements",
+  "repository": "https://github.com/Oragwel/kenyan-payroll-management-system",
+  "logo": "https://via.placeholder.com/200x200/006633/FFFFFF?text=KE+Payroll",
+  "keywords": [
+    "django",
+    "payroll",
+    "kenya",
+    "shif",
+    "nssf",
+    "paye",
+    "hr",
+    "management"
+  ],
+  "stack": "heroku-22",
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini",
+      "as": "DATABASE"
+    }
+  ],
+  "env": {
+    "DJANGO_SETTINGS_MODULE": {
+      "description": "Django settings module",
+      "value": "payroll.settings.heroku"
+    },
+    "SECRET_KEY": {
+      "description": "Django secret key for cryptographic signing",
+      "generator": "secret"
+    },
+    "DEBUG": {
+      "description": "Enable debug mode (set to False for production)",
+      "value": "False"
+    },
+    "SECURE_SSL_REDIRECT": {
+      "description": "Redirect HTTP to HTTPS",
+      "value": "True"
+    },
+    "ADMIN_USERNAME": {
+      "description": "Default admin username",
+      "value": "admin"
+    },
+    "ADMIN_EMAIL": {
+      "description": "Default admin email",
+      "value": "admin@payroll.ke"
+    },
+    "ADMIN_PASSWORD": {
+      "description": "Default admin password",
+      "value": "PayrollAdmin2024!"
+    }
+  },
+  "scripts": {
+    "postdeploy": "python manage.py migrate && python create_superuser.py"
+  },
+  "environments": {
+    "test": {
+      "addons": [
+        "heroku-postgresql:mini"
+      ],
+      "env": {
+        "DEBUG": "True",
+        "SECURE_SSL_REDIRECT": "False"
+      }
+    }
+  }
+}
