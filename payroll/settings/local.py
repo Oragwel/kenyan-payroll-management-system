@@ -1,49 +1,26 @@
 """
-Production settings for Kenyan Payroll Management System
-Optimized for Render deployment with PostgreSQL
+Local development settings for Kenyan Payroll Management System
+Uses SQLite database for easy local development
 """
 
 import os
-import dj_database_url
 from pathlib import Path
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Security settings
-SECRET_KEY = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-local-development-key-change-in-production'
 
-# Allowed hosts for production
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
 ALLOWED_HOSTS = [
-    '.onrender.com',
-    '.render.com',
     'localhost',
     '127.0.0.1',
-    'kenyan-payroll-management-system.onrender.com',
+    '0.0.0.0',
+    '[::1]',  # IPv6 localhost
 ]
-
-# CSRF Settings for production
-CSRF_TRUSTED_ORIGINS = [
-    'https://kenyan-payroll-management-system.onrender.com',
-    'https://*.onrender.com',
-    'http://kenyan-payroll-management-system.onrender.com',  # In case of HTTP redirects
-]
-
-# Additional CSRF settings for deployment - temporarily relaxed
-CSRF_COOKIE_SECURE = False  # Allow HTTP for debugging
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access if needed
-CSRF_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
-
-# Session settings for deployment - temporarily relaxed
-SESSION_COOKIE_SECURE = False  # Allow HTTP for debugging
-SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to session cookie
-SESSION_COOKIE_SAMESITE = 'Lax'  # More permissive for cross-origin requests
-
-# Additional security settings
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = False  # Render handles SSL termination
 
 # Application definition - FULL PAYROLL SYSTEM
 INSTALLED_APPS = [
@@ -53,19 +30,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
     # Payroll system apps
+    'core',
     'employees',
     'payroll_processing',
     'statutory_deductions',
-    'core',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',  # Temporarily disabled for debugging
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -84,7 +61,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'employees.context_processors.organization_context',
             ],
         },
     },
@@ -92,12 +68,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'payroll.wsgi.application'
 
-# ✅ Safety check to prevent falling back to SQLite accidentally
-if not os.environ.get('DATABASE_URL'):
-    raise Exception("DATABASE_URL is not set. Aborting startup.")
-
+# Database - SQLite for local development
 DATABASES = {
-     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 # Password validation
@@ -124,35 +100,31 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
 # Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Use WhiteNoise for static file serving
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Admin configuration
-LOGIN_URL = '/login/'  # Default login URL for @login_required
-LOGIN_REDIRECT_URL = '/dashboard/'  # Where to go after login (frontend)
-LOGOUT_REDIRECT_URL = '/'  # Where to go after logout
-
 # Authentication settings
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'  # For frontend login
+LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Admin settings - prevent redirect to frontend dashboard
+# Admin settings
 ADMIN_URL = 'admin/'
 
-# Logging
+# Email backend for development (prints to console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Logging for development
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -164,4 +136,15 @@ LOGGING = {
     'root': {
         'handlers': ['console'],
     },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
 }
+
+# Development-friendly settings
+CSRF_COOKIE_SECURE = False  # Allow HTTP for local development
+SESSION_COOKIE_SECURE = False  # Allow HTTP for local development
+SECURE_SSL_REDIRECT = False  # No HTTPS redirect for local development
