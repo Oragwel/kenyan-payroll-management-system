@@ -1,12 +1,14 @@
 services:
   - type: web
-    name: kenyan-payroll-system
+    name: kenyan-payroll-backend
     env: python
     plan: starter
     buildCommand: |
+      cd backend
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
     startCommand: |
+      cd backend
       python manage.py migrate
       python manage.py createsuperuser --noinput || true
       gunicorn payroll.wsgi:application
@@ -26,9 +28,7 @@ services:
       - key: DATABASE_URL
         value: postgresql://payroll_user:1wvyisD4gqJwQfXm6zqZBvWkmRsxa4LS@dpg-d1l5h5p5pdvs73bhvcl0-a.oregon-postgres.render.com/payroll_db_u6tb
 
-  - type: pserv
-    name: kenyan-payroll-db
-    env: postgresql
-    plan: starter
-    databaseName: payroll_db
-    user: payroll_user
+  - type: static
+    name: kenyan-payroll-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
