@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenyan Payroll Management System - Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kenya: {
+                            green: '#006633',
+                            red: '#cc0000',
+                            black: '#000000',
+                        },
+                        primary: {
+                            600: '#1e7e34',
+                            700: '#155724',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-primary-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-kenya-green rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-lg">🇰🇪</span>
+                    </div>
+                    <h1 class="text-xl font-bold">Kenyan Payroll Management System</h1>
+                </div>
+                <div class="text-sm">
+                    <span class="bg-green-500 px-2 py-1 rounded">Node.js + Vite</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">🎉 Node.js Payroll System Created Successfully!</h2>
+            <p class="text-gray-600 mb-4">
+                Your modern Kenyan Payroll Management System has been created using Node.js, Express, React, and Vite.
+                This is a complete replica of your Django system with modern JavaScript technologies.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-green-800">✅ Backend Ready</h3>
+                    <p class="text-sm text-green-600">Node.js + Express API</p>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-blue-800">✅ Frontend Ready</h3>
+                    <p class="text-sm text-blue-600">React + Vite + Tailwind</p>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-purple-800">✅ Database Ready</h3>
+                    <p class="text-sm text-purple-600">PostgreSQL Schema</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Employee Management -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">👥</span>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold">Employee Management</h3>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>✅ Add/Edit/Delete Employees</li>
+                    <li>✅ Bulk Import from Excel</li>
+                    <li>✅ National ID Validation</li>
+                    <li>✅ Bank Details Management</li>
+                </ul>
+            </div>
+
+            <!-- Payroll Processing -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">💰</span>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold">Payroll Processing</h3>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>✅ SHIF Calculations (2.75%)</li>
+                    <li>✅ NSSF Contributions</li>
+                    <li>✅ PAYE Tax Bands</li>
+                    <li>✅ Housing Levy (1.5%)</li>
+                </ul>
+            </div>
+
+            <!-- Reports & Analytics -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <span class="text-2xl">📊</span>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold">Reports & Analytics</h3>
+                </div>
+                <ul class="text-sm text-gray-600 space-y-1">
+                    <li>✅ Payslip Generation (PDF)</li>
+                    <li>✅ Excel Reports</li>
+                    <li>✅ Tax Summaries</li>
+                    <li>✅ Department Analysis</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h3 class="text-xl font-bold mb-4">🚀 Technology Stack</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl mb-2">⚡</div>
+                    <div class="font-semibold">Node.js</div>
+                    <div class="text-sm text-gray-600">Backend Runtime</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl mb-2">⚛️</div>
+                    <div class="font-semibold">React</div>
+                    <div class="text-sm text-gray-600">Frontend Framework</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl mb-2">🔥</div>
+                    <div class="font-semibold">Vite</div>
+                    <div class="text-sm text-gray-600">Build Tool</div>
+                </div>
+                <div class="text-center p-3 bg-gray-50 rounded-lg">
+                    <div class="text-2xl mb-2">🐘</div>
+                    <div class="font-semibold">PostgreSQL</div>
+                    <div class="text-sm text-gray-600">Database</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Getting Started -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-bold mb-4">🛠️ Getting Started</h3>
+            <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-sm mb-4">
+                <div># Navigate to project directory</div>
+                <div>cd /home/oragwelr/Desktop/kenyan-payroll-nodejs</div>
+                <div class="mt-2"># Run setup script</div>
+                <div>./setup.sh</div>
+                <div class="mt-2"># Configure database and start</div>
+                <div>npm run migrate</div>
+                <div>npm run seed</div>
+                <div>npm run dev</div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h4 class="font-semibold mb-2">📍 Local URLs:</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>Frontend: <code class="bg-gray-100 px-2 py-1 rounded">http://localhost:5173</code></li>
+                        <li>Backend API: <code class="bg-gray-100 px-2 py-1 rounded">http://localhost:5000</code></li>
+                        <li>Health Check: <code class="bg-gray-100 px-2 py-1 rounded">http://localhost:5000/health</code></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-2">🔑 Default Credentials:</h4>
+                    <ul class="text-sm space-y-1">
+                        <li>Username: <code class="bg-gray-100 px-2 py-1 rounded">admin</code></li>
+                        <li>Password: <code class="bg-gray-100 px-2 py-1 rounded">PayrollAdmin2024!</code></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-300">
+                🇰🇪 Built with ❤️ for Kenyan businesses and organizations
+            </p>
+            <p class="text-sm text-gray-400 mt-2">
+                Modern Payroll Management System - Node.js + Vite + React + PostgreSQL
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

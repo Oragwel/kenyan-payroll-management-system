@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenyan Payroll System - Live Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kenya: {
+                            green: '#006633',
+                            red: '#cc0000',
+                            black: '#000000',
+                        },
+                        primary: {
+                            600: '#1e7e34',
+                            700: '#155724',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-primary-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-kenya-green rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-lg">🇰🇪</span>
+                    </div>
+                    <h1 class="text-xl font-bold">Kenyan Payroll System - Live Test</h1>
+                </div>
+                <div id="status" class="text-sm">
+                    <span class="bg-yellow-500 px-2 py-1 rounded">Testing...</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Payroll Calculator -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">💰 Kenyan Payroll Calculator</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Input Form -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Employee Details</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Employee Name</label>
+                            <input type="text" id="employeeName" value="John Mwangi" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+                            <input type="text" id="nationalId" value="12345678" maxlength="8"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Basic Salary (KES)</label>
+                            <input type="number" id="basicSalary" value="50000" min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Employment Type</label>
+                            <select id="employmentType" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600">
+                                <option value="PERMANENT">Permanent</option>
+                                <option value="CONTRACT">Contract</option>
+                                <option value="CASUAL">Casual Worker</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                            <select id="department" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-600">
+                                <option value="Administration">Administration</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Ugatuzi">Ugatuzi</option>
+                                <option value="Municipality">Municipality</option>
+                            </select>
+                        </div>
+                        
+                        <button onclick="calculatePayroll()" 
+                                class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors">
+                            Calculate Payroll
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Results -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Payroll Calculation Results</h3>
+                    <div id="results" class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-gray-600">Enter employee details and click "Calculate Payroll" to see the results.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Employees -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="text-xl font-bold mb-4">👥 Sample Employees</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">National ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Basic Salary</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">John Mwangi</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">12345678</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Administration</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Permanent</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 50,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button onclick="loadEmployee('John Mwangi', '12345678', 50000, 'PERMANENT', 'Administration')" 
+                                        class="text-primary-600 hover:text-primary-900">Load</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Jane Wanjiku</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">87654321</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Finance</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Permanent</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 75,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button onclick="loadEmployee('Jane Wanjiku', '87654321', 75000, 'PERMANENT', 'Finance')" 
+                                        class="text-primary-600 hover:text-primary-900">Load</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Peter Kiprotich</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">11223344</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Ugatuzi</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Casual</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 30,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button onclick="loadEmployee('Peter Kiprotich', '11223344', 30000, 'CASUAL', 'Ugatuzi')" 
+                                        class="text-primary-600 hover:text-primary-900">Load</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Kenyan tax calculation functions
+        function calculateSHIF(salary) {
+            return salary * 0.0275; // 2.75%
+        }
+
+        function calculateNSSF(salary, employmentType) {
+            if (employmentType === 'CASUAL') return 0;
+            return salary * 0.06; // 6%
+        }
+
+        function calculatePAYE(salary) {
+            if (salary <= 24000) return 0;
+            if (salary <= 32333) return (salary - 24000) * 0.1;
+            if (salary <= 40385) return 833.3 + (salary - 32333) * 0.15;
+            if (salary <= 48462) return 2041.1 + (salary - 40385) * 0.2;
+            if (salary <= 56538) return 3656.5 + (salary - 48462) * 0.25;
+            return 4675.5 + (salary - 56538) * 0.3;
+        }
+
+        function calculateHousingLevy(salary) {
+            return salary * 0.015; // 1.5% employer contribution
+        }
+
+        function loadEmployee(name, nationalId, salary, type, department) {
+            document.getElementById('employeeName').value = name;
+            document.getElementById('nationalId').value = nationalId;
+            document.getElementById('basicSalary').value = salary;
+            document.getElementById('employmentType').value = type;
+            document.getElementById('department').value = department;
+            calculatePayroll();
+        }
+
+        function calculatePayroll() {
+            const name = document.getElementById('employeeName').value;
+            const nationalId = document.getElementById('nationalId').value;
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value);
+            const employmentType = document.getElementById('employmentType').value;
+            const department = document.getElementById('department').value;
+
+            if (!basicSalary || basicSalary <= 0) {
+                alert('Please enter a valid basic salary');
+                return;
+            }
+
+            const shif = calculateSHIF(basicSalary);
+            const nssf = calculateNSSF(basicSalary, employmentType);
+            const paye = calculatePAYE(basicSalary);
+            const housingLevy = calculateHousingLevy(basicSalary);
+            
+            const totalDeductions = shif + nssf + paye;
+            const netSalary = basicSalary - totalDeductions;
+
+            const resultsHtml = `
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-green-800 mb-3">✅ Payroll Calculated Successfully</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <h5 class="font-medium text-gray-700 mb-2">Employee Information</h5>
+                            <p><strong>Name:</strong> ${name}</p>
+                            <p><strong>National ID:</strong> ${nationalId}</p>
+                            <p><strong>Department:</strong> ${department}</p>
+                            <p><strong>Employment Type:</strong> ${employmentType}</p>
+                            <p><strong>Basic Salary:</strong> KES ${basicSalary.toLocaleString()}</p>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-medium text-gray-700 mb-2">Deductions</h5>
+                            <p><strong>SHIF (2.75%):</strong> KES ${shif.toFixed(2)}</p>
+                            <p><strong>NSSF (6%):</strong> KES ${nssf.toFixed(2)} ${employmentType === 'CASUAL' ? '(Exempt)' : ''}</p>
+                            <p><strong>PAYE:</strong> KES ${paye.toFixed(2)}</p>
+                            <p class="border-t pt-2 mt-2"><strong>Total Deductions:</strong> KES ${totalDeductions.toFixed(2)}</p>
+                            <p class="text-lg font-bold text-green-600"><strong>Net Salary:</strong> KES ${netSalary.toFixed(2)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 pt-4 border-t border-green-200">
+                        <h5 class="font-medium text-gray-700 mb-2">Employer Contributions</h5>
+                        <p><strong>NSSF Employer (6%):</strong> KES ${employmentType !== 'CASUAL' ? nssf.toFixed(2) : '0.00'}</p>
+                        <p><strong>Housing Levy (1.5%):</strong> KES ${housingLevy.toFixed(2)}</p>
+                        <p class="font-bold"><strong>Total Employer Cost:</strong> KES ${(basicSalary + (employmentType !== 'CASUAL' ? nssf : 0) + housingLevy).toFixed(2)}</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('results').innerHTML = resultsHtml;
+            document.getElementById('status').innerHTML = '<span class="bg-green-500 px-2 py-1 rounded">✅ Working</span>';
+        }
+
+        // Initialize with default calculation
+        window.onload = function() {
+            calculatePayroll();
+        };
+    </script>
+</body>
+</html>

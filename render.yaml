@@ -4,11 +4,11 @@ services:
     env: python
     plan: starter
     buildCommand: |
-      pip install -r requirements-minimal.txt
+      pip install -r requirements.txt
       python manage.py collectstatic --noinput
     startCommand: |
       python manage.py migrate
-      python manage.py create_production_superuser
+      python manage.py createsuperuser --noinput || true
       gunicorn payroll.wsgi:application
     envVars:
       - key: SECRET_KEY
@@ -16,13 +16,15 @@ services:
       - key: DEBUG
         value: False
       - key: DJANGO_SETTINGS_MODULE
-        value: payroll.settings.minimal
+        value: payroll.settings.production
       - key: DJANGO_SUPERUSER_USERNAME
         value: admin
       - key: DJANGO_SUPERUSER_EMAIL
-        value: admin@yourcompany.com
+        value: tidings@outlook.com
       - key: DJANGO_SUPERUSER_PASSWORD
-        value: PayrollAdmin2024!
+        sync: false
+      - key: DATABASE_URL
+        value: postgresql://payroll_user:1wvyisD4gqJwQfXm6zqZBvWkmRsxa4LS@dpg-d1l5h5p5pdvs73bhvcl0-a.oregon-postgres.render.com/payroll_db_u6tb
 
   - type: pserv
     name: kenyan-payroll-db

@@ -1,0 +1,40 @@
+{
+  "name": "kenyan-payroll-nodejs",
+  "version": "1.0.0",
+  "description": "Modern Kenyan Payroll Management System - Node.js + Vite + PostgreSQL",
+
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start",
+    "setup": "npm run install:all && cd backend && npm run setup",
+    "migrate": "cd backend && npm run migrate",
+    "seed": "cd backend && npm run seed",
+    "test": "cd backend && npm test && cd ../frontend && npm test",
+    "lint": "cd backend && npm run lint && cd ../frontend && npm run lint",
+    "format": "cd backend && npm run format && cd ../frontend && npm run format"
+  },
+  "keywords": [
+    "payroll",
+    "kenya",
+    "nodejs",
+    "vite",
+    "react",
+    "postgresql",
+    "shif",
+    "nssf",
+    "paye"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=6.0.0"
+  }
+}

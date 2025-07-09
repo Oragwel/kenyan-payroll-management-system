@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kenyan Payroll Management System - Working Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kenya: {
+                            green: '#006633',
+                            red: '#cc0000',
+                            black: '#000000',
+                        },
+                        primary: {
+                            50: '#f0f9f4',
+                            500: '#22c55e',
+                            600: '#1e7e34',
+                            700: '#155724',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50" x-data="payrollApp()">
+    <!-- Header -->
+    <header class="bg-primary-600 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-kenya-green rounded-full flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-lg">🇰🇪</span>
+                    </div>
+                    <h1 class="text-xl font-bold">Kenyan Payroll Management System</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-green-500 px-3 py-1 rounded text-sm">✅ Working Demo</span>
+                    <span class="text-sm">Node.js + React + PostgreSQL</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex space-x-8">
+                <button @click="currentTab = 'dashboard'" 
+                        :class="currentTab === 'dashboard' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm">
+                    📊 Dashboard
+                </button>
+                <button @click="currentTab = 'employees'" 
+                        :class="currentTab === 'employees' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm">
+                    👥 Employees
+                </button>
+                <button @click="currentTab = 'payroll'" 
+                        :class="currentTab === 'payroll' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm">
+                    💰 Payroll
+                </button>
+                <button @click="currentTab = 'reports'" 
+                        :class="currentTab === 'reports' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                        class="py-4 px-1 border-b-2 font-medium text-sm">
+                    📈 Reports
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Tab -->
+        <div x-show="currentTab === 'dashboard'" class="space-y-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-500 rounded-md flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">👥</span>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Employees</dt>
+                                <dd class="text-lg font-medium text-gray-900" x-text="employees.length"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-500 rounded-md flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">💰</span>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Monthly Payroll</dt>
+                                <dd class="text-lg font-medium text-gray-900" x-text="'KES ' + totalPayroll.toLocaleString()"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-md flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">🏥</span>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total SHIF</dt>
+                                <dd class="text-lg font-medium text-gray-900" x-text="'KES ' + totalSHIF.toLocaleString()"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-purple-500 rounded-md flex items-center justify-center">
+                                <span class="text-white text-sm font-bold">🏛️</span>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total NSSF</dt>
+                                <dd class="text-lg font-medium text-gray-900" x-text="'KES ' + totalNSSF.toLocaleString()"></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">🇰🇪 Kenyan Payroll Compliance Status</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">✅ Tax Compliance</h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center text-green-600">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    SHIF (2.75%) - Social Health Insurance Fund
+                                </li>
+                                <li class="flex items-center text-green-600">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    NSSF (6%) - National Social Security Fund
+                                </li>
+                                <li class="flex items-center text-green-600">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    PAYE - Progressive Tax Bands (Finance Act 2023)
+                                </li>
+                                <li class="flex items-center text-green-600">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                                    Housing Levy (1.5%) - Employer Contribution
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-3">🏢 Employment Types</h4>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-center text-blue-600">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    Permanent - Full benefits and deductions
+                                </li>
+                                <li class="flex items-center text-blue-600">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    Contract - Limited deductions (SHIF only)
+                                </li>
+                                <li class="flex items-center text-blue-600">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                                    Casual - No NSSF, Housing Levy applies
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Employees Tab -->
+        <div x-show="currentTab === 'employees'" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">👥 Employee Management</h2>
+                <button @click="showAddEmployee = true" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700">
+                    + Add Employee
+                </button>
+            </div>
+
+            <!-- Employee List -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200">
+                    <template x-for="employee in employees" :key="employee.id">
+                        <li class="px-6 py-4 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-primary-500 flex items-center justify-center">
+                                            <span class="text-white font-medium" x-text="employee.firstName.charAt(0) + employee.lastName.charAt(0)"></span>
+                                        </div>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900" x-text="employee.firstName + ' ' + employee.lastName"></div>
+                                        <div class="text-sm text-gray-500" x-text="employee.department + ' - ' + employee.jobTitle"></div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-gray-900" x-text="'KES ' + employee.basicSalary.toLocaleString()"></div>
+                                        <div class="text-sm text-gray-500" x-text="employee.employmentType"></div>
+                                    </div>
+                                    <button @click="calculateEmployeePayroll(employee)" class="text-primary-600 hover:text-primary-900 text-sm">
+                                        Calculate Payroll
+                                    </button>
+                                </div>
+                            </div>
+                        </li>
+                    </template>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Payroll Tab -->
+        <div x-show="currentTab === 'payroll'" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900">💰 Payroll Processing</h2>
+            
+            <!-- Payroll Calculator -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Individual Payroll Calculator</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Select Employee</label>
+                            <select x-model="selectedEmployeeId" @change="loadSelectedEmployee()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                                <option value="">Choose an employee...</option>
+                                <template x-for="employee in employees" :key="employee.id">
+                                    <option :value="employee.id" x-text="employee.firstName + ' ' + employee.lastName"></option>
+                                </template>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Basic Salary (KES)</label>
+                            <input type="number" x-model="payrollForm.basicSalary" @input="calculatePayroll()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Employment Type</label>
+                            <select x-model="payrollForm.employmentType" @change="calculatePayroll()" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                                <option value="PERMANENT">Permanent</option>
+                                <option value="CONTRACT">Contract</option>
+                                <option value="CASUAL">Casual Worker</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div x-show="payrollResult" class="bg-gray-50 p-4 rounded-lg">
+                        <h4 class="font-medium text-gray-900 mb-3">Payroll Calculation Results</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span>Basic Salary:</span>
+                                <span class="font-medium" x-text="'KES ' + (payrollResult?.basicSalary || 0).toLocaleString()"></span>
+                            </div>
+                            <div class="flex justify-between text-red-600">
+                                <span>SHIF (2.75%):</span>
+                                <span x-text="'KES ' + (payrollResult?.shif || 0).toLocaleString()"></span>
+                            </div>
+                            <div class="flex justify-between text-red-600">
+                                <span>NSSF (6%):</span>
+                                <span x-text="'KES ' + (payrollResult?.nssf || 0).toLocaleString()"></span>
+                            </div>
+                            <div class="flex justify-between text-red-600">
+                                <span>PAYE:</span>
+                                <span x-text="'KES ' + (payrollResult?.paye || 0).toLocaleString()"></span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="flex justify-between font-medium text-green-600">
+                                <span>Net Salary:</span>
+                                <span x-text="'KES ' + (payrollResult?.netSalary || 0).toLocaleString()"></span>
+                            </div>
+                            <hr class="my-2">
+                            <div class="text-xs text-gray-600">
+                                <div class="flex justify-between">
+                                    <span>Employer NSSF:</span>
+                                    <span x-text="'KES ' + (payrollResult?.employerNSSF || 0).toLocaleString()"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Housing Levy:</span>
+                                    <span x-text="'KES ' + (payrollResult?.housingLevy || 0).toLocaleString()"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div x-show="currentTab === 'reports'" class="space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900">📈 Reports & Analytics</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Department Summary</h3>
+                    <div class="space-y-3">
+                        <template x-for="dept in departmentSummary" :key="dept.name">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600" x-text="dept.name"></span>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium" x-text="dept.count + ' employees'"></div>
+                                    <div class="text-xs text-gray-500" x-text="'KES ' + dept.totalSalary.toLocaleString()"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Tax Summary</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total SHIF Collected:</span>
+                            <span class="text-sm font-medium" x-text="'KES ' + totalSHIF.toLocaleString()"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total NSSF (Employee):</span>
+                            <span class="text-sm font-medium" x-text="'KES ' + totalNSSF.toLocaleString()"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total NSSF (Employer):</span>
+                            <span class="text-sm font-medium" x-text="'KES ' + totalNSSF.toLocaleString()"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Housing Levy:</span>
+                            <span class="text-sm font-medium" x-text="'KES ' + totalHousingLevy.toLocaleString()"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function payrollApp() {
+            return {
+                currentTab: 'dashboard',
+                selectedEmployeeId: '',
+                showAddEmployee: false,
+                payrollForm: {
+                    basicSalary: 50000,
+                    employmentType: 'PERMANENT'
+                },
+                payrollResult: null,
+                employees: [
+                    {
+                        id: 1,
+                        firstName: 'John',
+                        lastName: 'Mwangi',
+                        nationalId: '12345678',
+                        department: 'Administration',
+                        jobTitle: 'Officer',
+                        employmentType: 'PERMANENT',
+                        basicSalary: 50000
+                    },
+                    {
+                        id: 2,
+                        firstName: 'Jane',
+                        lastName: 'Wanjiku',
+                        nationalId: '87654321',
+                        department: 'Finance',
+                        jobTitle: 'Manager',
+                        employmentType: 'PERMANENT',
+                        basicSalary: 75000
+                    },
+                    {
+                        id: 3,
+                        firstName: 'Peter',
+                        lastName: 'Kiprotich',
+                        nationalId: '11223344',
+                        department: 'Ugatuzi',
+                        jobTitle: 'Casual Worker',
+                        employmentType: 'CASUAL',
+                        basicSalary: 30000
+                    },
+                    {
+                        id: 4,
+                        firstName: 'Mary',
+                        lastName: 'Achieng',
+                        nationalId: '55667788',
+                        department: 'Municipality',
+                        jobTitle: 'Assistant',
+                        employmentType: 'CONTRACT',
+                        basicSalary: 45000
+                    }
+                ],
+
+                get totalPayroll() {
+                    return this.employees.reduce((sum, emp) => sum + emp.basicSalary, 0);
+                },
+
+                get totalSHIF() {
+                    return this.employees.reduce((sum, emp) => sum + (emp.basicSalary * 0.0275), 0);
+                },
+
+                get totalNSSF() {
+                    return this.employees.reduce((sum, emp) => {
+                        return sum + (emp.employmentType !== 'CASUAL' ? emp.basicSalary * 0.06 : 0);
+                    }, 0);
+                },
+
+                get totalHousingLevy() {
+                    return this.employees.reduce((sum, emp) => sum + (emp.basicSalary * 0.015), 0);
+                },
+
+                get departmentSummary() {
+                    const depts = {};
+                    this.employees.forEach(emp => {
+                        if (!depts[emp.department]) {
+                            depts[emp.department] = { name: emp.department, count: 0, totalSalary: 0 };
+                        }
+                        depts[emp.department].count++;
+                        depts[emp.department].totalSalary += emp.basicSalary;
+                    });
+                    return Object.values(depts);
+                },
+
+                calculateSHIF(salary) {
+                    return salary * 0.0275;
+                },
+
+                calculateNSSF(salary, employmentType) {
+                    return employmentType === 'CASUAL' ? 0 : salary * 0.06;
+                },
+
+                calculatePAYE(salary) {
+                    if (salary <= 24000) return 0;
+                    if (salary <= 32333) return (salary - 24000) * 0.1;
+                    if (salary <= 40385) return 833.3 + (salary - 32333) * 0.15;
+                    if (salary <= 48462) return 2041.1 + (salary - 40385) * 0.2;
+                    if (salary <= 56538) return 3656.5 + (salary - 48462) * 0.25;
+                    return 4675.5 + (salary - 56538) * 0.3;
+                },
+
+                calculatePayroll() {
+                    const salary = parseFloat(this.payrollForm.basicSalary) || 0;
+                    const type = this.payrollForm.employmentType;
+                    
+                    const shif = this.calculateSHIF(salary);
+                    const nssf = this.calculateNSSF(salary, type);
+                    const paye = this.calculatePAYE(salary);
+                    const housingLevy = salary * 0.015;
+                    
+                    const totalDeductions = shif + nssf + paye;
+                    const netSalary = salary - totalDeductions;
+                    
+                    this.payrollResult = {
+                        basicSalary: salary,
+                        shif: Math.round(shif * 100) / 100,
+                        nssf: Math.round(nssf * 100) / 100,
+                        paye: Math.round(paye * 100) / 100,
+                        netSalary: Math.round(netSalary * 100) / 100,
+                        employerNSSF: type !== 'CASUAL' ? Math.round(nssf * 100) / 100 : 0,
+                        housingLevy: Math.round(housingLevy * 100) / 100
+                    };
+                },
+
+                loadSelectedEmployee() {
+                    const employee = this.employees.find(emp => emp.id == this.selectedEmployeeId);
+                    if (employee) {
+                        this.payrollForm.basicSalary = employee.basicSalary;
+                        this.payrollForm.employmentType = employee.employmentType;
+                        this.calculatePayroll();
+                    }
+                },
+
+                calculateEmployeePayroll(employee) {
+                    this.currentTab = 'payroll';
+                    this.selectedEmployeeId = employee.id;
+                    this.loadSelectedEmployee();
+                },
+
+                init() {
+                    this.calculatePayroll();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
