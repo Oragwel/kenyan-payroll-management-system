@@ -140,8 +140,7 @@ export default {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
+    // Note: Tailwind plugins removed for Docker build compatibility
+    // Add back when needed: @tailwindcss/forms, @tailwindcss/typography, @tailwindcss/aspect-ratio
   ],
 }

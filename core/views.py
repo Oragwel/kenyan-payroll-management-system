@@ -2,6 +2,31 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import views as auth_views
 from django.contrib import messages
+from django.http import JsonResponse
+from django.db import connection
+from django.utils import timezone
+
+
+def health_check(request):
+    """Health check endpoint for Docker and monitoring"""
+    try:
+        # Test database connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+
+        return JsonResponse({
+            'status': 'OK',
+            'message': 'Kenyan Payroll Management System is running',
+            'timestamp': timezone.now().isoformat(),
+            'database': 'connected'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'status': 'ERROR',
+            'message': 'Health check failed',
+            'error': str(e),
+            'timestamp': timezone.now().isoformat()
+        }, status=500)
 
 
 def public_landing(request):
@@ -9,7 +34,7 @@ def public_landing(request):
     # If user is already authenticated, redirect to dashboard
     if request.user.is_authenticated:
         return redirect('dashboard')
-    
+
     return render(request, 'public/landing.html')
 
 

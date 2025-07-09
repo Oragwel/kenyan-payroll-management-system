@@ -5,6 +5,9 @@ from . import views, admin_views
 app_name = 'core'
 
 urlpatterns = [
+    # Health check (no authentication required)
+    path('health/', views.health_check, name='health_check'),
+
     # Public views
     path('', views.public_landing, name='public_landing'),
     path('dashboard/', views.dashboard, name='dashboard'),
