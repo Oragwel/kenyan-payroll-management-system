@@ -1,34 +1,30 @@
 services:
   - type: web
-    name: kenyan-payroll-backend
-    env: python
+    name: kenyan-payroll-system
+    runtime: docker
     plan: starter
-    buildCommand: |
-      cd backend
-      pip install -r requirements.txt
-      python manage.py collectstatic --noinput
-    startCommand: |
-      cd backend
-      python manage.py migrate
-      python manage.py createsuperuser --noinput || true
-      gunicorn payroll.wsgi:application
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    disk:
+      name: kenyan-payroll-data
+      mountPath: /data
+      sizeGB: 2
     envVars:
       - key: SECRET_KEY
-        value: zbk3HW6l2TLXtzZRslzrgW5M282yIDVA14ps44mPp6Aq8rCgAJFjre4hPPPC6mpbAJo
+        generateValue: true
       - key: DEBUG
-        value: False
+        value: "False"
       - key: DJANGO_SETTINGS_MODULE
         value: payroll.settings.production
+      - key: DATABASE_URL
+        value: postgresql://payroll_user:1wvyisD4gqJwQfXm6zqZBvWkmRsxa4LS@dpg-d1l5h5p5pdvs73bhvcl0-a.oregon-postgres.render.com/payroll_db_u6tb
+      - key: ALLOWED_HOSTS
+        value: kenyan-payroll-system.onrender.com,localhost,127.0.0.1
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://kenyan-payroll-system.onrender.com
       - key: DJANGO_SUPERUSER_USERNAME
         value: admin
       - key: DJANGO_SUPERUSER_EMAIL
         value: tidings@outlook.com
       - key: DJANGO_SUPERUSER_PASSWORD
-        sync: false
-      - key: DATABASE_URL
-        value: postgresql://payroll_user:1wvyisD4gqJwQfXm6zqZBvWkmRsxa4LS@dpg-d1l5h5p5pdvs73bhvcl0-a.oregon-postgres.render.com/payroll_db_u6tb
-
-  - type: static
-    name: kenyan-payroll-frontend
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+        value: "@PayrollAdmin2025!"

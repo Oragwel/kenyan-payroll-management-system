@@ -1,0 +1,209 @@
+# Git
+.git
+.gitignore
+README.md
+.gitattributes
+
+# Documentation
+*.md
+docs/
+DEPLOYMENT_GUIDE.md
+HEROKU_DEPLOYMENT.md
+RAILWAY_DEPLOYMENT_GUIDE.md
+VERCEL_SETUP_INSTRUCTIONS.md
+VERCEL_ENV_IMPORT_GUIDE.md
+DOCKER_DEPLOYMENT.md
+DOCKER_PRODUCTION_SETUP.md
+KENYAN_STATUTORY_COMPLIANCE.md
+NHIF_TO_SHIF_TRANSITION.md
+PAYSLIP_PRINTING_GUIDE.md
+PERSISTENT_STORAGE_GUIDE.md
+PROJECT_SUMMARY.md
+RENDER_DOCKER_DEPLOYMENT.md
+SECURITY_IMPLEMENTATION.md
+COMMIT_PLAN.md
+payslip_options_analysis.md
+deployment_log.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Node.js (will be built in Docker)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+*.env
+
+# Deployment files
+Procfile
+app.json
+vercel.json
+render.yaml
+runtime.txt
+.railway-ignore
+.vercelignore
+
+# HTML demo/test files
+*.html
+!templates/
+demo.html
+payslip_option_*.html
+mobile_demo.html
+test-*.html
+payroll-demo.html
+
+# Backend Node.js files (not needed for Django)
+backend/
+simple-test.js
+test-server.js
+
+# Multiple requirements files (keep only requirements.txt)
+requirements-*.txt
+!requirements.txt
+
+# Company logos (will be uploaded at runtime)
+company_logos/
+
+# Environment files
+kenyan-payroll-management-system.env
+cookies.txt
+
+# Scripts (exclude deployment scripts but keep docker-entrypoint.sh)
+*.bat
+deploy*.sh
+install.*
+run_local.*
+setup*.sh
+build_files.sh
+!docker-entrypoint.sh
+# Exclude utility scripts
+add_*.py
+create_*.py
+debug_*.py
+fix_*.py
+generate_*.py
+health_check.py
+setup_*.py
+test_*.py
+verify_*.py
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Backup files
+*backup*
+*-backup*
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Logs
+logs/
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
