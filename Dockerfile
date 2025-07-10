@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Kenyan Payroll Management System
 # Stage 1: Build React frontend
-FROM node:18-alpine AS frontend-builder
+FROM node:20-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
@@ -17,7 +17,7 @@ COPY frontend/ ./
 RUN npm run build
 
 # Stage 2: Python backend with built frontend
-FROM python:3.11.7-slim
+FROM python:3.12-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -46,8 +46,15 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# Copy Django application
-COPY . .
+# Copy only necessary Django application files
+COPY manage.py .
+COPY core/ ./core/
+COPY employees/ ./employees/
+COPY payroll/ ./payroll/
+COPY payroll_processing/ ./payroll_processing/
+COPY statutory_deductions/ ./statutory_deductions/
+COPY templates/ ./templates/
+COPY static/ ./static/
 
 # Copy built frontend from previous stage
 COPY --from=frontend-builder /app/frontend/dist ./static/frontend/
