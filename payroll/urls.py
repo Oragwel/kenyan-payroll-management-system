@@ -25,7 +25,9 @@ from django.conf.urls.static import static
 from core.views import public_landing, dashboard
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login as auth_login
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
+from django.views.static import serve
+import os
 
 @csrf_exempt
 def simple_login(request):
@@ -178,7 +180,23 @@ def smart_logout(request):
             print(f"🔄 Unauthenticated frontend access - redirecting to public landing page")
             return HttpResponseRedirect('/')
 
+def favicon_view(request):
+    """Serve favicon from static files"""
+    favicon_path = os.path.join(settings.BASE_DIR, 'static', 'favicon.ico')
+    if os.path.exists(favicon_path):
+        return FileResponse(open(favicon_path, 'rb'), content_type='image/x-icon')
+    else:
+        # Fallback to SVG favicon
+        favicon_svg_path = os.path.join(settings.BASE_DIR, 'static', 'favicon-simple.svg')
+        if os.path.exists(favicon_svg_path):
+            return FileResponse(open(favicon_svg_path, 'rb'), content_type='image/svg+xml')
+        else:
+            return HttpResponse(status=404)
+
 urlpatterns = [
+    # Favicon route
+    path('favicon.ico', favicon_view, name='favicon'),
+
     # Public landing page (no authentication required)
     path('', public_landing, name='public_landing'),
 
@@ -206,6 +224,11 @@ urlpatterns = [
     path('payroll/', include('payroll_processing.urls', namespace='payroll_processing')),
 ]
 
-# Serve media files during development
+# Serve static and media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # Also serve from STATICFILES_DIRS
+    if hasattr(settings, 'STATICFILES_DIRS'):
+        for static_dir in settings.STATICFILES_DIRS:
+            urlpatterns += static(settings.STATIC_URL, document_root=static_dir)
