@@ -112,6 +112,53 @@ def clean_string_value(value):
     return str_value.strip()
 
 
+def clean_bank_code_value(value):
+    """Clean bank code values while preserving leading zeros"""
+    if pd.isna(value) or value == '':
+        return None
+
+    str_value = str(value).strip()
+
+    # Remove quotes if present
+    if str_value.startswith('"') and str_value.endswith('"'):
+        str_value = str_value[1:-1]
+    elif str_value.startswith("'") and str_value.endswith("'"):
+        str_value = str_value[1:-1]
+
+    # Return None for empty strings after cleaning
+    if str_value.strip() == '' or str_value.lower() in ['nan', 'null', 'none']:
+        return None
+
+    cleaned = str_value.strip()
+
+    # Ensure bank codes are properly formatted with leading zeros
+    # Common Kenyan bank codes are 5 digits, some start with 0
+    if cleaned.isdigit():
+        # Handle specific cases where leading zeros are commonly lost
+        if len(cleaned) == 4:
+            if cleaned.startswith('3017'):
+                cleaned = '03017'  # Absa Bank
+            elif cleaned.startswith('1169'):
+                cleaned = '01169'  # KCB Bank
+            elif cleaned.startswith('2001'):
+                cleaned = '02001'  # Standard Chartered
+            elif cleaned.startswith('7001'):
+                cleaned = '07001'  # NCBA Bank
+            else:
+                # For other 4-digit codes, pad to 5 digits
+                cleaned = cleaned.zfill(5)
+        elif len(cleaned) == 5:
+            # Handle specific 5-digit codes that might need validation
+            if cleaned == '11169':
+                # Cooperative Bank - Eldoret Kenyatta Street (already correct)
+                pass
+        elif len(cleaned) < 5 and len(cleaned) >= 3:
+            # Pad other short codes to 5 digits
+            cleaned = cleaned.zfill(5)
+
+    return cleaned
+
+
 class BulkImportForm(forms.Form):
     """Form for bulk importing employees"""
     file = forms.FileField(
@@ -340,8 +387,9 @@ class EmployeeAdmin(admin.ModelAdmin):
         errors = []
 
         try:
-            # Read Excel file
-            df = pd.read_excel(file)
+            # Read Excel file with dtype to preserve bank codes as strings
+            dtype_dict = {'bank_code': str, 'bank_cd': str, 'bankcode': str, 'code': str}
+            df = pd.read_excel(file, dtype=dtype_dict, keep_default_na=False)
 
             # Process each row
             for index, row in df.iterrows():
@@ -398,10 +446,13 @@ class EmployeeAdmin(admin.ModelAdmin):
             df = None
             encoding_used = None
 
+            # Define dtype to preserve bank codes as strings
+            dtype_dict = {'bank_code': str, 'bank_cd': str, 'bankcode': str, 'code': str}
+
             for encoding in encodings_to_try:
                 try:
                     file.seek(0)
-                    df = pd.read_csv(file, encoding=encoding)
+                    df = pd.read_csv(file, encoding=encoding, dtype=dtype_dict, keep_default_na=False)
                     encoding_used = encoding
                     print(f"Successfully read CSV with encoding: {encoding}")
                     break
@@ -425,7 +476,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                 for encoding, error_strategy in fallback_strategies:
                     try:
                         file.seek(0)
-                        df = pd.read_csv(file, encoding=encoding, errors=error_strategy)
+                        df = pd.read_csv(file, encoding=encoding, dtype=dtype_dict, keep_default_na=False)
                         encoding_used = f'{encoding} (with {error_strategy} error handling)'
                         print(f"Read CSV with fallback strategy: {encoding_used}")
                         break
@@ -446,7 +497,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                                 # Create a StringIO object for pandas
                                 from io import StringIO
                                 string_file = StringIO(decoded_content)
-                                df = pd.read_csv(string_file)
+                                df = pd.read_csv(string_file, dtype=dtype_dict, keep_default_na=False)
                                 encoding_used = f'{encoding} (binary decode with replace)'
                                 print(f"Read CSV with binary decode: {encoding_used}")
                                 break
@@ -692,7 +743,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                 employee_data['shif_number'] = shif_clean
 
             # Banking information with auto-population from bank code
-            bank_code = clean_string_value(get_field_value('bank_code'))
+            bank_code = clean_bank_code_value(get_field_value('bank_code'))
             bank_name = clean_string_value(get_field_value('bank_name'))
             bank_branch = clean_string_value(get_field_value('bank_branch'))
 
@@ -827,10 +878,16 @@ class EmployeeAdmin(admin.ModelAdmin):
             "- nssf_number: NSSF number",
             "- shif_number: SHIF number",
             "- bank_code: Bank code (e.g., 01169 for KCB, 68058 for Equity)",
+            "  * IMPORTANT: Use full 5-digit codes with leading zeros (01169, not 1169)",
             "  * If bank_code is provided, bank_name and bank_branch will be auto-populated",
-            "  * Supported codes: 01169=KCB, 68058=Equity, 11081=Cooperative, 03017=Absa, 12053=National, 74004=Premier, 72006=Gulf African",
+            "  * Major supported banks: KCB (01xxx), Absa (03xxx), Equity (68xxx), Cooperative (11xxx),",
+            "    Standard Chartered (02xxx), NCBA (07xxx), DTB (63xxx), I&M (57xxx), Stanbic (31xxx),",
+            "    Family Bank (70xxx), National Bank (12xxx), Premier (74xxx), Gulf African (72xxx)",
+            "  * Examples: 01169=KCB Head Office, 01146=KCB Moi University, 01081=KCB Garissa,",
+            "    68058=Equity Head Office, 68136=Equity Dadaab, 68164=Equity Eldoret Supreme, 68121=Equity Hola,",
+            "    11081=Cooperative Head Office, 11169=Cooperative Eldoret, 74006=Premier Malindi, 72004=Gulf African",
             "- bank_name: Bank name (auto-populated from bank_code if not provided)",
-            "- bank_branch: Bank branch (auto-populated to 'Head Office' if not provided)",
+            "- bank_branch: Bank branch (auto-populated from bank_code if not provided)",
             "- account_number: Bank account number",
             "",
             "NOTES:",
