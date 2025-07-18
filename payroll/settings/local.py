@@ -16,10 +16,7 @@ SECRET_KEY = 'django-insecure-local-development-key-change-in-production'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-    '0.0.0.0',
-    '[::1]',  # IPv6 localhost
+    '*',  # Allow all hosts for local development
 ]
 
 # Application definition - FULL PAYROLL SYSTEM
@@ -30,7 +27,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
+    # Third party apps
+    'corsheaders',
+
     # Payroll system apps
     'core',
     'employees',
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -148,3 +149,29 @@ LOGGING = {
 CSRF_COOKIE_SECURE = False  # Allow HTTP for local development
 SESSION_COOKIE_SECURE = False  # Allow HTTP for local development
 SECURE_SSL_REDIRECT = False  # No HTTPS redirect for local development
+
+# CORS settings for local development - Allow all origins
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development convenience
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# CSRF settings - Allow common development patterns
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:*",
+    "http://127.0.0.1:*",
+    "https://*.tunnelmole.net",
+    "http://*.tunnelmole.net",
+    "https://*.ngrok.io",
+    "http://*.ngrok.io",
+]
