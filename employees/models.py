@@ -245,6 +245,15 @@ class Employee(models.Model):
     date_terminated = models.DateField(null=True, blank=True)
     is_active = models.BooleanField(default=True)
 
+    # Salary Information
+    basic_salary = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        help_text='Basic monthly salary in KES'
+    )
+
     # Kenyan Statutory Information
     kra_pin_validator = RegexValidator(
         regex=r'^[A-Z]\d{9}[A-Z]$',

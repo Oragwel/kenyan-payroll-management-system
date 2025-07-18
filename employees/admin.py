@@ -178,7 +178,7 @@ class SalaryStructureInline(admin.StackedInline):
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = [
         'payroll_number', 'full_name', 'department', 'job_title',
-        'employment_type', 'date_hired', 'is_active'
+        'employment_type', 'basic_salary', 'date_hired', 'is_active'
     ]
     list_filter = [
         'department', 'job_title', 'employment_type', 'is_active',
@@ -206,7 +206,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         ('Employment Information', {
             'fields': (
                 'department', 'job_title', 'employment_type',
-                'date_hired', 'date_terminated', 'is_active'
+                'date_hired', 'date_terminated', 'is_active', 'basic_salary'
             )
         }),
         ('Statutory Information', {
@@ -249,7 +249,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                 ('Employment Information', {
                     'fields': (
                         'department', 'job_title', 'employment_type',
-                        'date_hired', 'date_terminated', 'is_active'
+                        'date_hired', 'date_terminated', 'is_active', 'basic_salary'
                     )
                 }),
                 ('Statutory Information', {
@@ -266,15 +266,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         return super().get_fieldsets(request, obj)  # Use default fieldsets for add form
 
     inlines = [SalaryStructureInline]
-    actions = ['bulk_import_employees', 'efficient_delete_selected']
-
-    def get_actions(self, request):
-        """Override to remove the default delete_selected action"""
-        actions = super().get_actions(request)
-        # Remove the default delete_selected action to avoid duplication
-        if 'delete_selected' in actions:
-            del actions['delete_selected']
-        return actions
+    actions = ['bulk_import_employees']
 
     def full_name(self, obj):
         return obj.full_name
@@ -294,107 +286,9 @@ class EmployeeAdmin(admin.ModelAdmin):
         return redirect('admin:employees_employee_bulk_import')
     bulk_import_employees.short_description = "Bulk Import Employees from File"
 
-    def efficient_delete_selected(self, request, queryset):
-        """Efficiently delete selected employees without form field limits"""
-        if request.POST.get('post'):
-            # Perform the deletion
-            count = queryset.count()
 
-            # Delete in batches to avoid memory issues
-            batch_size = 100
-            deleted_count = 0
 
-            while queryset.exists():
-                batch_ids = list(queryset.values_list('id', flat=True)[:batch_size])
-                Employee.objects.filter(id__in=batch_ids).delete()
-                deleted_count += len(batch_ids)
 
-            self.message_user(
-                request,
-                f'Successfully deleted {deleted_count} employee(s).',
-                messages.SUCCESS
-            )
-            return HttpResponseRedirect(request.get_full_path())
-
-        # Show confirmation page
-        context = {
-            'title': 'Delete selected employees',
-            'objects_name': 'employees',
-            'deletable_objects': queryset,
-            'queryset': queryset,
-            'action_checkbox_name': admin.ACTION_CHECKBOX_NAME,
-            'opts': self.model._meta,
-            'app_label': self.model._meta.app_label,
-        }
-
-        return render(
-            request,
-            'admin/delete_confirmation.html',
-            context
-        )
-
-    efficient_delete_selected.short_description = "Delete selected employees (efficient)"
-
-    def delete_all_employees(self, request, queryset):
-        """Delete ALL employees in the database (use with caution)"""
-        if request.POST.get('post'):
-            # Check for confirmation text
-            confirmation = request.POST.get('confirmation', '').strip()
-            if confirmation != 'DELETE ALL':
-                self.message_user(
-                    request,
-                    'Deletion cancelled. You must type "DELETE ALL" exactly to confirm.',
-                    messages.ERROR
-                )
-                return HttpResponseRedirect(request.get_full_path())
-
-            # Count total employees
-            total_count = Employee.objects.count()
-
-            if total_count == 0:
-                self.message_user(
-                    request,
-                    'No employees to delete.',
-                    messages.INFO
-                )
-                return HttpResponseRedirect(request.get_full_path())
-
-            # Delete all employees in batches
-            batch_size = 100
-            deleted_count = 0
-
-            while Employee.objects.exists():
-                batch_ids = list(Employee.objects.values_list('id', flat=True)[:batch_size])
-                Employee.objects.filter(id__in=batch_ids).delete()
-                deleted_count += len(batch_ids)
-
-            self.message_user(
-                request,
-                f'Successfully deleted ALL {deleted_count} employee(s) from the database.',
-                messages.WARNING
-            )
-            return HttpResponseRedirect(request.get_full_path())
-
-        # Show confirmation page
-        total_count = Employee.objects.count()
-        context = {
-            'title': f'Delete ALL {total_count} employees',
-            'objects_name': f'ALL {total_count} employees',
-            'deletable_objects': Employee.objects.all()[:10],  # Show first 10 as preview
-            'queryset': Employee.objects.all(),
-            'action_checkbox_name': admin.ACTION_CHECKBOX_NAME,
-            'opts': self.model._meta,
-            'app_label': self.model._meta.app_label,
-            'warning_message': f'⚠️ WARNING: This will delete ALL {total_count} employees from the database. This action cannot be undone!',
-        }
-
-        return render(
-            request,
-            'admin/delete_confirmation.html',
-            context
-        )
-
-    delete_all_employees.short_description = "⚠️ Delete ALL employees (DANGER)"
 
     def bulk_import_view(self, request):
         """Handle bulk import of employees"""
@@ -812,8 +706,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                 if account_clean and account_clean != 'None':
                     employee_data['account_number'] = account_clean
 
-            # Handle salary fields (for future compatibility or logging)
-            # Note: These are not stored in Employee model but we parse them to avoid errors
+            # Handle salary fields and store in Employee model
             salary_fields = ['basic_salary', 'salary', 'wage', 'pay']
             for salary_field in salary_fields:
                 salary_value = get_field_value(salary_field)
@@ -821,7 +714,10 @@ class EmployeeAdmin(admin.ModelAdmin):
                     try:
                         parsed_salary = parse_number_value(salary_value)
                         if parsed_salary is not None:
-                            print(f"Row {row_number}: Parsed {salary_field} = {parsed_salary} (not stored in Employee model)")
+                            # Store the salary in the employee data
+                            employee_data['basic_salary'] = parsed_salary
+                            print(f"Row {row_number}: Parsed and storing {salary_field} = {parsed_salary}")
+                            break  # Use the first salary field found
                     except Exception as e:
                         print(f"Row {row_number}: Could not parse {salary_field} '{salary_value}': {e}")
 
