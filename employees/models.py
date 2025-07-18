@@ -274,9 +274,9 @@ class Employee(models.Model):
     ]
 
     bank_code = models.CharField(max_length=10, choices=BANK_CHOICES, blank=True, null=True)
-    bank_name = models.CharField(max_length=100)
+    bank_name = models.CharField(max_length=100, blank=True, null=True)
     bank_branch = models.CharField(max_length=100, blank=True, null=True)
-    account_number = models.CharField(max_length=20)
+    account_number = models.CharField(max_length=20, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
