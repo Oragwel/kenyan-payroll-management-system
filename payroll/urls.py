@@ -181,17 +181,40 @@ def smart_logout(request):
             return HttpResponseRedirect('/')
 
 def favicon_view(request):
-    """Serve favicon from static files"""
-    favicon_path = os.path.join(settings.BASE_DIR, 'static', 'favicon.ico')
-    if os.path.exists(favicon_path):
-        return FileResponse(open(favicon_path, 'rb'), content_type='image/x-icon')
-    else:
-        # Fallback to SVG favicon
-        favicon_svg_path = os.path.join(settings.BASE_DIR, 'static', 'favicon-simple.svg')
-        if os.path.exists(favicon_svg_path):
-            return FileResponse(open(favicon_svg_path, 'rb'), content_type='image/svg+xml')
-        else:
-            return HttpResponse(status=404)
+    """Serve a simple Kenyan flag favicon"""
+    try:
+        # Create a simple 16x16 Kenyan flag favicon as PNG
+        import base64
+
+        # This is a base64-encoded 16x16 PNG of a simple Kenyan flag
+        kenyan_flag_favicon = """
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAAB3AAAAB3AQOtM0oAAAA2SURBVDiNY/z//z8DJQAggBhJNQAggBhJNQAggBhJNQAggBhJNQAg
+gBhJNQAggBhJNQAggJgGAA4QAAFjxjy2AAAAAElFTkSuQmCC
+""".replace('\n', '').strip()
+
+        try:
+            favicon_data = base64.b64decode(kenyan_flag_favicon)
+            return HttpResponse(favicon_data, content_type='image/png')
+        except:
+            # Fallback to a simple colored square
+            simple_favicon = base64.b64decode(
+                'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz'
+                'AAAAB3AAAAB3AQOtM0oAAAAySURBVDiNY2AYBaNgFIyCUTAKRsEoGAWjYBSMglEwCkbBKBgFo2AU'
+                'jIJRMApGwSgYBQAABVAAATlW7ysAAAAASUVORK5CYII='
+            )
+            return HttpResponse(simple_favicon, content_type='image/png')
+
+    except Exception as e:
+        print(f"Favicon error: {e}")
+        # Ultimate fallback - return a minimal SVG
+        svg_favicon = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+            <rect x="0" y="0" width="16" height="4" fill="#000"/>
+            <rect x="0" y="4" width="16" height="4" fill="#CE1126"/>
+            <rect x="0" y="8" width="16" height="4" fill="#FFF"/>
+            <rect x="0" y="12" width="16" height="4" fill="#007A3D"/>
+        </svg>'''
+        return HttpResponse(svg_favicon, content_type='image/svg+xml')
 
 urlpatterns = [
     # Favicon route
