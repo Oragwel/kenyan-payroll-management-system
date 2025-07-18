@@ -1,0 +1,6 @@
+first_name,middle_name,last_name,phone_number,national_id,department,job_title,employment_type,account_number,basic_salary
+John,Doe,Smith,+254712345678,12345678,IT Department,Software Developer,PERMANENT,1234567890,"50,000"
+Jane,Mary,Doe,"254-723-456-789","87654321",HR Department,HR Manager,CONTRACT,"9,876,543,210","7,000.00"
+Ahmed,Ali,Hassan,254734567890,11223344,Finance Department,Accountant,PERMANENT,5555666677,45000
+Fatuma,Amina,Mohamed,"0712-345-678","99887766",Operations Department,Manager,PERMANENT,"1,111,222,333","75,000.50"
+Michael,James,Johnson,+254-700-123-456,55443322,Marketing Department,Marketing Executive,CONTRACT,7777888899,35000.00

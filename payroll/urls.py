@@ -25,7 +25,9 @@ from django.conf.urls.static import static
 from core.views import public_landing, dashboard
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login as auth_login
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, FileResponse
+from django.views.static import serve
+import os
 
 @csrf_exempt
 def simple_login(request):
@@ -178,7 +180,46 @@ def smart_logout(request):
             print(f"🔄 Unauthenticated frontend access - redirecting to public landing page")
             return HttpResponseRedirect('/')
 
+def favicon_view(request):
+    """Serve a simple Kenyan flag favicon"""
+    try:
+        # Create a simple 16x16 Kenyan flag favicon as PNG
+        import base64
+
+        # This is a base64-encoded 16x16 PNG of a simple Kenyan flag
+        kenyan_flag_favicon = """
+iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz
+AAAAB3AAAAB3AQOtM0oAAAA2SURBVDiNY/z//z8DJQAggBhJNQAggBhJNQAggBhJNQAggBhJNQAg
+gBhJNQAggBhJNQAggJgGAA4QAAFjxjy2AAAAAElFTkSuQmCC
+""".replace('\n', '').strip()
+
+        try:
+            favicon_data = base64.b64decode(kenyan_flag_favicon)
+            return HttpResponse(favicon_data, content_type='image/png')
+        except:
+            # Fallback to a simple colored square
+            simple_favicon = base64.b64decode(
+                'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlz'
+                'AAAAB3AAAAB3AQOtM0oAAAAySURBVDiNY2AYBaNgFIyCUTAKRsEoGAWjYBSMglEwCkbBKBgFo2AU'
+                'jIJRMApGwSgYBQAABVAAATlW7ysAAAAASUVORK5CYII='
+            )
+            return HttpResponse(simple_favicon, content_type='image/png')
+
+    except Exception as e:
+        print(f"Favicon error: {e}")
+        # Ultimate fallback - return a minimal SVG
+        svg_favicon = '''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+            <rect x="0" y="0" width="16" height="4" fill="#000"/>
+            <rect x="0" y="4" width="16" height="4" fill="#CE1126"/>
+            <rect x="0" y="8" width="16" height="4" fill="#FFF"/>
+            <rect x="0" y="12" width="16" height="4" fill="#007A3D"/>
+        </svg>'''
+        return HttpResponse(svg_favicon, content_type='image/svg+xml')
+
 urlpatterns = [
+    # Favicon route
+    path('favicon.ico', favicon_view, name='favicon'),
+
     # Public landing page (no authentication required)
     path('', public_landing, name='public_landing'),
 
@@ -206,6 +247,11 @@ urlpatterns = [
     path('payroll/', include('payroll_processing.urls', namespace='payroll_processing')),
 ]
 
-# Serve media files during development
+# Serve static and media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # Also serve from STATICFILES_DIRS
+    if hasattr(settings, 'STATICFILES_DIRS'):
+        for static_dir in settings.STATICFILES_DIRS:
+            urlpatterns += static(settings.STATIC_URL, document_root=static_dir)

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Simple Kenyan flag favicon -->
+  <rect x="0" y="0" width="16" height="16" fill="#f8f9fa"/>
+  
+  <!-- Black stripe -->
+  <rect x="0" y="1" width="16" height="3" fill="#000000"/>
+  
+  <!-- Red stripe -->
+  <rect x="0" y="4" width="16" height="3" fill="#CE1126"/>
+  
+  <!-- White stripe -->
+  <rect x="0" y="7" width="16" height="2" fill="#FFFFFF"/>
+  
+  <!-- Green stripe -->
+  <rect x="0" y="9" width="16" height="6" fill="#007A3D"/>
+  
+  <!-- Simple shield in center -->
+  <circle cx="8" cy="8" r="3" fill="#8B4513" stroke="#FFFFFF" stroke-width="0.5"/>
+  <rect x="6.5" y="6.5" width="3" height="1" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="6.5" y="8.5" width="3" height="1" fill="#CE1126" opacity="0.8"/>
+</svg>

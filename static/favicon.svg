@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <!-- Wavy pattern definition -->
+    <path id="wave1" d="M0,0 Q8,3 16,0 T32,0 L32,8 Q24,5 16,8 T0,8 Z"/>
+    <path id="wave2" d="M0,0 Q8,-3 16,0 T32,0 L32,8 Q24,11 16,8 T0,8 Z"/>
+    <path id="wave3" d="M0,0 Q8,2 16,0 T32,0 L32,16 Q24,14 16,16 T0,16 Z"/>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="32" height="32" fill="#f8f9fa"/>
+
+  <!-- Black stripe (top) with wave -->
+  <use href="#wave1" fill="#000000" transform="translate(0,2)">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      values="0,2; 2,2; 0,2"
+      dur="4s"
+      repeatCount="indefinite"/>
+  </use>
+
+  <!-- Red stripe with wave -->
+  <use href="#wave2" fill="#CE1126" transform="translate(0,8)">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      values="0,8; -2,8; 0,8"
+      dur="4s"
+      repeatCount="indefinite"/>
+  </use>
+
+  <!-- White stripe with wave -->
+  <use href="#wave1" fill="#FFFFFF" transform="translate(0,14)">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      values="0,14; 1,14; 0,14"
+      dur="4s"
+      repeatCount="indefinite"/>
+  </use>
+
+  <!-- Green stripe (bottom) with wave -->
+  <use href="#wave3" fill="#007A3D" transform="translate(0,16)">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      values="0,16; 2,16; 0,16"
+      dur="4s"
+      repeatCount="indefinite"/>
+  </use>
+
+  <!-- Simplified Maasai shield in center -->
+  <g transform="translate(16,16)">
+    <!-- Shield outline -->
+    <ellipse cx="0" cy="0" rx="4" ry="6" fill="#8B4513" stroke="#654321" stroke-width="0.5">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0; 3; -3; 0"
+        dur="6s"
+        repeatCount="indefinite"/>
+    </ellipse>
+
+    <!-- Shield pattern -->
+    <rect x="-2" y="-3" width="4" height="1.5" fill="#FFFFFF" opacity="0.9"/>
+    <rect x="-2" y="-0.5" width="4" height="1" fill="#CE1126" opacity="0.9"/>
+    <rect x="-2" y="1.5" width="4" height="1.5" fill="#000000" opacity="0.9"/>
+
+    <!-- Crossed spears (simplified) -->
+    <line x1="-5" y1="-4" x2="5" y2="4" stroke="#8B4513" stroke-width="0.8" opacity="0.8"/>
+    <line x1="5" y1="-4" x2="-5" y2="4" stroke="#8B4513" stroke-width="0.8" opacity="0.8"/>
+  </g>
+
+  <!-- Subtle border -->
+  <rect x="0" y="0" width="32" height="32" fill="none" stroke="#dee2e6" stroke-width="1" opacity="0.5"/>
+</svg>

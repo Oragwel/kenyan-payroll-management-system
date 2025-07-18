@@ -1,0 +1,25 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    <li>
+        <a href="{% url 'admin:employees_employee_bulk_import' %}" class="addlink">
+            {% trans 'Bulk Import' %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'admin:employees_employee_download_template' %}" class="addlink" style="background-color: #28a745; border-color: #28a745;">
+            {% trans 'Download Template' %}
+        </a>
+    </li>
+{% endblock %}
+
+{% block content_title %}
+    {{ block.super }}
+    <div class="bulk-import-info" style="margin-top: 10px; padding: 10px; background-color: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 4px;">
+        <strong>💡 Bulk Import:</strong> 
+        You can import multiple employees at once using Excel (.xlsx, .xls) or CSV files. 
+        <a href="{% url 'admin:employees_employee_download_template' %}">Download the template</a> to get started.
+    </div>
+{% endblock %}
