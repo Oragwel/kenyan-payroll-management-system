@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import path
 from django import forms
 from .models import Department, JobTitle, Employee, SalaryStructure, Organization
@@ -10,6 +10,106 @@ import pandas as pd
 import io
 from datetime import datetime
 from decimal import Decimal
+import re
+import chardet
+
+
+def parse_number_value(value):
+    """
+    Parse various number formats including quoted values and comma separators.
+    Handles: "7,000", "7000", 7000, 7.00, "7.00", etc.
+    """
+    if pd.isna(value) or value == '' or str(value).strip() == '':
+        return None
+
+    # Convert to string and strip whitespace
+    str_value = str(value).strip()
+
+    # Remove quotes if present
+    if str_value.startswith('"') and str_value.endswith('"'):
+        str_value = str_value[1:-1]
+    elif str_value.startswith("'") and str_value.endswith("'"):
+        str_value = str_value[1:-1]
+
+    # Handle scientific notation (like 1.10056E+12)
+    if 'E+' in str_value.upper() or 'E-' in str_value.upper():
+        try:
+            return float(str_value)
+        except ValueError:
+            pass
+
+    # Remove commas used as thousand separators
+    # But preserve decimal commas (European format)
+    if ',' in str_value and '.' in str_value:
+        # Both comma and dot present - assume comma is thousand separator
+        str_value = str_value.replace(',', '')
+    elif ',' in str_value:
+        # Only comma present - could be thousand separator or decimal
+        comma_parts = str_value.split(',')
+        if len(comma_parts) == 2 and len(comma_parts[1]) <= 2:
+            # Likely decimal comma (e.g., "7,50")
+            str_value = str_value.replace(',', '.')
+        else:
+            # Likely thousand separator (e.g., "7,000" or "1,000,000")
+            str_value = str_value.replace(',', '')
+
+    try:
+        # Try to convert to float first, then to appropriate type
+        float_value = float(str_value)
+
+        # If it's a whole number, return as int
+        if float_value.is_integer():
+            return int(float_value)
+        else:
+            return float_value
+    except ValueError:
+        # If all else fails, return the original string
+        return str_value
+
+
+def detect_file_encoding(file):
+    """Detect file encoding using chardet"""
+    try:
+        file.seek(0)
+        raw_data = file.read()
+        file.seek(0)
+
+        # Use chardet to detect encoding
+        detection = chardet.detect(raw_data)
+        encoding = detection.get('encoding', 'utf-8')
+        confidence = detection.get('confidence', 0)
+
+        print(f"Detected encoding: {encoding} (confidence: {confidence:.2f})")
+
+        # If confidence is low, fall back to common encodings
+        if confidence < 0.7:
+            print(f"Low confidence ({confidence:.2f}), will try multiple encodings")
+            return None
+
+        return encoding
+    except Exception as e:
+        print(f"Error detecting encoding: {e}")
+        return None
+
+
+def clean_string_value(value):
+    """Clean string values by removing quotes and extra whitespace"""
+    if pd.isna(value) or value == '':
+        return None
+
+    str_value = str(value).strip()
+
+    # Remove quotes if present
+    if str_value.startswith('"') and str_value.endswith('"'):
+        str_value = str_value[1:-1]
+    elif str_value.startswith("'") and str_value.endswith("'"):
+        str_value = str_value[1:-1]
+
+    # Return None for empty strings after cleaning
+    if str_value.strip() == '' or str_value.lower() in ['nan', 'null', 'none']:
+        return None
+
+    return str_value.strip()
 
 
 class BulkImportForm(forms.Form):
@@ -166,7 +266,15 @@ class EmployeeAdmin(admin.ModelAdmin):
         return super().get_fieldsets(request, obj)  # Use default fieldsets for add form
 
     inlines = [SalaryStructureInline]
-    actions = ['bulk_import_employees']
+    actions = ['bulk_import_employees', 'efficient_delete_selected']
+
+    def get_actions(self, request):
+        """Override to remove the default delete_selected action"""
+        actions = super().get_actions(request)
+        # Remove the default delete_selected action to avoid duplication
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
 
     def full_name(self, obj):
         return obj.full_name
@@ -186,6 +294,108 @@ class EmployeeAdmin(admin.ModelAdmin):
         return redirect('admin:employees_employee_bulk_import')
     bulk_import_employees.short_description = "Bulk Import Employees from File"
 
+    def efficient_delete_selected(self, request, queryset):
+        """Efficiently delete selected employees without form field limits"""
+        if request.POST.get('post'):
+            # Perform the deletion
+            count = queryset.count()
+
+            # Delete in batches to avoid memory issues
+            batch_size = 100
+            deleted_count = 0
+
+            while queryset.exists():
+                batch_ids = list(queryset.values_list('id', flat=True)[:batch_size])
+                Employee.objects.filter(id__in=batch_ids).delete()
+                deleted_count += len(batch_ids)
+
+            self.message_user(
+                request,
+                f'Successfully deleted {deleted_count} employee(s).',
+                messages.SUCCESS
+            )
+            return HttpResponseRedirect(request.get_full_path())
+
+        # Show confirmation page
+        context = {
+            'title': 'Delete selected employees',
+            'objects_name': 'employees',
+            'deletable_objects': queryset,
+            'queryset': queryset,
+            'action_checkbox_name': admin.ACTION_CHECKBOX_NAME,
+            'opts': self.model._meta,
+            'app_label': self.model._meta.app_label,
+        }
+
+        return render(
+            request,
+            'admin/delete_confirmation.html',
+            context
+        )
+
+    efficient_delete_selected.short_description = "Delete selected employees (efficient)"
+
+    def delete_all_employees(self, request, queryset):
+        """Delete ALL employees in the database (use with caution)"""
+        if request.POST.get('post'):
+            # Check for confirmation text
+            confirmation = request.POST.get('confirmation', '').strip()
+            if confirmation != 'DELETE ALL':
+                self.message_user(
+                    request,
+                    'Deletion cancelled. You must type "DELETE ALL" exactly to confirm.',
+                    messages.ERROR
+                )
+                return HttpResponseRedirect(request.get_full_path())
+
+            # Count total employees
+            total_count = Employee.objects.count()
+
+            if total_count == 0:
+                self.message_user(
+                    request,
+                    'No employees to delete.',
+                    messages.INFO
+                )
+                return HttpResponseRedirect(request.get_full_path())
+
+            # Delete all employees in batches
+            batch_size = 100
+            deleted_count = 0
+
+            while Employee.objects.exists():
+                batch_ids = list(Employee.objects.values_list('id', flat=True)[:batch_size])
+                Employee.objects.filter(id__in=batch_ids).delete()
+                deleted_count += len(batch_ids)
+
+            self.message_user(
+                request,
+                f'Successfully deleted ALL {deleted_count} employee(s) from the database.',
+                messages.WARNING
+            )
+            return HttpResponseRedirect(request.get_full_path())
+
+        # Show confirmation page
+        total_count = Employee.objects.count()
+        context = {
+            'title': f'Delete ALL {total_count} employees',
+            'objects_name': f'ALL {total_count} employees',
+            'deletable_objects': Employee.objects.all()[:10],  # Show first 10 as preview
+            'queryset': Employee.objects.all(),
+            'action_checkbox_name': admin.ACTION_CHECKBOX_NAME,
+            'opts': self.model._meta,
+            'app_label': self.model._meta.app_label,
+            'warning_message': f'⚠️ WARNING: This will delete ALL {total_count} employees from the database. This action cannot be undone!',
+        }
+
+        return render(
+            request,
+            'admin/delete_confirmation.html',
+            context
+        )
+
+    delete_all_employees.short_description = "⚠️ Delete ALL employees (DANGER)"
+
     def bulk_import_view(self, request):
         """Handle bulk import of employees"""
         if request.method == 'POST':
@@ -194,6 +404,8 @@ class EmployeeAdmin(admin.ModelAdmin):
                 try:
                     file = form.cleaned_data['file']
                     file_extension = file.name.split('.')[-1].lower()
+
+                    print(f"Processing file: {file.name}, extension: {file_extension}, size: {file.size}")
 
                     if file_extension in ['xlsx', 'xls']:
                         result = self._process_excel_file(file)
@@ -204,6 +416,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                         return render(request, 'admin/employees/employee/bulk_import.html', {'form': form})
 
                     success_count, errors = result
+                    print(f"Import result: {success_count} successful, {len(errors)} errors")
 
                     if success_count > 0:
                         messages.success(request, f'Successfully imported {success_count} employees!')
@@ -252,13 +465,124 @@ class EmployeeAdmin(admin.ModelAdmin):
         return success_count, errors
 
     def _process_csv_file(self, file):
-        """Process CSV file and create employees"""
+        """Process CSV file and create employees with multiple encoding support"""
         success_count = 0
         errors = []
 
         try:
-            # Read CSV file
-            df = pd.read_csv(file)
+            # Reset file pointer to beginning
+            file.seek(0)
+
+            # First, try to detect encoding automatically
+            detected_encoding = detect_file_encoding(file)
+
+            # Prepare list of encodings to try
+            encodings_to_try = []
+
+            # Add detected encoding first if available
+            if detected_encoding:
+                encodings_to_try.append(detected_encoding)
+
+            # Add common encodings
+            common_encodings = [
+                'utf-8',           # Standard UTF-8
+                'utf-8-sig',       # UTF-8 with BOM
+                'cp1252',          # Windows-1252 (Western European) - most common for Windows
+                'latin-1',         # ISO-8859-1 (Western European)
+                'iso-8859-1',      # ISO-8859-1
+                'cp850',           # DOS Latin-1
+                'ascii',           # ASCII
+                'utf-16',          # UTF-16
+                'utf-32',          # UTF-32
+            ]
+
+            # Add common encodings, avoiding duplicates
+            for enc in common_encodings:
+                if enc not in encodings_to_try:
+                    encodings_to_try.append(enc)
+
+            df = None
+            encoding_used = None
+
+            for encoding in encodings_to_try:
+                try:
+                    file.seek(0)
+                    df = pd.read_csv(file, encoding=encoding)
+                    encoding_used = encoding
+                    print(f"Successfully read CSV with encoding: {encoding}")
+                    break
+                except (UnicodeDecodeError, UnicodeError) as e:
+                    print(f"Failed to read with encoding {encoding}: {e}")
+                    continue
+                except Exception as e:
+                    print(f"Error with encoding {encoding}: {e}")
+                    continue
+
+            if df is None:
+                # If all encodings fail, try with error handling strategies
+                fallback_strategies = [
+                    ('utf-8', 'replace'),
+                    ('latin-1', 'replace'),
+                    ('cp1252', 'replace'),
+                    ('utf-8', 'ignore'),
+                    ('latin-1', 'ignore'),
+                ]
+
+                for encoding, error_strategy in fallback_strategies:
+                    try:
+                        file.seek(0)
+                        df = pd.read_csv(file, encoding=encoding, errors=error_strategy)
+                        encoding_used = f'{encoding} (with {error_strategy} error handling)'
+                        print(f"Read CSV with fallback strategy: {encoding_used}")
+                        break
+                    except Exception as e:
+                        print(f"Fallback strategy {encoding}/{error_strategy} failed: {e}")
+                        continue
+
+                if df is None:
+                    # Last resort: try to read as binary and convert
+                    try:
+                        file.seek(0)
+                        raw_content = file.read()
+
+                        # Try to decode with different encodings
+                        for encoding in ['cp1252', 'latin-1', 'utf-8']:
+                            try:
+                                decoded_content = raw_content.decode(encoding, errors='replace')
+                                # Create a StringIO object for pandas
+                                from io import StringIO
+                                string_file = StringIO(decoded_content)
+                                df = pd.read_csv(string_file)
+                                encoding_used = f'{encoding} (binary decode with replace)'
+                                print(f"Read CSV with binary decode: {encoding_used}")
+                                break
+                            except Exception as e:
+                                continue
+                    except Exception as e:
+                        pass
+
+                if df is None:
+                    errors.append(
+                        'Could not read CSV file with any encoding method. '
+                        'Please save your CSV file with UTF-8 encoding and try again. '
+                        'In Excel: File → Save As → CSV UTF-8 (Comma delimited)'
+                    )
+                    return success_count, errors
+
+            # Check if DataFrame is empty
+            if df.empty:
+                errors.append('CSV file is empty or has no data rows')
+                return success_count, errors
+
+            # Log file info for debugging
+            print(f"CSV encoding used: {encoding_used}")
+            print(f"CSV shape: {df.shape}")
+            print(f"CSV columns: {list(df.columns)}")
+
+            # Clean column names (remove BOM, extra spaces, etc.)
+            df.columns = df.columns.str.strip()
+            df.columns = df.columns.str.replace('\ufeff', '')  # Remove BOM
+            print(f"Cleaned CSV columns: {list(df.columns)}")
 
             # Process each row
             for index, row in df.iterrows():
@@ -267,27 +591,70 @@ class EmployeeAdmin(admin.ModelAdmin):
                     if employee_data:
                         employee = Employee.objects.create(**employee_data)
                         success_count += 1
+                        print(f"Successfully created employee: {employee.full_name}")
                 except Exception as e:
-                    errors.append(f'Row {index + 2}: {str(e)}')
+                    error_msg = f'Row {index + 2}: {str(e)}'
+                    errors.append(error_msg)
+                    print(f"Error processing row {index + 2}: {e}")
 
         except Exception as e:
-            errors.append(f'Error reading CSV file: {str(e)}')
+            error_msg = f'Error reading CSV file: {str(e)}'
+            errors.append(error_msg)
+            print(f"CSV processing error: {e}")
 
         return success_count, errors
 
     def _extract_employee_data(self, row, row_number):
         """Extract and validate employee data from a row"""
         try:
-            # Required fields
-            first_name = str(row.get('first_name', '')).strip()
-            last_name = str(row.get('last_name', '')).strip()
+            # Create a case-insensitive column mapping
+            row_dict = {}
+            for key, value in row.items():
+                if pd.notna(key):  # Skip NaN keys
+                    row_dict[str(key).lower().strip()] = value
+
+            # Define flexible column mappings
+            column_mappings = {
+                'first_name': ['first_name', 'firstname', 'fname'],
+                'middle_name': ['middle_name', 'middlename', 'mname'],
+                'last_name': ['last_name', 'lastname', 'lname', 'surname'],
+                'email': ['email', 'email_address', 'e_mail'],
+                'phone_number': ['phone_number', 'phone', 'mobile', 'telephone'],
+                'national_id': ['national_id', 'id_number', 'nationalid', 'id'],
+                'address': ['address', 'physical_address', 'location'],
+                'gender': ['gender', 'sex'],
+                'marital_status': ['marital_status', 'marital', 'marriage_status'],
+                'date_of_birth': ['date_of_birth', 'dob', 'birth_date', 'birthdate'],
+                'department': ['department', 'department_name', 'dept'],
+                'job_title': ['job_title', 'position_title', 'position', 'title', 'role'],
+                'employment_type': ['employment_type', 'emp_type', 'type'],
+                'date_hired': ['date_hired', 'hire_date', 'start_date', 'employment_date'],
+                'kra_pin': ['kra_pin', 'kra', 'pin'],
+                'nssf_number': ['nssf_number', 'nssf', 'nssf_no'],
+                'shif_number': ['shif_number', 'nhif_number', 'shif', 'nhif'],
+                'bank_name': ['bank_name', 'bank'],
+                'bank_branch': ['bank_branch', 'branch'],
+                'account_number': ['account_number', 'account_no', 'account']
+            }
+
+            def get_field_value(field_name):
+                """Get field value using flexible column mapping"""
+                possible_columns = column_mappings.get(field_name, [field_name])
+                for col in possible_columns:
+                    if col in row_dict:
+                        return row_dict[col]
+                return None
+
+            # Required fields with flexible mapping
+            first_name = clean_string_value(get_field_value('first_name'))
+            last_name = clean_string_value(get_field_value('last_name'))
 
             if not first_name or not last_name:
                 raise ValueError('First name and last name are required')
 
             # Get or create department and job title
-            department_name = str(row.get('department', '')).strip()
-            job_title_name = str(row.get('job_title', '')).strip()
+            department_name = clean_string_value(get_field_value('department'))
+            job_title_name = clean_string_value(get_field_value('job_title'))
 
             if not department_name:
                 raise ValueError('Department is required')
@@ -317,94 +684,146 @@ class EmployeeAdmin(admin.ModelAdmin):
                 'last_name': last_name,
                 'department': department,
                 'job_title': job_title,
-                'employment_type': str(row.get('employment_type', 'PERMANENT')).upper(),
+                'employment_type': clean_string_value(get_field_value('employment_type')) or 'PERMANENT',
                 'is_active': True,
             }
 
-            # Optional fields
-            middle_name = str(row.get('middle_name', '')).strip()
-            if middle_name and middle_name.lower() != 'nan':
+            # Normalize employment type
+            if employee_data['employment_type']:
+                emp_type = employee_data['employment_type'].upper()
+                if emp_type in ['CONTRACT', 'PERMANENT', 'CASUAL', 'INTERN']:
+                    employee_data['employment_type'] = emp_type
+                else:
+                    employee_data['employment_type'] = 'PERMANENT'
+
+            # Optional fields with flexible handling
+            middle_name = clean_string_value(get_field_value('middle_name'))
+            if middle_name:
                 employee_data['middle_name'] = middle_name
 
-            email = str(row.get('email', '')).strip()
-            if email and email.lower() != 'nan' and '@' in email:
+            email = clean_string_value(get_field_value('email'))
+            if email and '@' in email:
                 employee_data['email'] = email
 
-            phone_number = str(row.get('phone_number', '')).strip()
-            if phone_number and phone_number.lower() != 'nan':
-                employee_data['phone_number'] = phone_number
+            phone_number = clean_string_value(get_field_value('phone_number'))
+            if phone_number:
+                # Clean phone number - remove spaces, dashes, etc.
+                phone_clean = re.sub(r'[^\d+]', '', phone_number)
+                if phone_clean:
+                    employee_data['phone_number'] = phone_clean
 
-            national_id = str(row.get('national_id', '')).strip()
-            if national_id and national_id.lower() != 'nan':
+            national_id = clean_string_value(get_field_value('national_id'))
+            if national_id:
+                # Handle numeric national IDs that might be in scientific notation
+                national_id_clean = str(parse_number_value(national_id) or national_id)
                 # Check if employee with this National ID already exists
-                if Employee.objects.filter(national_id=national_id).exists():
-                    raise ValueError(f'Employee with National ID {national_id} already exists')
-                employee_data['national_id'] = national_id
+                if Employee.objects.filter(national_id=national_id_clean).exists():
+                    raise ValueError(f'Employee with National ID {national_id_clean} already exists')
+                employee_data['national_id'] = national_id_clean
 
-            address = str(row.get('address', '')).strip()
-            if address and address.lower() != 'nan':
+            address = clean_string_value(get_field_value('address'))
+            if address:
                 employee_data['address'] = address
 
-            gender = str(row.get('gender', '')).strip().upper()
-            if gender and gender in ['M', 'F', 'O']:
-                employee_data['gender'] = gender
+            gender = clean_string_value(get_field_value('gender'))
+            if gender:
+                gender_upper = gender.upper()
+                if gender_upper in ['M', 'MALE']:
+                    employee_data['gender'] = 'M'
+                elif gender_upper in ['F', 'FEMALE']:
+                    employee_data['gender'] = 'F'
+                elif gender_upper in ['O', 'OTHER']:
+                    employee_data['gender'] = 'O'
 
-            marital_status = str(row.get('marital_status', '')).strip().upper()
-            if marital_status and marital_status in ['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED']:
-                employee_data['marital_status'] = marital_status
+            marital_status = clean_string_value(get_field_value('marital_status'))
+            if marital_status:
+                marital_upper = marital_status.upper()
+                if marital_upper in ['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED']:
+                    employee_data['marital_status'] = marital_upper
 
-            # Date fields
-            date_of_birth = row.get('date_of_birth')
-            if pd.notna(date_of_birth):
-                if isinstance(date_of_birth, str):
-                    try:
-                        employee_data['date_of_birth'] = datetime.strptime(date_of_birth, '%Y-%m-%d').date()
-                    except ValueError:
-                        try:
-                            employee_data['date_of_birth'] = datetime.strptime(date_of_birth, '%d/%m/%Y').date()
-                        except ValueError:
-                            pass
-                else:
-                    employee_data['date_of_birth'] = date_of_birth
+            # Date fields with flexible parsing
+            def parse_date_field(field_name):
+                """Parse date field with multiple format support"""
+                date_value = get_field_value(field_name)
+                if pd.notna(date_value) and date_value:
+                    date_str = clean_string_value(date_value)
+                    if date_str:
+                        # Try multiple date formats
+                        date_formats = [
+                            '%Y-%m-%d',     # 2024-01-15
+                            '%d/%m/%Y',     # 15/01/2024
+                            '%m/%d/%Y',     # 01/15/2024
+                            '%d-%m-%Y',     # 15-01-2024
+                            '%Y/%m/%d',     # 2024/01/15
+                            '%d.%m.%Y',     # 15.01.2024
+                        ]
 
-            date_hired = row.get('date_hired')
-            if pd.notna(date_hired):
-                if isinstance(date_hired, str):
-                    try:
-                        employee_data['date_hired'] = datetime.strptime(date_hired, '%Y-%m-%d').date()
-                    except ValueError:
-                        try:
-                            employee_data['date_hired'] = datetime.strptime(date_hired, '%d/%m/%Y').date()
-                        except ValueError:
-                            pass
-                else:
-                    employee_data['date_hired'] = date_hired
+                        for fmt in date_formats:
+                            try:
+                                return datetime.strptime(date_str, fmt).date()
+                            except ValueError:
+                                continue
 
-            # Statutory information
-            kra_pin = str(row.get('kra_pin', '')).strip()
-            if kra_pin and kra_pin.lower() != 'nan':
+                        # If it's already a date object
+                        if hasattr(date_value, 'date'):
+                            return date_value.date()
+                        elif hasattr(date_value, 'year'):
+                            return date_value
+                return None
+
+            date_of_birth = parse_date_field('date_of_birth')
+            if date_of_birth:
+                employee_data['date_of_birth'] = date_of_birth
+
+            date_hired = parse_date_field('date_hired')
+            if date_hired:
+                employee_data['date_hired'] = date_hired
+
+            # Statutory information with flexible handling
+            kra_pin = clean_string_value(get_field_value('kra_pin'))
+            if kra_pin:
                 employee_data['kra_pin'] = kra_pin
 
-            nssf_number = str(row.get('nssf_number', '')).strip()
-            if nssf_number and nssf_number.lower() != 'nan':
-                employee_data['nssf_number'] = nssf_number
+            nssf_number = clean_string_value(get_field_value('nssf_number'))
+            if nssf_number:
+                # Handle numeric NSSF numbers
+                nssf_clean = str(parse_number_value(nssf_number) or nssf_number)
+                employee_data['nssf_number'] = nssf_clean
 
-            shif_number = str(row.get('shif_number', '')).strip()
-            if shif_number and shif_number.lower() != 'nan':
-                employee_data['shif_number'] = shif_number
+            shif_number = clean_string_value(get_field_value('shif_number'))
+            if shif_number:
+                # Handle numeric SHIF/NHIF numbers
+                shif_clean = str(parse_number_value(shif_number) or shif_number)
+                employee_data['shif_number'] = shif_clean
 
-            # Banking information
-            bank_name = str(row.get('bank_name', '')).strip()
-            if bank_name and bank_name.lower() != 'nan':
+            # Banking information with number parsing
+            bank_name = clean_string_value(get_field_value('bank_name'))
+            if bank_name:
                 employee_data['bank_name'] = bank_name
 
-            bank_branch = str(row.get('bank_branch', '')).strip()
-            if bank_branch and bank_branch.lower() != 'nan':
+            bank_branch = clean_string_value(get_field_value('bank_branch'))
+            if bank_branch:
                 employee_data['bank_branch'] = bank_branch
 
-            account_number = str(row.get('account_number', '')).strip()
-            if account_number and account_number.lower() != 'nan':
-                employee_data['account_number'] = account_number
+            account_number = get_field_value('account_number')
+            if account_number is not None:
+                # Handle various account number formats
+                account_clean = str(parse_number_value(account_number) or clean_string_value(account_number) or '')
+                if account_clean and account_clean != 'None':
+                    employee_data['account_number'] = account_clean
+
+            # Handle salary fields (for future compatibility or logging)
+            # Note: These are not stored in Employee model but we parse them to avoid errors
+            salary_fields = ['basic_salary', 'salary', 'wage', 'pay']
+            for salary_field in salary_fields:
+                salary_value = get_field_value(salary_field)
+                if salary_value is not None:
+                    try:
+                        parsed_salary = parse_number_value(salary_value)
+                        if parsed_salary is not None:
+                            print(f"Row {row_number}: Parsed {salary_field} = {parsed_salary} (not stored in Employee model)")
+                    except Exception as e:
+                        print(f"Row {row_number}: Could not parse {salary_field} '{salary_value}': {e}")
 
             return employee_data
 
@@ -433,7 +852,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             cell.font = openpyxl.styles.Font(bold=True)
             cell.fill = openpyxl.styles.PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
 
-        # Add sample data
+        # Add sample data with various number formats
         sample_data = [
             'John', 'Doe', 'Smith', 'john.smith@example.com', '+254712345678',
             '12345678', '123 Main St, Nairobi', 'M', 'SINGLE', '1990-01-15',
@@ -442,8 +861,20 @@ class EmployeeAdmin(admin.ModelAdmin):
             'KCB Bank', 'Nairobi Branch', '1234567890'
         ]
 
+        # Add second sample with quoted and comma-separated numbers
+        sample_data_2 = [
+            'Jane', 'Mary', 'Doe', 'jane.doe@example.com', '254-723-456-789',
+            '"87654321"', '456 Oak Ave, Mombasa', 'F', 'MARRIED', '15/03/1985',
+            'HR Department', 'HR Manager', 'CONTRACT', '01/06/2023',
+            '"B987654321C"', '"9876543210"', '"SHIF987654"',
+            '"Equity Bank"', '"Mombasa Branch"', '"9,876,543,210"'
+        ]
+
         for col, value in enumerate(sample_data, 1):
             ws.cell(row=2, column=col, value=value)
+
+        for col, value in enumerate(sample_data_2, 1):
+            ws.cell(row=3, column=col, value=value)
 
         # Add instructions sheet
         instructions_ws = wb.create_sheet("Instructions")
@@ -477,8 +908,23 @@ class EmployeeAdmin(admin.ModelAdmin):
             "NOTES:",
             "- Empty cells for optional fields will be ignored",
             "- Duplicate National IDs will be rejected",
-            "- Invalid data formats will cause import errors",
-            "- Departments and job titles will be created automatically if they don't exist"
+            "- Departments and job titles will be created automatically if they don't exist",
+            "",
+            "NUMBER FORMAT SUPPORT:",
+            "- Quoted numbers: \"7000\", \"7,000\", \"7.50\"",
+            "- Unquoted numbers: 7000, 7,000, 7.50",
+            "- Scientific notation: 1.23E+12",
+            "- Phone numbers: +254712345678, 254-712-345-678",
+            "- Account numbers: 1234567890, \"1,234,567,890\"",
+            "",
+            "FLEXIBLE COLUMN NAMES:",
+            "- first_name, firstname, fname",
+            "- phone_number, phone, mobile",
+            "- national_id, id_number, id",
+            "- department, department_name, dept",
+            "- job_title, position_title, position",
+            "- date_hired, hire_date, start_date",
+            "- And many more variations..."
         ]
 
         for row, instruction in enumerate(instructions, 1):

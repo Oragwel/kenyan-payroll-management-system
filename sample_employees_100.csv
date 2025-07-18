@@ -1,0 +1,101 @@
+first_name,middle_name,last_name,id_number,email,phone,hire_date,basic_salary,department_name,position_title,employment_type,kra_pin,nssf_number,nhif_number,bank_code,bank_name,bank_branch,account_number
+Brian,,Noor,63948556,brian.noor@yahoo.com,727197004,2022-02-09,"""60000""",Human Resources,Coordinator,CASUAL,A477242668Z,5200412734.0,NHIF851815,9923.0,,Nakuru Branch,
+Dahabo,William,Wilson,45449705,dahabo.wilson@gmail.com,709163086,2024-06-28,30000.00,Research & Development,Officer,CASUAL,,,NHIF174117,1150.0,Equity Bank,Nairobi Branch,
+Abdullahi,Thomas,Torres,63744153,abdullahi.torres@outlook.com,704837890,2020-07-31,50000,Legal Department,Receptionist,PERMANENT,,4880772766.0,NHIF199541,,Family Bank,Nyeri Branch,"2,893,948,544"
+Nasra,Yusuf,Anderson,89159142,nasra.anderson@company.co.ke,727905440,2024-05-18,"""65,000""",Sales Department,Receptionist,CONTRACT,A932847118Z,3045849340.0,,5040.0,,,"1,749,364,971"
+Joyce,Mohamed,Perez,99313642,joyce.perez@yahoo.com,715786464,2020-03-01,45000,Procurement Department,Supervisor,CASUAL,,,NHIF447448,8518.0,,Kisumu Branch,9180095450
+Nasra,Safiya,Lewis,11861135,nasra.lewis@yahoo.com,714470693,2024-12-03,"50,000",Administration,Cleaner,CASUAL,,2191831049.0,,8244.0,Sidian Bank,,"""9463556264"""
+Catherine,Jennifer,Flores,63469509,catherine.flores@yahoo.com,708834373,2023-09-09,25000.00,Finance Department,Administrator,PERMANENT,A305701334Z,8323281360.0,NHIF807658,7039.0,Equity Bank,Nairobi Branch,1276215824
+Rahma,Aisha,Abdi,45226518,rahma.abdi@outlook.com,722547885,2020-07-12,60000.00,Sales Department,Driver,INTERN,,,NHIF639349,3433.0,,Kisumu Branch,"""2,938,867,158"""
+Stephanie,Ali,Robinson,17431268,stephanie.robinson@gmail.com,719709672,2021-09-16,70000.00,Procurement Department,Officer,CASUAL,,6689601048.0,NHIF227174,,Equity Bank,,"""2853085040"""
+Shamsa,Ali,Wilson,68383954,shamsa.wilson@outlook.com,723347761,2021-03-04,"""55,000""",Operations Department,Administrator,CONTRACT,A556558034Z,4590400375.0,NHIF264585,6763.0,,Kisumu Branch,"5,197,744,893"
+John,Elizabeth,Abdi,38913602,john.abdi@outlook.com,710981019,2021-12-28,"""65,000""",Legal Department,Cashier,CASUAL,A149094572Z,8691687497.0,NHIF439529,,Sidian Bank,Machakos Branch,"""7,142,394,769"""
+Amanda,Safiya,Rodriguez,70046115,amanda.rodriguez@hotmail.com,707925289,2020-05-28,"""30000""",Human Resources,Secretary,CONTRACT,A306412917Z,,,3554.0,Sidian Bank,Nairobi Branch,
+Richard,Omar,Hernandez,36574816,richard.hernandez@outlook.com,720552250,2020-10-18,30000,Procurement Department,Cleaner,CASUAL,,,NHIF724964,2813.0,Equity Bank,Meru Branch,
+Amanda,Michael,Sanchez,56749149,amanda.sanchez@hotmail.com,718742992,2021-03-13,"""45,000""",Finance Department,Secretary,INTERN,A732741191Z,5439446036.0,,,Cooperative Bank,,"""9,609,780,797"""
+Dahabo,,Ali,57289972,,726330427,2020-03-22,"""45,000""",Sales Department,Casual Worker,PERMANENT,A577476036Z,4689142829.0,,1644.0,Standard Chartered,Kisumu Branch,"""8576365935"""
+Stephanie,Patricia,Abdullahi,74358766,,701549477,2022-03-15,"""45000""",Marketing Department,Assistant Manager,PERMANENT,A723233663Z,5747802810.0,NHIF475823,3059.0,I&M Bank,,"""1,476,603,623"""
+Nasra,Amina,Lee,47396769,nasra.lee@hotmail.com,717573555,2020-09-25,"""80000""",Finance Department,Coordinator,INTERN,,3050807054.0,NHIF713178,3227.0,,Mombasa Branch,"""9481376360"""
+Rahma,Amina,Noor,24828950,rahma.noor@gmail.com,725905295,2023-03-28,45000,Human Resources,Receptionist,CONTRACT,A101775512Z,1687931728.0,NHIF262745,,Sidian Bank,Thika Branch,6455634245
+Fatuma,Jessica,Abdi,17541750,fatuma.abdi@company.co.ke,713623037,2022-08-01,"""45000.00""",Legal Department,Cleaner,CONTRACT,,1264396106.0,NHIF353187,,Diamond Trust Bank,Nyeri Branch,"2,429,058,442"
+Adan,,Brown,30859609,adan.brown@yahoo.com,722268006,2022-12-26,"50,000",Customer Service,Analyst,INTERN,,2556572734.0,,8522.0,Sidian Bank,Thika Branch,8028192714
+Thomas,Joseph,Ramirez,32650442,thomas.ramirez@yahoo.com,726910910,2020-02-19,60000.00,IT Department,Manager,INTERN,A211841546Z,,NHIF528426,,NCBA Bank,Garissa Branch,"""7413641928"""
+Halima,Joseph,Lee,44850317,halima.lee@gmail.com,729134228,2023-03-21,25000.00,Marketing Department,Manager,PERMANENT,,5635943908.0,NHIF204879,,Cooperative Bank,Nyeri Branch,"""6,703,628,739"""
+Maria,John,Farah,57414674,maria.farah@gmail.com,721566704,2020-03-28,"""25000.00""",Administration,Assistant Officer,INTERN,,8734791523.0,NHIF961483,9792.0,Standard Chartered,Thika Branch,
+Dahabo,Halima,Thompson,43138159,dahabo.thompson@company.co.ke,722542984,2024-04-03,"""80000.00""",Customer Service,Coordinator,CASUAL,A460690667Z,,,6909.0,Equity Bank,,"3,329,147,845"
+Elizabeth,Farah,Flores,69021271,,716629664,2023-10-23,"""80000""",Research & Development,Officer,CONTRACT,A905473754Z,2007055535.0,NHIF284958,,,Meru Branch,"8,035,711,158"
+Hawa,Zeinab,Jackson,85288242,,721137382,2022-12-29,"25,000",Research & Development,Supervisor,INTERN,A731830528Z,5037106597.0,NHIF917965,,Diamond Trust Bank,,"4,595,576,217"
+Nasra,Mariam,Thompson,95578817,nasra.thompson@yahoo.com,724347484,2024-11-28,"""80000.00""",Customer Service,Coordinator,CASUAL,A978214419Z,3493872182.0,NHIF549808,,,,"""4,221,400,301"""
+Janet,Charles,Scott,77318483,,708462784,2021-05-17,60000,Marketing Department,Executive,CONTRACT,,2202785041.0,NHIF447529,5398.0,Family Bank,Machakos Branch,7058076484
+Heather,,Salim,51637097,heather.salim@company.co.ke,704396148,2023-06-25,"""80000.00""",Research & Development,Analyst,CONTRACT,A759678252Z,,,7372.0,,Mombasa Branch,
+Rahma,,White,17701963,rahma.white@company.co.ke,716685377,2023-11-17,"""50000""",Customer Service,Clerk,CONTRACT,,2906829809.0,NHIF234478,9154.0,Barclays Bank,,
+Stephanie,,Harris,45258053,stephanie.harris@gmail.com,713819225,2023-01-10,"""75000.00""",Procurement Department,Security Guard,INTERN,A188579797Z,,NHIF812181,8584.0,Diamond Trust Bank,Machakos Branch,
+Shamsa,Safiya,Allen,21800601,shamsa.allen@gmail.com,702764591,2024-04-06,"""80000.00""",Marketing Department,Secretary,CONTRACT,,8917178197.0,NHIF192855,,,Nairobi Branch,"""4,021,447,435"""
+Ali,David,Ahmed,24343051,ali.ahmed@yahoo.com,717418287,2021-10-16,70000,Operations Department,Clerk,CASUAL,A886624669Z,4124765503.0,NHIF875186,4431.0,Standard Chartered,Nyeri Branch,"3,573,166,237"
+Ahmed,,Lewis,22882872,ahmed.lewis@company.co.ke,707479106,2023-10-14,35000.00,Legal Department,Coordinator,PERMANENT,A486650855Z,7588059059.0,,1728.0,NCBA Bank,,
+Virginia,Adan,Ramirez,40875255,virginia.ramirez@outlook.com,709375158,2024-11-23,"""70000""",Sales Department,Executive,CASUAL,A164552878Z,2113433939.0,NHIF887368,4763.0,,,"""3,459,127,070"""
+Daniel,,Garcia,28853264,daniel.garcia@company.co.ke,708865324,2023-01-28,"35,000",Security Department,Casual Worker,PERMANENT,A527581976Z,,,1067.0,I&M Bank,Nakuru Branch,9902897659
+Fatuma,Abdi,Lee,10484835,fatuma.lee@outlook.com,716578471,2023-03-21,45000,Procurement Department,Specialist,CASUAL,,,NHIF276653,,Family Bank,Garissa Branch,
+Janet,,Omar,26885624,,707214051,2023-04-14,"""25,000""",Marketing Department,Technician,CASUAL,,5907805645.0,,3130.0,NCBA Bank,Nakuru Branch,"""4,432,994,724"""
+Khalid,Jessica,Noor,87726955,khalid.noor@outlook.com,724657717,2024-11-26,50000.00,IT Department,Security Guard,INTERN,,3362712017.0,,7823.0,NCBA Bank,Nairobi Branch,
+Diane,David,Hassan,45379156,diane.hassan@yahoo.com,729863467,2024-05-01,"50,000",Marketing Department,Officer,PERMANENT,,5043974412.0,NHIF994939,2587.0,I&M Bank,Garissa Branch,"""6033124356"""
+Diane,,Young,65655475,diane.young@outlook.com,708434299,2020-04-01,25000.00,Legal Department,Manager,CONTRACT,A385266085Z,3910747558.0,NHIF569805,6458.0,,Mombasa Branch,"""9,624,517,891"""
+Donald,,Harris,47280687,donald.harris@hotmail.com,717694894,2023-08-26,60000,Administration,Analyst,CASUAL,A229213693Z,9217908965.0,,3260.0,,Nairobi Branch,3522124492
+Joshua,Sarah,Salim,54212701,joshua.salim@hotmail.com,709595869,2022-02-19,"""65000.00""",Marketing Department,Cleaner,CONTRACT,A596747925Z,1749458603.0,,,,Nairobi Branch,"6,488,032,506"
+Nasra,Susan,Jones,71853451,,701660310,2020-12-17,"""45000.00""",Human Resources,Coordinator,INTERN,,4977293904.0,NHIF413698,,,Kisumu Branch,"""2321514177"""
+Stephanie,,Thompson,56842049,stephanie.thompson@hotmail.com,711615319,2021-09-01,"""65,000""",Procurement Department,Casual Worker,CASUAL,A703609349Z,8045956698.0,,3581.0,Cooperative Bank,Nyeri Branch,
+Kelly,,Johnson,73107804,,713988972,2021-12-24,"""50000""",Administration,Driver,CASUAL,A723328052Z,8021043487.0,,5959.0,Sidian Bank,Eldoret Branch,
+Brian,Farah,Hamza,61745647,brian.hamza@gmail.com,712653401,2021-12-12,"25,000",Customer Service,Accountant,INTERN,A168412144Z,7322314036.0,NHIF208794,,NCBA Bank,,"2,953,686,592"
+Nicole,Richard,Miller,76977573,nicole.miller@yahoo.com,729121002,2020-02-13,50000,Ugatuzi Na Kazi,Receptionist,CASUAL,,9485815841.0,NHIF543738,,Equity Bank,Eldoret Branch,2642872400
+Steven,Jessica,Taylor,75005726,steven.taylor@yahoo.com,724480663,2020-08-24,60000,Sales Department,Cleaner,INTERN,A465544149Z,,NHIF959413,,Cooperative Bank,Nairobi Branch,6426419276
+Heather,Barbara,Torres,44513633,heather.torres@hotmail.com,710807670,2023-02-12,"80,000",Human Resources,Cashier,INTERN,A645169010Z,3808801302.0,,3134.0,Equity Bank,Thika Branch,"""7245323893"""
+Donald,Fatuma,Lee,74803875,donald.lee@outlook.com,702589114,2020-03-24,50000,IT Department,Administrator,CASUAL,,6568113574.0,NHIF510001,3687.0,I&M Bank,Kisumu Branch,"""3052779604"""
+Hawa,,Davis,20645177,hawa.davis@outlook.com,728521468,2022-03-10,"45,000",Maintenance Department,Supervisor,CONTRACT,A716409498Z,9027328148.0,NHIF738545,3102.0,NCBA Bank,Meru Branch,"""4,788,958,069"""
+Joshua,John,Ibrahim,59453923,joshua.ibrahim@outlook.com,711451841,2020-09-28,75000.00,Ugatuzi Na Kazi,Cashier,PERMANENT,A259994175Z,6863622001.0,,,Diamond Trust Bank,Garissa Branch,7825818649
+Hassan,,Ramirez,64584914,hassan.ramirez@outlook.com,729210529,2021-01-15,80000.00,Administration,Accountant,CONTRACT,A721057493Z,1758234938.0,NHIF293214,,Family Bank,Kisumu Branch,"3,506,310,347"
+Victoria,Omar,Ali,38079512,victoria.ali@company.co.ke,707967993,2024-10-03,65000.00,IT Department,Supervisor,INTERN,A597223527Z,6553688635.0,NHIF646562,7122.0,Cooperative Bank,Meru Branch,"7,727,641,536"
+Catherine,Mary,Miller,65144547,catherine.miller@gmail.com,721344223,2024-08-28,"""55000""",Legal Department,Supervisor,INTERN,A372725174Z,4709706158.0,NHIF136458,,Cooperative Bank,Meru Branch,"""1,480,456,146"""
+Sarah,Mary,Abdi,48128025,sarah.abdi@yahoo.com,703208964,2020-10-05,"""65000""",Sales Department,Cashier,CONTRACT,,,NHIF855914,6271.0,Sidian Bank,,"""2,513,228,500"""
+Hamza,Mariam,Noor,23049721,hamza.noor@company.co.ke,723325989,2022-11-07,65000,Human Resources,Specialist,CASUAL,,1238556635.0,NHIF507896,,Cooperative Bank,,"1,712,271,909"
+Ruth,,Ali,52979321,ruth.ali@hotmail.com,710570552,2023-01-15,"""60000""",Administration,Driver,PERMANENT,A975798480Z,1886848106.0,,,NCBA Bank,Nyeri Branch,
+Jessica,Karen,Hamza,50763797,,712247667,2020-12-30,"""65000.00""",Maintenance Department,Manager,CASUAL,A664612757Z,2437143788.0,NHIF754373,,Diamond Trust Bank,Nyeri Branch,
+Diane,,Jones,68100159,diane.jones@yahoo.com,707120191,2020-05-03,"70,000",Operations Department,Assistant Officer,CONTRACT,A311887840Z,3603604763.0,NHIF228414,7530.0,Diamond Trust Bank,Eldoret Branch,
+Steven,Thomas,Thompson,85101454,,729366387,2022-12-21,"""60000""",Operations Department,Specialist,PERMANENT,,,NHIF365740,,KCB Bank,Garissa Branch,"3,032,175,467"
+Khadija,Mohamed,Wilson,43230474,khadija.wilson@outlook.com,723594540,2024-01-27,"""65000.00""",Procurement Department,Cashier,INTERN,,3061850645.0,,5814.0,Equity Bank,Nairobi Branch,
+Joshua,John,Nguyen,16329731,joshua.nguyen@outlook.com,708156749,2022-09-27,"25,000",Sales Department,Executive,CASUAL,,,NHIF724667,6666.0,,Nakuru Branch,3298819137
+Virginia,William,Issa,48960444,virginia.issa@hotmail.com,711706880,2021-12-26,"""55000.00""",Marketing Department,Cashier,INTERN,,3806549689.0,NHIF565177,5125.0,,Thika Branch,4287087555
+Rachel,Joseph,Martin,18224376,rachel.martin@outlook.com,713240162,2021-07-25,25000.00,Operations Department,Manager,PERMANENT,A468455983Z,,NHIF668385,9700.0,Barclays Bank,,
+Ali,Linda,Omar,18883203,ali.omar@hotmail.com,709145580,2021-02-14,"65,000",Administration,Driver,PERMANENT,A224546329Z,8803318655.0,NHIF654931,6587.0,Sidian Bank,Meru Branch,8123250299
+Dahabo,Jennifer,Allen,79622079,dahabo.allen@gmail.com,708605473,2021-03-07,30000,Ugatuzi Na Kazi,Coordinator,INTERN,,7179541145.0,,1125.0,Equity Bank,Kisumu Branch,"""2,660,995,006"""
+Heather,,Khalid,24272103,heather.khalid@gmail.com,716358263,2023-09-23,"55,000",Maintenance Department,Accountant,CONTRACT,A325019469Z,7195842542.0,NHIF373417,9245.0,I&M Bank,,"2,467,056,479"
+Robert,Charles,Omar,50333557,robert.omar@outlook.com,710724679,2020-11-02,70000.00,Research & Development,Receptionist,INTERN,A207487614Z,9471874387.0,NHIF647427,2273.0,,Machakos Branch,"""8,163,676,187"""
+Omar,,Torres,66051115,,725694900,2021-06-26,50000,Security Department,Receptionist,INTERN,A185328044Z,1628676126.0,NHIF476073,,,Nakuru Branch,"3,572,627,207"
+Khalid,Nasra,Ahmed,63848455,khalid.ahmed@outlook.com,727121266,2021-10-27,55000,Marketing Department,Cleaner,CONTRACT,A863792952Z,,NHIF417042,9248.0,NCBA Bank,Machakos Branch,"""4,628,130,197"""
+Diane,Ali,Gedi,76219441,diane.gedi@gmail.com,713637498,2023-10-21,"""40000.00""",Research & Development,Coordinator,PERMANENT,A387285247Z,,NHIF348934,5804.0,Sidian Bank,Kisumu Branch,1903226241
+Ronald,,Wright,18595378,ronald.wright@outlook.com,725306537,2020-05-09,70000,Finance Department,Security Guard,PERMANENT,A842959683Z,4259048044.0,NHIF696641,,NCBA Bank,Thika Branch,"4,082,702,980"
+Sahra,Jennifer,Omar,24816586,sahra.omar@outlook.com,709258962,2023-02-27,35000.00,Marketing Department,Driver,PERMANENT,A344410492Z,6183240829.0,NHIF101443,4860.0,Family Bank,Eldoret Branch,"1,234,170,645"
+James,Linda,Thompson,49759430,james.thompson@hotmail.com,729473037,2022-07-07,55000,IT Department,Security Guard,CONTRACT,,8671169920.0,NHIF363864,,Barclays Bank,,"""5409301302"""
+Julie,Omar,Sheikh,93744525,julie.sheikh@outlook.com,701218759,2021-09-10,"""55,000""",Ugatuzi Na Kazi,Executive,CASUAL,,3465940068.0,,3631.0,Cooperative Bank,Mombasa Branch,"""3,037,509,095"""
+Robert,,Young,37032585,robert.young@hotmail.com,712279722,2024-08-12,80000,Marketing Department,Officer,CONTRACT,,1877556206.0,NHIF318372,,Barclays Bank,Machakos Branch,"8,822,596,031"
+Stephanie,Richard,Ahmed,66701853,stephanie.ahmed@gmail.com,724433274,2024-05-01,"""35000.00""",Human Resources,Analyst,CASUAL,,4761432394.0,NHIF940796,,,,9097318611
+Paul,,Noor,66410461,paul.noor@yahoo.com,712331770,2020-07-29,"""60,000""",IT Department,Manager,CASUAL,A576346352Z,1322898089.0,,,Equity Bank,Nakuru Branch,
+Hassan,Abdi,Harris,69064497,hassan.harris@gmail.com,719606216,2024-03-05,65000.00,Administration,Secretary,INTERN,A966639849Z,,,8802.0,Barclays Bank,Thika Branch,"9,386,986,249"
+Daniel,John,Yusuf,81736478,daniel.yusuf@hotmail.com,723746117,2022-09-25,"""80,000""",Customer Service,Specialist,PERMANENT,A424962359Z,9078412517.0,NHIF891398,8059.0,Diamond Trust Bank,Mombasa Branch,2254931324
+Ashley,Barbara,Osman,77422401,ashley.osman@outlook.com,719739446,2021-02-08,"""75,000""",Finance Department,Security Guard,CONTRACT,A499265722Z,3268788634.0,NHIF792040,,Barclays Bank,Meru Branch,
+Janet,Yusuf,Sheikh,78276585,,723754745,2022-12-23,35000.00,Marketing Department,Analyst,CONTRACT,A900847116Z,,,7510.0,NCBA Bank,,"8,477,360,516"
+Nasra,,Allen,54036600,nasra.allen@hotmail.com,715779682,2021-04-30,"""35000.00""",Finance Department,Officer,CONTRACT,A595406663Z,,,6119.0,Equity Bank,Nakuru Branch,8034098470
+Rachel,Michael,Thompson,84578540,rachel.thompson@hotmail.com,712410607,2022-09-19,"40,000",Operations Department,Manager,INTERN,,3917847653.0,NHIF681003,,Cooperative Bank,Thika Branch,5133013433
+Amanda,Joseph,Robinson,92441517,amanda.robinson@outlook.com,717716289,2021-02-17,"""80000.00""",Legal Department,Accountant,INTERN,A901810382Z,1629343758.0,,5743.0,I&M Bank,Nakuru Branch,
+Khadija,,Taylor,27020992,khadija.taylor@hotmail.com,708456432,2024-04-05,"""25,000""",Security Department,Specialist,CONTRACT,,1484795421.0,NHIF633245,7027.0,Cooperative Bank,Garissa Branch,2399888712
+Hassan,,Salim,89360005,hassan.salim@gmail.com,706764282,2023-10-04,"""65000""",Legal Department,Secretary,PERMANENT,A326483493Z,1489613280.0,NHIF799710,,Family Bank,Machakos Branch,"""8841563674"""
+Janet,,Moore,68591225,janet.moore@gmail.com,713524677,2020-01-31,50000.00,Customer Service,Supervisor,CONTRACT,,3533798344.0,NHIF507865,1074.0,Standard Chartered,Meru Branch,
+Shamsa,Jessica,Miller,20415609,shamsa.miller@yahoo.com,728205297,2023-07-22,45000,Customer Service,Accountant,PERMANENT,,,,,,Machakos Branch,"""2816900948"""
+Catherine,Yusuf,Wright,27000120,catherine.wright@yahoo.com,704590533,2020-10-27,"50,000",Sales Department,Executive,CASUAL,A824468755Z,4806880294.0,NHIF981945,9084.0,Equity Bank,Thika Branch,"5,938,692,576"
+Virginia,Susan,Abdi,18437723,virginia.abdi@outlook.com,712558888,2023-11-14,60000.00,Security Department,Technician,PERMANENT,,5706386958.0,NHIF792373,,Standard Chartered,Nakuru Branch,1285786925
+Jane,Mariam,Osman,59780940,jane.osman@company.co.ke,724531609,2023-09-24,"""25,000""",Maintenance Department,Analyst,PERMANENT,,,,,Standard Chartered,Meru Branch,"""1713734871"""
+Brian,Abdi,Ramirez,15636954,brian.ramirez@company.co.ke,727494816,2020-12-16,35000.00,Finance Department,Officer,PERMANENT,,,NHIF246969,1951.0,,Kisumu Branch,
+Kevin,Halima,Jones,39823634,,704866508,2024-07-26,"""55000.00""",Administration,Specialist,CONTRACT,,,,,I&M Bank,Nakuru Branch,
+Dahabo,Mohamed,Wilson,24135065,dahabo.wilson@outlook.com,714804401,2020-05-17,35000.00,Marketing Department,Cleaner,PERMANENT,,,,,I&M Bank,Eldoret Branch,"9,288,223,673"
+Robert,Sarah,Ahmed,66709718,robert.ahmed@outlook.com,724763536,2021-01-22,"""80000""",Maintenance Department,Manager,INTERN,A506314179Z,5544632233.0,NHIF224439,7203.0,Sidian Bank,Garissa Branch,"3,130,640,509"
+Fatuma,,Moore,86857275,fatuma.moore@yahoo.com,721283517,2020-08-30,80000.00,Legal Department,Technician,PERMANENT,A540171097Z,4310548010.0,,1425.0,I&M Bank,Mombasa Branch,4757497548
+Omar,,Williams,69731357,omar.williams@hotmail.com,722961475,2021-04-17,"40,000",Sales Department,Supervisor,INTERN,A494504332Z,1477252534.0,,4233.0,Sidian Bank,Thika Branch,"4,698,330,080"

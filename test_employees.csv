@@ -1,0 +1,4 @@
+first_name,last_name,department,job_title,email,phone_number,employment_type
+John,Doe,IT Department,Software Developer,john.doe@example.com,+254712345678,PERMANENT
+Jane,Smith,HR Department,HR Manager,jane.smith@example.com,+254723456789,PERMANENT
+Mike,Johnson,Finance Department,Accountant,mike.johnson@example.com,+254734567890,CONTRACT

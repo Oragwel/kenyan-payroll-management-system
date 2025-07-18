@@ -92,6 +92,10 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# Data upload settings - Increase limits for bulk operations
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 50000  # Increase to handle large employee lists
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800  # 50MB (increase from default 2.5MB)
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [

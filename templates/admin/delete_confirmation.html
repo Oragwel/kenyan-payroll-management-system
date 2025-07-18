@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .warning-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #856404;
+        }
+        .warning-box h3 {
+            color: #d63384;
+            margin-top: 0;
+        }
+        .delete-count {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {% trans 'Delete multiple objects' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+{% if warning_message %}
+<div class="warning-box">
+    <h3>⚠️ DANGER ZONE</h3>
+    <p>{{ warning_message }}</p>
+</div>
+{% endif %}
+
+{% if deletable_objects %}
+    <p class="delete-count">
+        {% blocktrans count counter=deletable_objects|length %}
+            Are you sure you want to delete the selected {{ objects_name }}? 
+        {% plural %}
+            Are you sure you want to delete the selected {{ objects_name }}?
+        {% endblocktrans %}
+    </p>
+    
+    {% if queryset.count > 10 %}
+        <p><strong>Showing first 10 of {{ queryset.count }} total employees:</strong></p>
+    {% endif %}
+    
+    <ul class="object-list">
+    {% for deletable_object in deletable_objects %}
+        <li>{{ deletable_object }}</li>
+    {% endfor %}
+    {% if queryset.count > 10 %}
+        <li><em>... and {{ queryset.count|add:"-10" }} more employees</em></li>
+    {% endif %}
+    </ul>
+    
+    <form method="post">{% csrf_token %}
+        <div>
+            {% for obj in queryset %}
+                <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+            {% endfor %}
+            <input type="hidden" name="action" value="{% if 'delete_all' in request.POST.action %}delete_all_employees{% else %}efficient_delete_selected{% endif %}" />
+            <input type="hidden" name="post" value="yes" />
+            {% if warning_message %}
+                <p><strong>Type "DELETE ALL" to confirm:</strong></p>
+                <input type="text" name="confirmation" placeholder="Type DELETE ALL" required 
+                       pattern="DELETE ALL" title="You must type exactly 'DELETE ALL' to confirm" />
+                <br><br>
+            {% endif %}
+            <input type="submit" value="{% trans 'Yes, I'm sure' %}" class="default" />
+            <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">{% trans "No, take me back" %}</a>
+        </div>
+    </form>
+{% else %}
+    <p>{% trans "No objects selected." %}</p>
+    <a href="{% url opts|admin_urlname:'changelist' %}" class="button cancel-link">{% trans "Go back" %}</a>
+{% endif %}
+{% endblock %}
