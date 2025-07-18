@@ -304,6 +304,20 @@ class Employee(models.Model):
         }
         return bank_name_mapping.get(self.bank_code, '')
 
+    def get_default_branch_from_code(self):
+        """Get default branch from bank code"""
+        # Create a mapping of code to default branch (usually main/head office)
+        default_branch_mapping = {
+            '12053': 'Head Office',
+            '68058': 'Head Office',
+            '01169': 'Head Office',
+            '11081': 'Head Office',
+            '03017': 'Head Office',
+            '74004': 'Head Office',
+            '72006': 'Head Office',
+        }
+        return default_branch_mapping.get(self.bank_code, '')
+
     def get_full_bank_info(self):
         """Get formatted bank information with code and name"""
         if self.bank_code and self.bank_name:
@@ -341,12 +355,18 @@ class Employee(models.Model):
         if self.marital_status == '':
             self.marital_status = ''  # Keep as empty string for now
 
-        # Auto-populate bank name from bank code if bank code is selected
-        # Only auto-populate if bank name is empty or if it matches a bank code value
+        # Auto-populate bank name and branch from bank code if bank code is selected
         if self.bank_code:
             bank_name_from_code = self.get_bank_name_from_code()
+            default_branch_from_code = self.get_default_branch_from_code()
+
+            # Auto-populate bank name if empty or if it matches the code-derived name
             if not self.bank_name or self.bank_name == bank_name_from_code:
                 self.bank_name = bank_name_from_code
+
+            # Auto-populate branch if empty and we have a default branch for this bank code
+            if not self.bank_branch and default_branch_from_code:
+                self.bank_branch = default_branch_from_code
 
         super().save(*args, **kwargs)
 

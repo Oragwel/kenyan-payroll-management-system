@@ -213,7 +213,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             'fields': ('kra_pin', 'nssf_number', 'shif_number')
         }),
         ('Banking Information', {
-            'fields': ('bank_name', 'bank_branch', 'account_number')
+            'fields': ('bank_code', 'bank_name', 'bank_branch', 'account_number')
         }),
         ('System Information', {
             'fields': ('user',),
@@ -256,7 +256,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                     'fields': ('kra_pin', 'nssf_number', 'shif_number')
                 }),
                 ('Banking Information', {
-                    'fields': ('bank_name', 'bank_branch', 'account_number')
+                    'fields': ('bank_code', 'bank_name', 'bank_branch', 'account_number')
                 }),
                 ('System Information', {
                     'fields': ('user',),
@@ -526,6 +526,7 @@ class EmployeeAdmin(admin.ModelAdmin):
                 'kra_pin': ['kra_pin', 'kra', 'pin'],
                 'nssf_number': ['nssf_number', 'nssf', 'nssf_no'],
                 'shif_number': ['shif_number', 'nhif_number', 'shif', 'nhif'],
+                'bank_code': ['bank_code', 'bank_cd', 'bankcode', 'code'],
                 'bank_name': ['bank_name', 'bank'],
                 'bank_branch': ['bank_branch', 'branch'],
                 'account_number': ['account_number', 'account_no', 'account']
@@ -690,14 +691,42 @@ class EmployeeAdmin(admin.ModelAdmin):
                 shif_clean = str(parse_number_value(shif_number) or shif_number)
                 employee_data['shif_number'] = shif_clean
 
-            # Banking information with number parsing
+            # Banking information with auto-population from bank code
+            bank_code = clean_string_value(get_field_value('bank_code'))
             bank_name = clean_string_value(get_field_value('bank_name'))
-            if bank_name:
-                employee_data['bank_name'] = bank_name
-
             bank_branch = clean_string_value(get_field_value('bank_branch'))
-            if bank_branch:
-                employee_data['bank_branch'] = bank_branch
+
+            # Set bank code first
+            if bank_code:
+                employee_data['bank_code'] = bank_code
+                print(f"Row {row_number}: Found bank_code = {bank_code}")
+
+                # Create a temporary employee instance to get auto-populated values
+                temp_employee = Employee(bank_code=bank_code)
+                auto_bank_name = temp_employee.get_bank_name_from_code()
+                auto_bank_branch = temp_employee.get_default_branch_from_code()
+
+                # Use provided bank name if available, otherwise use auto-populated
+                if bank_name:
+                    employee_data['bank_name'] = bank_name
+                    print(f"Row {row_number}: Using provided bank_name = {bank_name}")
+                elif auto_bank_name:
+                    employee_data['bank_name'] = auto_bank_name
+                    print(f"Row {row_number}: Auto-populated bank_name = {auto_bank_name} from code {bank_code}")
+
+                # Use provided bank branch if available, otherwise use auto-populated
+                if bank_branch:
+                    employee_data['bank_branch'] = bank_branch
+                    print(f"Row {row_number}: Using provided bank_branch = {bank_branch}")
+                elif auto_bank_branch:
+                    employee_data['bank_branch'] = auto_bank_branch
+                    print(f"Row {row_number}: Auto-populated bank_branch = {auto_bank_branch} from code {bank_code}")
+            else:
+                # No bank code provided, use manual values if available
+                if bank_name:
+                    employee_data['bank_name'] = bank_name
+                if bank_branch:
+                    employee_data['bank_branch'] = bank_branch
 
             account_number = get_field_value('account_number')
             if account_number is not None:
@@ -739,7 +768,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             'national_id', 'address', 'gender', 'marital_status', 'date_of_birth',
             'department', 'job_title', 'employment_type', 'date_hired',
             'kra_pin', 'nssf_number', 'shif_number',
-            'bank_name', 'bank_branch', 'account_number'
+            'bank_code', 'bank_name', 'bank_branch', 'account_number'
         ]
 
         # Add headers
@@ -754,7 +783,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             '12345678', '123 Main St, Nairobi', 'M', 'SINGLE', '1990-01-15',
             'IT Department', 'Software Developer', 'PERMANENT', '2024-01-01',
             'A123456789B', '1234567890', 'SHIF123456',
-            'KCB Bank', 'Nairobi Branch', '1234567890'
+            '01169', 'KCB Bank', 'Nairobi Branch', '1234567890'
         ]
 
         # Add second sample with quoted and comma-separated numbers
@@ -763,7 +792,7 @@ class EmployeeAdmin(admin.ModelAdmin):
             '"87654321"', '456 Oak Ave, Mombasa', 'F', 'MARRIED', '15/03/1985',
             'HR Department', 'HR Manager', 'CONTRACT', '01/06/2023',
             '"B987654321C"', '"9876543210"', '"SHIF987654"',
-            '"Equity Bank"', '"Mombasa Branch"', '"9,876,543,210"'
+            '"68058"', '"Equity Bank"', '"Mombasa Branch"', '"9,876,543,210"'
         ]
 
         for col, value in enumerate(sample_data, 1):
@@ -797,8 +826,11 @@ class EmployeeAdmin(admin.ModelAdmin):
             "- kra_pin: KRA PIN (format: A123456789B)",
             "- nssf_number: NSSF number",
             "- shif_number: SHIF number",
-            "- bank_name: Bank name",
-            "- bank_branch: Bank branch",
+            "- bank_code: Bank code (e.g., 01169 for KCB, 68058 for Equity)",
+            "  * If bank_code is provided, bank_name and bank_branch will be auto-populated",
+            "  * Supported codes: 01169=KCB, 68058=Equity, 11081=Cooperative, 03017=Absa, 12053=National, 74004=Premier, 72006=Gulf African",
+            "- bank_name: Bank name (auto-populated from bank_code if not provided)",
+            "- bank_branch: Bank branch (auto-populated to 'Head Office' if not provided)",
             "- account_number: Bank account number",
             "",
             "NOTES:",

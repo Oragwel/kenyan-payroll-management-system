@@ -1,0 +1,6 @@
+first_name,last_name,department_name,position_title,bank_code,bank_name,bank_branch,basic_salary
+John,Doe,IT Department,Developer,01169,,,50000
+Jane,Smith,HR Department,Manager,68058,Custom Bank Name,,60000
+Bob,Johnson,Finance Department,Accountant,11081,,Custom Branch,45000
+Alice,Brown,IT Department,Analyst,03017,,,55000
+Mike,Wilson,Operations Department,Supervisor,,Manual Bank,Manual Branch,40000

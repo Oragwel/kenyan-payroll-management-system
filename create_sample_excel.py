@@ -50,8 +50,13 @@ job_titles = [
 employment_types = ['PERMANENT', 'CONTRACT', 'CASUAL', 'INTERN']
 
 banks = [
-    'KCB Bank', 'Equity Bank', 'Cooperative Bank', 'Standard Chartered', 'Barclays Bank',
-    'NCBA Bank', 'Diamond Trust Bank', 'I&M Bank', 'Family Bank', 'Sidian Bank'
+    ('01169', 'KCB Bank'),
+    ('68058', 'Equity Bank'),
+    ('11081', 'Cooperative Bank'),
+    ('03017', 'Absa Bank'),
+    ('12053', 'National Bank'),
+    ('74004', 'Premier Bank'),
+    ('72006', 'Gulf African Bank')
 ]
 
 bank_branches = [
@@ -136,12 +141,25 @@ for i in range(100):
         'kra_pin': f'A{random.randint(100000000, 999999999)}Z' if random.random() > 0.4 else '',  # 60% have KRA PIN
         'nssf_number': str(random.randint(1000000000, 9999999999)) if random.random() > 0.3 else '',  # 70% have NSSF
         'nhif_number': f'NHIF{random.randint(100000, 999999)}' if random.random() > 0.3 else '',  # 70% have NHIF
-        'bank_code': str(random.randint(1000, 9999)) if random.random() > 0.5 else '',  # 50% have bank code
-        'bank_name': random.choice(banks) if random.random() > 0.2 else '',  # 80% have bank
-        'bank_branch': random.choice(bank_branches) if random.random() > 0.2 else '',  # 80% have branch
-        'account_number': generate_account_number() if random.random() > 0.2 else '',  # 80% have account
     }
-    
+
+    # Handle bank information consistently
+    if random.random() > 0.2:  # 80% have bank info
+        selected_bank = random.choice(banks)
+        employee['bank_code'] = selected_bank[0]
+        employee['bank_name'] = selected_bank[1]
+        employee['bank_branch'] = random.choice(bank_branches)
+    else:
+        employee['bank_code'] = ''
+        employee['bank_name'] = ''
+        employee['bank_branch'] = ''
+
+    # Add account number if bank info exists
+    if employee['bank_code']:
+        employee['account_number'] = generate_account_number()
+    else:
+        employee['account_number'] = ''
+
     employees.append(employee)
 
 # Create DataFrame
